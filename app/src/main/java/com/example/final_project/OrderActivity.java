@@ -3,44 +3,47 @@ package com.example.final_project;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-public class MainScreenActivity extends AppCompatActivity {
+import java.util.ArrayList;
+import java.util.List;
 
-    private TextView tvWelcome;
-    private Button btnProfile;
+public class OrderActivity extends AppCompatActivity {
+
+    private TextView tvOrdersHeader;
+    private RecyclerView recyclerOrders;
     private BottomNavigationView bottomNavigationView;
+    private OrderAdapter orderAdapter;
+    private List<String> orderList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main_screen_activity);
+        setContentView(R.layout.history);
 
-        tvWelcome = findViewById(R.id.tvWelcome);
-        btnProfile = findViewById(R.id.btnProfile);
+        tvOrdersHeader = findViewById(R.id.tvOrdersHeader);
+        recyclerOrders = findViewById(R.id.recyclerOrders);
         bottomNavigationView = findViewById(R.id.bottom_navigation);
 
-        String username = getIntent().getStringExtra("username");
-        if (username != null && !username.isEmpty()) {
-            tvWelcome.setText("Welcome, " + username + "!");
-        } else {
-            tvWelcome.setText("Welcome to A-Study-Hub!");
-        }
+        // Gắn dữ liệu demo cho RecyclerView
+        orderList = new ArrayList<>();
+        orderList.add("Premium Document Pack - 01/10/2025");
+        orderList.add("Advanced Study Guide - 15/09/2025");
+        orderList.add("AI Research Bundle - 20/08/2025");
 
-        btnProfile.setOnClickListener(v -> {
-            Intent intent = new Intent(MainScreenActivity.this, ProfileActivity.class);
-            startActivity(intent);
-        });
+        orderAdapter = new OrderAdapter(orderList);
+        recyclerOrders.setLayoutManager(new LinearLayoutManager(this));
+        recyclerOrders.setAdapter(orderAdapter);
 
-        // Gắn mặc định Home khi mở
-        bottomNavigationView.setSelectedItemId(R.id.nav_home);
+        // chọn mặc định Orders tab
+        bottomNavigationView.setSelectedItemId(R.id.nav_orders);
 
         bottomNavigationView.setOnItemSelectedListener(new BottomNavigationView.OnItemSelectedListener() {
             @Override
@@ -48,26 +51,24 @@ public class MainScreenActivity extends AppCompatActivity {
                 int id = item.getItemId();
 
                 if (id == R.id.nav_home) {
-                    Toast.makeText(MainScreenActivity.this, "Home selected", Toast.LENGTH_SHORT).show();
-                    return true;
-                } else if (id == R.id.nav_orders) {
-                    Intent intent = new Intent(MainScreenActivity.this, OrderActivity.class);
+                    Intent intent = new Intent(OrderActivity.this, MainScreenActivity.class);
                     startActivity(intent);
                     overridePendingTransition(0, 0);
                     return true;
+                } else if (id == R.id.nav_orders) {
+                    return true; // đang ở Orders thì không làm gì
                 } else if (id == R.id.nav_profile) {
-                    Intent intent = new Intent(MainScreenActivity.this, ProfileActivity.class);
+                    Intent intent = new Intent(OrderActivity.this, ProfileActivity.class);
                     startActivity(intent);
                     overridePendingTransition(0, 0);
                     return true;
                 } else if (id == R.id.nav_logout) {
-                    Intent intent = new Intent(MainScreenActivity.this, LoginActivity.class);
+                    Intent intent = new Intent(OrderActivity.this, LoginActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);
                     finish();
                     return true;
                 }
-
                 return false;
             }
         });

@@ -44,6 +44,16 @@
             android:exported="false"
             android:theme="@style/Theme.Finalproject" />
 
+        <activity
+            android:name=".OrderActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Finalproject"/>
+        <activity
+            android:name=".ProfileActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Finalproject"/>
+
+
     </application>
 
 </manifest>
