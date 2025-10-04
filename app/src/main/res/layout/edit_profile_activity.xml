@@ -23,7 +23,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:src="@drawable/ic_person"
-                android:background="@drawable/circle_white"
                 android:padding="12dp"
                 android:contentDescription="Avatar"/>
 
@@ -33,7 +32,6 @@
                 android:layout_height="36dp"
                 android:src="@android:drawable/ic_menu_camera"
                 android:background="@drawable/circle_white"
-                android:tint="#2C3E50"
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentEnd="true"
                 android:contentDescription="Change Avatar"/>
