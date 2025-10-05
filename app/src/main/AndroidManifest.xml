@@ -52,7 +52,10 @@
             android:name=".ProfileActivity"
             android:exported="false"
             android:theme="@style/Theme.Finalproject"/>
-
+        <activity
+            android:name=".GoogleLoginActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Finalproject"/>
 
     </application>
 
