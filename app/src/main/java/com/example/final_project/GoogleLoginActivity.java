@@ -1,14 +1,13 @@
 package com.example.final_project;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-
-import com.example.final_project.R;
 
 public class GoogleLoginActivity extends AppCompatActivity {
 
@@ -44,6 +43,11 @@ public class GoogleLoginActivity extends AppCompatActivity {
             }
 
             Toast.makeText(this, "Login successful: " + email, Toast.LENGTH_SHORT).show();
+
+            Intent intent = new Intent(GoogleLoginActivity.this, MainScreenActivity.class);
+            intent.putExtra("USER_EMAIL", email);
+            startActivity(intent);
+            finish();
         });
 
         btnCancel.setOnClickListener(v -> {

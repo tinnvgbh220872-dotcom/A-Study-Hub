@@ -65,9 +65,10 @@ public class LoginActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        tvForgotPassword.setOnClickListener(v ->
-                Toast.makeText(LoginActivity.this, "Password reset feature coming soon", Toast.LENGTH_SHORT).show()
-        );
+        tvForgotPassword.setOnClickListener(v -> {
+            Intent intent = new Intent(LoginActivity.this, ForgotPasswordActivity.class);
+            startActivity(intent);
+        });
 
         btnGoogle.setOnClickListener(v -> {
             Intent intent = new Intent(LoginActivity.this, GoogleLoginActivity.class);
