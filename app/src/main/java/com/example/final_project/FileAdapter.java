@@ -1,0 +1,74 @@
+package com.example.final_project;
+
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+import java.util.List;
+
+public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder> {
+
+    private Context context;
+    private List<FileItem> fileList;
+
+    public FileAdapter(Context context, List<FileItem> fileList) {
+        this.context = context;
+        this.fileList = fileList;
+    }
+
+    @NonNull
+    @Override
+    public FileViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(context).inflate(R.layout.item_file, parent, false);
+        return new FileViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull FileViewHolder holder, int position) {
+        FileItem file = fileList.get(position);
+        holder.tvName.setText(file.getName());
+        holder.tvSize.setText(file.getSize() + " bytes");
+        Uri uri = Uri.parse(file.getUri());
+        String mimeType = context.getContentResolver().getType(uri);
+
+        if (mimeType != null && mimeType.startsWith("image/")) {
+            holder.ivFileIcon.setImageURI(uri);
+        } else {
+            holder.ivFileIcon.setImageResource(R.drawable.ic_file);
+        }
+
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setDataAndType(uri, mimeType);
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            context.startActivity(intent);
+        });
+    }
+    public void setFileList(List<FileItem> newFileList) {
+        this.fileList = newFileList;
+        notifyDataSetChanged();
+    }
+
+    @Override
+    public int getItemCount() {
+        return fileList.size();
+    }
+
+    public static class FileViewHolder extends RecyclerView.ViewHolder {
+        ImageView ivFileIcon;
+        TextView tvName, tvSize;
+
+        public FileViewHolder(@NonNull View itemView) {
+            super(itemView);
+            ivFileIcon = itemView.findViewById(R.id.ivFileIcon);
+            tvName = itemView.findViewById(R.id.tvName);
+            tvSize = itemView.findViewById(R.id.tvSize);
+        }
+    }
+}

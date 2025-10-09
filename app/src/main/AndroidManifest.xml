@@ -65,6 +65,10 @@
             android:name=".ForgotPasswordActivity"
             android:exported="false"
             android:theme="@style/Theme.Finalproject"/>
+        <activity
+            android:name=".UploadFileActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Finalproject"/>
 
     </application>
 
