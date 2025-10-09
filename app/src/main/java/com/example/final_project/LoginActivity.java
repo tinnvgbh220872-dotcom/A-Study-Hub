@@ -1,9 +1,11 @@
 package com.example.final_project;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.View;
+import android.util.Patterns;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -18,6 +20,7 @@ public class LoginActivity extends AppCompatActivity {
     private Button btnSignin, btnSignup;
     private TextView tvForgotPassword;
     private ImageView btnGoogle, btnFacebook;
+    private UserDatabase dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,37 +35,13 @@ public class LoginActivity extends AppCompatActivity {
         btnGoogle = findViewById(R.id.btnGoogle);
         btnFacebook = findViewById(R.id.btnFacebook);
 
-        btnSignin.setOnClickListener(v -> {
-            String email = etEmail.getText().toString().trim();
-            String password = etPassword.getText().toString().trim();
+        dbHelper = new UserDatabase(this);
 
-            if (TextUtils.isEmpty(email)) {
-                etEmail.setError("Please enter your email or username");
-                return;
-            }
-            if (TextUtils.isEmpty(password)) {
-                etPassword.setError("Please enter your password");
-                return;
-            }
-
-            if (email.equals("admin") && password.equals("admin123")) {
-                Intent intent = new Intent(LoginActivity.this, MainScreenActivity.class);
-                startActivity(intent);
-                Toast.makeText(LoginActivity.this, "Admin login successful", Toast.LENGTH_SHORT).show();
-                finish();
-            } else if (email.equals("user") && password.equals("user123")) {
-                Intent intent = new Intent(LoginActivity.this, MainScreenActivity.class);
-                startActivity(intent);
-                Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
-                finish();
-            } else {
-                Toast.makeText(LoginActivity.this, "Invalid credentials", Toast.LENGTH_SHORT).show();
-            }
-        });
-
+        btnSignin.setOnClickListener(v -> handleLogin());
         btnSignup.setOnClickListener(v -> {
             Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
             startActivity(intent);
+            finish();
         });
 
         tvForgotPassword.setOnClickListener(v -> {
@@ -78,8 +57,37 @@ public class LoginActivity extends AppCompatActivity {
         btnFacebook.setOnClickListener(v -> {
             Intent intent = new Intent(LoginActivity.this, MainScreenActivity.class);
             startActivity(intent);
-            Toast.makeText(LoginActivity.this, "Facebook login successful", Toast.LENGTH_SHORT).show();
             finish();
         });
+    }
+
+    private void handleLogin() {
+        String email = etEmail.getText().toString().trim();
+        String password = etPassword.getText().toString().trim();
+
+        if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
+            Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            Toast.makeText(this, "Invalid email address", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM users WHERE email=? AND password=?", new String[]{email, password});
+
+        if (cursor.moveToFirst()) {
+            Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(LoginActivity.this, MainScreenActivity.class);
+            intent.putExtra("userEmail", email);
+            startActivity(intent);
+            finish();
+        } else {
+            Toast.makeText(this, "Incorrect email or password", Toast.LENGTH_SHORT).show();
+        }
+        cursor.close();
+        db.close();
     }
 }

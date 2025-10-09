@@ -8,7 +8,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
 
 public class RegisterActivity extends AppCompatActivity {
@@ -17,11 +16,14 @@ public class RegisterActivity extends AppCompatActivity {
     private Button signupButton;
     private TextView loginRedirect;
     private ImageView googleIcon, facebookIcon;
+    private UserDatabase userDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.signup_activity);
+
+        userDatabase = new UserDatabase(this);
 
         fullNameEditText = findViewById(R.id.fullNameEditText);
         emailEditText = findViewById(R.id.emailEditText);
@@ -38,12 +40,16 @@ public class RegisterActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         });
-
-        googleIcon.setOnClickListener(v ->
-                Toast.makeText(this, "Google Sign-In coming soon", Toast.LENGTH_SHORT).show());
-
-        facebookIcon.setOnClickListener(v ->
-                Toast.makeText(this, "Facebook Sign-In coming soon", Toast.LENGTH_SHORT).show());
+        googleIcon.setOnClickListener(v -> {
+            Intent intent = new Intent(RegisterActivity.this, GoogleLoginActivity.class);
+            startActivity(intent);
+        });
+        facebookIcon.setOnClickListener(v -> {
+            Intent intent = new Intent(RegisterActivity.this, MainScreenActivity.class);
+            startActivity(intent);
+            Toast.makeText(this, "Facebook Login Successful", Toast.LENGTH_SHORT).show();
+            finish();
+        });
     }
 
     private void handleRegister() {
@@ -56,27 +62,28 @@ public class RegisterActivity extends AppCompatActivity {
             Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
             return;
         }
-
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             Toast.makeText(this, "Invalid email address", Toast.LENGTH_SHORT).show();
             return;
         }
-
         if (password.length() < 6) {
             Toast.makeText(this, "Password must be at least 6 characters", Toast.LENGTH_SHORT).show();
             return;
         }
-
         if (!password.equals(confirmPassword)) {
             Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        Toast.makeText(this, "Registration successful!", Toast.LENGTH_SHORT).show();
-
-        Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-        intent.putExtra("registeredEmail", email);
-        startActivity(intent);
-        finish();
+        boolean inserted = userDatabase.insertUser(fullName, email, password);
+        if (inserted) {
+            Toast.makeText(this, "Registration successful!", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+            intent.putExtra("registeredEmail", email);
+            startActivity(intent);
+            finish();
+        } else {
+            Toast.makeText(this, "Email already registered. Try logging in.", Toast.LENGTH_SHORT).show();
+        }
     }
 }
