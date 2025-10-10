@@ -44,7 +44,6 @@ public class MainScreenActivity extends AppCompatActivity {
         fileAdapter = new FileAdapter(this, fileList);
         rvFiles.setLayoutManager(new LinearLayoutManager(this));
         rvFiles.setAdapter(fileAdapter);
-
         loadFiles();
 
         btnUpfile.setOnClickListener(v ->
@@ -74,15 +73,8 @@ public class MainScreenActivity extends AppCompatActivity {
         });
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        loadFiles();
-    }
-
     private void loadFiles() {
         Cursor cursor = null;
-        List<FileItem> tempList = new ArrayList<>();
         try {
             cursor = fileDatabase.getAllFiles();
             if (cursor != null && cursor.moveToFirst()) {
@@ -90,10 +82,12 @@ public class MainScreenActivity extends AppCompatActivity {
                     String name = cursor.getString(cursor.getColumnIndexOrThrow("filename"));
                     int size = cursor.getInt(cursor.getColumnIndexOrThrow("filesize"));
                     String uri = cursor.getString(cursor.getColumnIndexOrThrow("fileuri"));
-                    tempList.add(new FileItem(name, size, uri));
+                    fileAdapter.getFileList().add(new FileItem(name, size, uri));
+
                 } while (cursor.moveToNext());
             }
-            fileAdapter.setFileList(tempList);
+            fileAdapter.notifyDataSetChanged();
+
         } catch (Exception e) {
             Log.e("DB_ERROR", "Error loading files: " + e.getMessage());
         } finally {

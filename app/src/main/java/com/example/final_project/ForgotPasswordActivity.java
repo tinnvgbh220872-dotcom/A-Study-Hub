@@ -6,12 +6,13 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import java.util.Properties;
 import java.util.Random;
+
 import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
@@ -58,13 +59,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         }
 
         verificationCode = generateCode();
-        sendEmail(email, verificationCode);
-
-        Intent intent = new Intent(this, ResetPasswordActivity.class);
-        intent.putExtra("email", email);
-        intent.putExtra("code", verificationCode);
-        startActivity(intent);
-        finish();
+        sendEmailDirect(email, verificationCode);
     }
 
     private String generateCode() {
@@ -73,11 +68,11 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         return String.valueOf(code);
     }
 
-    private void sendEmail(String recipient, String code) {
+    private void sendEmailDirect(String recipientEmail, String code) {
         new Thread(() -> {
             try {
-                String senderEmail = "tiidun28@gmail.com";
-                String senderPassword = "cwml fjxa buxs pthn";
+                final String senderEmail = "tinnvgbh220872@fpt.edu.vn";
+                final String senderPassword = "ybko bfxf ajfh node";
 
                 Properties props = new Properties();
                 props.put("mail.smtp.auth", "true");
@@ -85,23 +80,33 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                 props.put("mail.smtp.host", "smtp.gmail.com");
                 props.put("mail.smtp.port", "587");
 
-                Session session = Session.getInstance(props, new javax.mail.Authenticator() {
-                    protected PasswordAuthentication getPasswordAuthentication() {
-                        return new PasswordAuthentication(senderEmail, senderPassword);
-                    }
-                });
+                Session session = Session.getInstance(props,
+                        new javax.mail.Authenticator() {
+                            protected javax.mail.PasswordAuthentication getPasswordAuthentication() {
+                                return new javax.mail.PasswordAuthentication(senderEmail, senderPassword);
+                            }
+                        });
 
-                Message message = new MimeMessage(session);
+                MimeMessage message = new MimeMessage(session);
                 message.setFrom(new InternetAddress(senderEmail));
-                message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipient));
+                message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipientEmail));
                 message.setSubject("Your Password Reset Code");
-                message.setText("Your verification code is: " + code + "\n\nPlease enter this code to reset your password.");
+                message.setText("Your verification code is: " + code);
 
                 Transport.send(message);
-                runOnUiThread(() -> Toast.makeText(this, "Code sent to " + recipient, Toast.LENGTH_LONG).show());
-            } catch (MessagingException e) {
-                runOnUiThread(() -> Toast.makeText(this, "Failed to send email", Toast.LENGTH_SHORT).show());
+
+                runOnUiThread(() -> {
+                    Toast.makeText(this, "Verification code sent", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(this, ResetPasswordActivity.class);
+                    intent.putExtra("email", recipientEmail);
+                    intent.putExtra("code", code);
+                    startActivity(intent);
+                    finish();
+                });
+
+            } catch (Exception e) {
                 e.printStackTrace();
+                runOnUiThread(() -> Toast.makeText(this, "Failed to send email", Toast.LENGTH_SHORT).show());
             }
         }).start();
     }

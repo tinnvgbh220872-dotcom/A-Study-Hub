@@ -50,10 +50,15 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
             context.startActivity(intent);
         });
     }
-    public void setFileList(List<FileItem> newFileList) {
-        this.fileList = newFileList;
-        notifyDataSetChanged();
+//    public void setFileList(List<FileItem> newFileList) {
+//        this.fileList = newFileList;
+//        notifyDataSetChanged();
+//    }
+
+    public List<FileItem> getFileList (){
+       return this.fileList;
     }
+            ;
 
     @Override
     public int getItemCount() {
