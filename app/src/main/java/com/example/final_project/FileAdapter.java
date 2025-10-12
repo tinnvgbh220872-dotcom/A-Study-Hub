@@ -34,6 +34,7 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
         FileItem file = fileList.get(position);
         holder.tvName.setText(file.getName());
         holder.tvSize.setText(file.getSize() + " bytes");
+
         Uri uri = Uri.parse(file.getUri());
         String mimeType = context.getContentResolver().getType(uri);
 
@@ -44,21 +45,17 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
         }
 
         holder.itemView.setOnClickListener(v -> {
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setDataAndType(uri, mimeType);
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            Intent intent = new Intent(context, FileDetailActivity.class);
+            intent.putExtra("filename", file.getName());
+            intent.putExtra("filesize", file.getSize());
+            intent.putExtra("fileuri", file.getUri());
             context.startActivity(intent);
         });
     }
-//    public void setFileList(List<FileItem> newFileList) {
-//        this.fileList = newFileList;
-//        notifyDataSetChanged();
-//    }
 
-    public List<FileItem> getFileList (){
-       return this.fileList;
+    public List<FileItem> getFileList() {
+        return this.fileList;
     }
-            ;
 
     @Override
     public int getItemCount() {

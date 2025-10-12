@@ -21,11 +21,9 @@ public class UploadFileActivity extends AppCompatActivity {
     private static final int PICK_FILE_REQUEST = 1;
     private Uri fileUri;
     private String fileName;
-
     private Button btnSelectFile, btnUpload;
     private TextView tvSelectedFile, tvStatus;
     private ProgressBar progressBar;
-
     private UserDatabase dbHelper;
 
     @Override
@@ -38,7 +36,6 @@ public class UploadFileActivity extends AppCompatActivity {
         tvSelectedFile = findViewById(R.id.tvSelectedFile);
         tvStatus = findViewById(R.id.tvStatus);
         progressBar = findViewById(R.id.progressBar);
-
         dbHelper = new UserDatabase(this);
 
         btnSelectFile.setOnClickListener(v -> openFilePicker());
@@ -46,10 +43,13 @@ public class UploadFileActivity extends AppCompatActivity {
     }
 
     private void openFilePicker() {
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("*/*");
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
-        startActivityForResult(Intent.createChooser(intent, "Select a file"), PICK_FILE_REQUEST);
+        intent.setType("*/*");
+        intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        startActivityForResult(intent, PICK_FILE_REQUEST);
     }
 
     @Override
@@ -57,24 +57,26 @@ public class UploadFileActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_FILE_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
             fileUri = data.getData();
-            fileName = getFileName(fileUri);
-            tvSelectedFile.setText("Selected: " + fileName);
+            if (fileUri != null) {
+                getContentResolver().takePersistableUriPermission(
+                        fileUri,
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                );
+                fileName = getFileName(fileUri);
+                tvSelectedFile.setText("Selected: " + fileName);
+            }
         }
     }
 
     private String getFileName(Uri uri) {
         String result = null;
-        if ("content".equals(uri.getScheme())) {
-            try (android.database.Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
-                if (cursor != null && cursor.moveToFirst()) {
-                    int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-                    result = cursor.getString(nameIndex);
-                }
+        try (android.database.Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                if (nameIndex != -1) result = cursor.getString(nameIndex);
             }
         }
-        if (result == null) {
-            result = uri.getLastPathSegment();
-        }
+        if (result == null) result = uri.getLastPathSegment();
         return result;
     }
 
@@ -82,7 +84,6 @@ public class UploadFileActivity extends AppCompatActivity {
         try (InputStream inputStream = getContentResolver().openInputStream(uri)) {
             return inputStream != null ? inputStream.available() : 0;
         } catch (IOException e) {
-            e.printStackTrace();
             return 0;
         }
     }
@@ -95,7 +96,6 @@ public class UploadFileActivity extends AppCompatActivity {
 
         progressBar.setVisibility(ProgressBar.VISIBLE);
         tvStatus.setText("Uploading...");
-
         int fileSize = getFileSize(fileUri);
         boolean success = insertFileToDatabase(fileName, fileUri.toString(), fileSize);
         progressBar.setProgress(100);
@@ -122,7 +122,6 @@ public class UploadFileActivity extends AppCompatActivity {
             db.close();
             return id != -1;
         } catch (Exception e) {
-            e.printStackTrace();
             return false;
         }
     }
