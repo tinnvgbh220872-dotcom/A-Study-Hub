@@ -9,13 +9,14 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class UserDatabase extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "UserDB.db";
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
 
     private static final String TABLE_USERS = "users";
     private static final String COLUMN_ID = "id";
     private static final String COLUMN_FULLNAME = "fullname";
     private static final String COLUMN_EMAIL = "email";
     private static final String COLUMN_PASSWORD = "password";
+    private static final String COLUMN_PHONE = "phone";
 
     private static final String TABLE_FILES = "uploaded_files";
     private static final String COLUMN_FILE_ID = "file_id";
@@ -33,7 +34,8 @@ public class UserDatabase extends SQLiteOpenHelper {
                 + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + COLUMN_FULLNAME + " TEXT, "
                 + COLUMN_EMAIL + " TEXT UNIQUE, "
-                + COLUMN_PASSWORD + " TEXT)";
+                + COLUMN_PASSWORD + " TEXT, "
+                + COLUMN_PHONE + " TEXT)";
         db.execSQL(createUsers);
 
         String createFiles = "CREATE TABLE " + TABLE_FILES + " ("
@@ -46,12 +48,14 @@ public class UserDatabase extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_FILES);
-        onCreate(db);
+        if (oldVersion < 4) {
+            try {
+                db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + COLUMN_PHONE + " TEXT");
+            } catch (Exception ignored) {}
+        }
     }
 
-    public boolean insertUser(String fullname, String email, String password) {
+    public boolean insertUser(String fullname, String email, String password, String phone) {
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.query(TABLE_USERS, null, COLUMN_EMAIL + "=?", new String[]{email}, null, null, null);
         if (cursor.moveToFirst()) {
@@ -64,6 +68,7 @@ public class UserDatabase extends SQLiteOpenHelper {
         values.put(COLUMN_FULLNAME, fullname);
         values.put(COLUMN_EMAIL, email);
         values.put(COLUMN_PASSWORD, password);
+        values.put(COLUMN_PHONE, phone);
         long result = db.insert(TABLE_USERS, null, values);
         db.close();
         return result != -1;
@@ -95,6 +100,16 @@ public class UserDatabase extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_PASSWORD, newPassword);
+        int rows = db.update(TABLE_USERS, values, COLUMN_EMAIL + "=?", new String[]{email});
+        db.close();
+        return rows > 0;
+    }
+
+    public boolean updateUser(String email, String fullname, String phone) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_FULLNAME, fullname);
+        values.put(COLUMN_PHONE, phone);
         int rows = db.update(TABLE_USERS, values, COLUMN_EMAIL + "=?", new String[]{email});
         db.close();
         return rows > 0;

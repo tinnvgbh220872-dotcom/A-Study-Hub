@@ -82,6 +82,15 @@
             android:name=".ReportActivity"
             android:exported="false"
             android:theme="@style/Theme.Finalproject"/>
+        <activity
+            android:name=".ChangePasswordActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Finalproject"/>
+        <activity
+            android:name=".EditProfileActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Finalproject"/>
+
 
         <provider
             android:name="androidx.core.content.FileProvider"

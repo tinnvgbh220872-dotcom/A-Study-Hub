@@ -12,7 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class RegisterActivity extends AppCompatActivity {
 
-    private EditText fullNameEditText, emailEditText, passwordEditText, confirmPasswordEditText;
+    private EditText fullNameEditText, emailEditText, phoneEditText, passwordEditText, confirmPasswordEditText;
     private Button signupButton;
     private TextView loginRedirect;
     private ImageView googleIcon, facebookIcon;
@@ -27,6 +27,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         fullNameEditText = findViewById(R.id.fullNameEditText);
         emailEditText = findViewById(R.id.emailEditText);
+        phoneEditText = findViewById(R.id.phoneEditText);
         passwordEditText = findViewById(R.id.passwordEditText);
         confirmPasswordEditText = findViewById(R.id.confirmPasswordEditText);
         signupButton = findViewById(R.id.signupButton);
@@ -35,15 +36,18 @@ public class RegisterActivity extends AppCompatActivity {
         facebookIcon = findViewById(R.id.facebookIcon);
 
         signupButton.setOnClickListener(v -> handleRegister());
+
         loginRedirect.setOnClickListener(v -> {
             Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
             startActivity(intent);
             finish();
         });
+
         googleIcon.setOnClickListener(v -> {
             Intent intent = new Intent(RegisterActivity.this, GoogleLoginActivity.class);
             startActivity(intent);
         });
+
         facebookIcon.setOnClickListener(v -> {
             Intent intent = new Intent(RegisterActivity.this, MainScreenActivity.class);
             startActivity(intent);
@@ -55,27 +59,37 @@ public class RegisterActivity extends AppCompatActivity {
     private void handleRegister() {
         String fullName = fullNameEditText.getText().toString().trim();
         String email = emailEditText.getText().toString().trim();
+        String phone = phoneEditText.getText().toString().trim();
         String password = passwordEditText.getText().toString().trim();
         String confirmPassword = confirmPasswordEditText.getText().toString().trim();
 
-        if (fullName.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
+        if (fullName.isEmpty() || email.isEmpty() || phone.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
             Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
             return;
         }
+
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             Toast.makeText(this, "Invalid email address", Toast.LENGTH_SHORT).show();
             return;
         }
+
+        if (!Patterns.PHONE.matcher(phone).matches()) {
+            Toast.makeText(this, "Invalid phone number", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         if (password.length() < 6) {
             Toast.makeText(this, "Password must be at least 6 characters", Toast.LENGTH_SHORT).show();
             return;
         }
+
         if (!password.equals(confirmPassword)) {
             Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        boolean inserted = userDatabase.insertUser(fullName, email, password);
+        boolean inserted = userDatabase.insertUser(fullName, email, password, phone);
+
         if (inserted) {
             Toast.makeText(this, "Registration successful!", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
