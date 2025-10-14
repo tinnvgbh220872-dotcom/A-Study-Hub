@@ -14,7 +14,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
     private EditText etOldPassword, etNewPassword, etConfirmPassword;
     private Button btnCancel, btnSavePassword;
     private UserDatabase userDatabase;
-    private String userEmail;
+    private int userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,10 +30,10 @@ public class ChangePasswordActivity extends AppCompatActivity {
         userDatabase = new UserDatabase(this);
 
         Intent intent = getIntent();
-        userEmail = intent != null ? intent.getStringExtra("user_email") : null;
-        if (userEmail == null) {
+        userId = intent != null ? intent.getIntExtra("user_id", -1) : -1;
+        if (userId == -1) {
             SharedPreferences sp = getSharedPreferences("app_prefs", MODE_PRIVATE);
-            userEmail = sp.getString("user_email", null);
+            userId = sp.getInt("user_id", -1);
         }
 
         btnSavePassword.setOnClickListener(v -> {
@@ -46,13 +46,13 @@ public class ChangePasswordActivity extends AppCompatActivity {
                 return;
             }
 
-            if (userEmail == null) {
-                Toast.makeText(this, "User email not found", Toast.LENGTH_SHORT).show();
+            if (userId == -1) {
+                Toast.makeText(this, "User not found", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            boolean valid = userDatabase.checkUser(userEmail, oldPass);
-            if (!valid) {
+            String currentPass = userDatabase.getPasswordById(userId);
+            if (currentPass == null || !currentPass.equals(oldPass)) {
                 Toast.makeText(this, "Current password is incorrect", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -62,7 +62,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
                 return;
             }
 
-            boolean updated = userDatabase.updatePassword(userEmail, newPass);
+            boolean updated = userDatabase.updatePasswordById(userId, newPass);
             if (updated) {
                 Toast.makeText(this, "Password changed successfully", Toast.LENGTH_SHORT).show();
                 finish();

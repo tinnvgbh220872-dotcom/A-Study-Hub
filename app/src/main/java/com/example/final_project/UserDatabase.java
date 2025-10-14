@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class UserDatabase extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "UserDB.db";
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 5;
 
     private static final String TABLE_USERS = "users";
     private static final String COLUMN_ID = "id";
@@ -48,7 +48,7 @@ public class UserDatabase extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if (oldVersion < 4) {
+        if (oldVersion < 5) {
             try {
                 db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + COLUMN_PHONE + " TEXT");
             } catch (Exception ignored) {}
@@ -89,11 +89,7 @@ public class UserDatabase extends SQLiteOpenHelper {
 
     public Cursor getUserByEmail(String email) {
         SQLiteDatabase db = this.getReadableDatabase();
-        return db.query(TABLE_USERS,
-                null,
-                COLUMN_EMAIL + "=?",
-                new String[]{email},
-                null, null, null);
+        return db.query(TABLE_USERS, null, COLUMN_EMAIL + "=?", new String[]{email}, null, null, null);
     }
 
     public boolean updatePassword(String email, String newPassword) {
@@ -135,5 +131,40 @@ public class UserDatabase extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_FILES, null, null);
         db.close();
+    }
+
+    public String getPasswordById(int id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT " + COLUMN_PASSWORD + " FROM " + TABLE_USERS + " WHERE " + COLUMN_ID + "=?", new String[]{String.valueOf(id)});
+        String password = null;
+        if (cursor.moveToFirst()) password = cursor.getString(0);
+        cursor.close();
+        db.close();
+        return password;
+    }
+
+    public boolean updatePasswordById(int id, String newPassword) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_PASSWORD, newPassword);
+        int rows = db.update(TABLE_USERS, values, COLUMN_ID + "=?", new String[]{String.valueOf(id)});
+        db.close();
+        return rows > 0;
+    }
+
+    public Cursor getUserById(int id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.query(TABLE_USERS, null, COLUMN_ID + "=?", new String[]{String.valueOf(id)}, null, null, null);
+    }
+
+    public boolean updateUserById(int id, String fullname, String email, String phone) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_FULLNAME, fullname);
+        values.put(COLUMN_EMAIL, email);
+        values.put(COLUMN_PHONE, phone);
+        int rows = db.update(TABLE_USERS, values, COLUMN_ID + "=?", new String[]{String.valueOf(id)});
+        db.close();
+        return rows > 0;
     }
 }

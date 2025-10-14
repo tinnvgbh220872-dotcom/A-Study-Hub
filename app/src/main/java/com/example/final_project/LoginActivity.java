@@ -1,6 +1,7 @@
 package com.example.final_project;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -11,7 +12,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
 
 public class LoginActivity extends AppCompatActivity {
@@ -76,17 +76,24 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM users WHERE email=? AND password=?", new String[]{email, password});
+        Cursor cursor = db.rawQuery("SELECT id FROM users WHERE email=? AND password=?", new String[]{email, password});
 
         if (cursor.moveToFirst()) {
+            int userId = cursor.getInt(0);
+            SharedPreferences sp = getSharedPreferences("app_prefs", MODE_PRIVATE);
+            SharedPreferences.Editor editor = sp.edit();
+            editor.putInt("user_id", userId);
+            editor.putString("user_email", email);
+            editor.apply();
+
             Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(LoginActivity.this, MainScreenActivity.class);
-            intent.putExtra("userEmail", email);
             startActivity(intent);
             finish();
         } else {
             Toast.makeText(this, "Incorrect email or password", Toast.LENGTH_SHORT).show();
         }
+
         cursor.close();
         db.close();
     }
