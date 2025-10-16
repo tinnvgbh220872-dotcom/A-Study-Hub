@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#FFF8E1">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="★ Recommended Plan"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="#FF9800"
+        android:layout_marginBottom="4dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Yearly Plan Details"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="• Price: $49.99 per year (save 15%)\n• Access: Full premium materials, updates, and tools\n• Renewal: Auto-renews yearly\n• Priority support and early access to new content\n\nBest value for dedicated learners who want to invest in their growth and stay ahead all year round."/>
+
+    <Button
+        android:id="@+id/btnYearlySubscribe"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Subscribe Yearly"
+        android:layout_marginTop="12dp"/>
+</LinearLayout>

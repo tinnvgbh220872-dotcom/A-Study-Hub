@@ -32,9 +32,8 @@ public class OrderActivity extends AppCompatActivity {
         recyclerOrders = findViewById(R.id.recyclerOrders);
         bottomNavigationView = findViewById(R.id.bottom_navigation);
 
-        // Gắn dữ liệu demo cho RecyclerView
         orderList = new ArrayList<>();
-        orderList.add("Premium Document Pack - 01/10/2025");
+        orderList.add("premi Document Pack - 01/10/2025");
         orderList.add("Advanced Study Guide - 15/09/2025");
         orderList.add("AI Research Bundle - 20/08/2025");
 

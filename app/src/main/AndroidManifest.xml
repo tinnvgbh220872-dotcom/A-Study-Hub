@@ -90,6 +90,10 @@
             android:name=".EditProfileActivity"
             android:exported="false"
             android:theme="@style/Theme.Finalproject"/>
+        <activity
+            android:name="."
+            android:exported="false"
+            android:theme="@style/Theme.Finalproject"/>
 
 
         <provider

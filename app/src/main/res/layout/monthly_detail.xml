@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Monthly Plan Details"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="• Price: $4.99 per month\n• Access: Unlimited study materials and resources\n• Renewal: Auto-renews monthly\n• Cancel anytime, no hidden fees\n\nPerfect for active learners who want flexibility and full premium access without long-term commitment."/>
+
+    <Button
+        android:id="@+id/btnMonthlySubscribe"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Subscribe Monthly"
+        android:layout_marginTop="12dp"/>
+</LinearLayout>

@@ -17,6 +17,8 @@ import java.util.List;
 public class MainScreenActivity extends AppCompatActivity {
 
     private TextView tvWelcome;
+
+    private Button btnPremiumTitle;
     private Button btnUpfile;
     private BottomNavigationView bottomNavigationView;
     private RecyclerView rvFiles;
@@ -29,8 +31,8 @@ public class MainScreenActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_screen_activity);
-
         tvWelcome = findViewById(R.id.tvWelcome);
+        btnPremiumTitle = findViewById(R.id.btnPremiumTitle);
         btnUpfile = findViewById(R.id.btnUpFile);
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         rvFiles = findViewById(R.id.rvFiles);
@@ -48,6 +50,10 @@ public class MainScreenActivity extends AppCompatActivity {
 
         btnUpfile.setOnClickListener(v ->
                 startActivity(new Intent(MainScreenActivity.this, UploadFileActivity.class))
+        );
+
+        btnPremiumTitle.setOnClickListener(v ->
+                startActivity(new Intent(MainScreenActivity.this, PremiumActivity.class))
         );
 
         bottomNavigationView.setSelectedItemId(R.id.nav_home);
@@ -83,11 +89,9 @@ public class MainScreenActivity extends AppCompatActivity {
                     int size = cursor.getInt(cursor.getColumnIndexOrThrow("filesize"));
                     String uri = cursor.getString(cursor.getColumnIndexOrThrow("fileuri"));
                     fileAdapter.getFileList().add(new FileItem(name, size, uri));
-
                 } while (cursor.moveToNext());
             }
             fileAdapter.notifyDataSetChanged();
-
         } catch (Exception e) {
             Log.e("DB_ERROR", "Error loading files: " + e.getMessage());
         } finally {
