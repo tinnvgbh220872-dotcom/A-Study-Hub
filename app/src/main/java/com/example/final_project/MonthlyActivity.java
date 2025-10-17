@@ -17,7 +17,7 @@ public class MonthlyActivity extends AppCompatActivity {
         btnMonthlySubscribe = findViewById(R.id.btnMonthlySubscribe);
 
         btnMonthlySubscribe.setOnClickListener(v -> {
-            Intent intent = new Intent(this, OrderActivity.class);
+            Intent intent = new Intent(this, MonthlyActivity.class);
             intent.putExtra("selectedPlan", "Monthly Plan");
             startActivity(intent);
         });

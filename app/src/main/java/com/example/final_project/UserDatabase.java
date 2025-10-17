@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class UserDatabase extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "UserDB.db";
-    private static final int DATABASE_VERSION = 6;
+    private static final int DATABASE_VERSION = 7;
 
     private static final String TABLE_USERS = "users";
     private static final String COLUMN_ID = "id";

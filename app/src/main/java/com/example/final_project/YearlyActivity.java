@@ -17,8 +17,8 @@ public class YearlyActivity extends AppCompatActivity {
         btnYearlySubscribe = findViewById(R.id.btnYearlySubscribe);
 
         btnYearlySubscribe.setOnClickListener(v -> {
-            Intent intent = new Intent(this, OrderActivity.class);
-            intent.putExtra("selectedPlan", "Yearly Plan");
+            Intent intent = new Intent(this, ThankYouActivity.class);
+            intent.putExtra("subscribedPlan", "Yearly Plan");
             startActivity(intent);
         });
     }

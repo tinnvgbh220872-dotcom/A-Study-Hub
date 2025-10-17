@@ -8,7 +8,6 @@
     android:background="#333333"
     tools:context=".WelcomeActivity">
 
-    <!-- Welcome text -->
     <TextView
         android:id="@+id/tvWelcome"
         android:layout_width="wrap_content"
@@ -22,7 +21,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="120dp" />
 
-    <!-- Subtitle -->
     <TextView
         android:id="@+id/tvSubtitle"
         android:layout_width="wrap_content"

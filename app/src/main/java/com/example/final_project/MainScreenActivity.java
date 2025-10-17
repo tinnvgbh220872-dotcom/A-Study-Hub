@@ -2,10 +2,10 @@ package com.example.final_project;
 
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -16,52 +16,104 @@ import java.util.List;
 
 public class MainScreenActivity extends AppCompatActivity {
 
-    private TextView tvWelcome;
-
-    private Button btnPremiumTitle;
-    private Button btnUpfile;
-    private BottomNavigationView bottomNavigationView;
+    private TextView tvWelcome, tvHelloUser;
+    private ImageView imgPremiumStar;
+    private Button btnPremiumTitle, btnUpFile;
     private RecyclerView rvFiles;
     private FileAdapter fileAdapter;
     private List<FileItem> fileList;
-    private UserDatabase fileDatabase;
-    private SQLiteDatabase db;
+    private UserDatabase userDatabase;
+    private String currentUserEmail;
+    private BottomNavigationView bottomNavigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_screen_activity);
+
         tvWelcome = findViewById(R.id.tvWelcome);
+        tvHelloUser = findViewById(R.id.tvHelloUser);
+        imgPremiumStar = findViewById(R.id.imgPremiumStar);
         btnPremiumTitle = findViewById(R.id.btnPremiumTitle);
-        btnUpfile = findViewById(R.id.btnUpFile);
-        bottomNavigationView = findViewById(R.id.bottom_navigation);
+        btnUpFile = findViewById(R.id.btnUpFile);
         rvFiles = findViewById(R.id.rvFiles);
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
 
-        String username = getIntent().getStringExtra("username");
-        tvWelcome.setText((username != null && !username.isEmpty()) ?
-                "Welcome, " + username + "!" : "Welcome to A-Study-Hub!");
+        currentUserEmail = getIntent().getStringExtra("email");
+        userDatabase = new UserDatabase(this);
 
-        fileDatabase = new UserDatabase(this);
         fileList = new ArrayList<>();
         fileAdapter = new FileAdapter(this, fileList);
         rvFiles.setLayoutManager(new LinearLayoutManager(this));
         rvFiles.setAdapter(fileAdapter);
+
+        loadUserInfo();
         loadFiles();
 
-        btnUpfile.setOnClickListener(v ->
+        btnUpFile.setOnClickListener(v ->
                 startActivity(new Intent(MainScreenActivity.this, UploadFileActivity.class))
         );
 
-        btnPremiumTitle.setOnClickListener(v ->
-                startActivity(new Intent(MainScreenActivity.this, PremiumActivity.class))
-        );
+        btnPremiumTitle.setOnClickListener(v -> {
+            Intent intent = new Intent(MainScreenActivity.this, PremiumActivity.class);
+            intent.putExtra("email", currentUserEmail);
+            startActivity(intent);
+        });
 
+        setupBottomNavigation();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadUserInfo();
+    }
+
+    private void loadUserInfo() {
+        if (currentUserEmail == null) return;
+
+        Cursor cursor = userDatabase.getUserByEmail(currentUserEmail);
+        if (cursor != null && cursor.moveToFirst()) {
+            String fullname = cursor.getString(cursor.getColumnIndexOrThrow("fullname"));
+            int isPremium = cursor.getInt(cursor.getColumnIndexOrThrow("isPremium"));
+
+            tvWelcome.setText("Welcome, " + fullname + "!");
+            tvHelloUser.setText("Hello, " + fullname);
+            imgPremiumStar.setVisibility(isPremium == 1 ? ImageView.VISIBLE : ImageView.GONE);
+
+            Log.d("MainScreen", "User: " + fullname + ", isPremium: " + isPremium);
+            cursor.close();
+        }
+    }
+
+    private void loadFiles() {
+        Cursor cursor = null;
+        try {
+            cursor = userDatabase.getAllFiles();
+            fileList.clear();
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    String name = cursor.getString(cursor.getColumnIndexOrThrow("filename"));
+                    int size = cursor.getInt(cursor.getColumnIndexOrThrow("filesize"));
+                    String uri = cursor.getString(cursor.getColumnIndexOrThrow("fileuri"));
+                    fileList.add(new FileItem(name, size, uri));
+                } while (cursor.moveToNext());
+            }
+            fileAdapter.notifyDataSetChanged();
+        } finally {
+            if (cursor != null) cursor.close();
+        }
+    }
+
+    private void setupBottomNavigation() {
         bottomNavigationView.setSelectedItemId(R.id.nav_home);
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == R.id.nav_home) return true;
             else if (id == R.id.nav_orders) {
-                startActivity(new Intent(this, OrderActivity.class));
+                Intent intent = new Intent(this, PremiumActivity.class);
+                intent.putExtra("email", currentUserEmail);
+                startActivity(intent);
                 overridePendingTransition(0, 0);
                 return true;
             } else if (id == R.id.nav_profile) {
@@ -77,25 +129,5 @@ public class MainScreenActivity extends AppCompatActivity {
             }
             return false;
         });
-    }
-
-    private void loadFiles() {
-        Cursor cursor = null;
-        try {
-            cursor = fileDatabase.getAllFiles();
-            if (cursor != null && cursor.moveToFirst()) {
-                do {
-                    String name = cursor.getString(cursor.getColumnIndexOrThrow("filename"));
-                    int size = cursor.getInt(cursor.getColumnIndexOrThrow("filesize"));
-                    String uri = cursor.getString(cursor.getColumnIndexOrThrow("fileuri"));
-                    fileAdapter.getFileList().add(new FileItem(name, size, uri));
-                } while (cursor.moveToNext());
-            }
-            fileAdapter.notifyDataSetChanged();
-        } catch (Exception e) {
-            Log.e("DB_ERROR", "Error loading files: " + e.getMessage());
-        } finally {
-            if (cursor != null) cursor.close();
-        }
     }
 }

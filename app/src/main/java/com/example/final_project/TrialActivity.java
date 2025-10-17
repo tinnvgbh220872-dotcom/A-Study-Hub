@@ -17,8 +17,8 @@ public class TrialActivity extends AppCompatActivity {
         btnTrialSubscribe = findViewById(R.id.btnTrialSubscribe);
 
         btnTrialSubscribe.setOnClickListener(v -> {
-            Intent intent = new Intent(this, OrderActivity.class);
-            intent.putExtra("selectedPlan", "Trial Plan");
+            Intent intent = new Intent(this, ThankYouActivity.class);
+            intent.putExtra("subscribedPlan", "Trial Plan");
             startActivity(intent);
         });
     }

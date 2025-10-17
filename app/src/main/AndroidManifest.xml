@@ -51,10 +51,6 @@
             android:theme="@style/Theme.Finalproject" />
 
         <activity
-            android:name=".OrderActivity"
-            android:exported="false"
-            android:theme="@style/Theme.Finalproject"/>
-        <activity
             android:name=".ProfileActivity"
             android:exported="false"
             android:theme="@style/Theme.Finalproject"/>
@@ -91,9 +87,26 @@
             android:exported="false"
             android:theme="@style/Theme.Finalproject"/>
         <activity
-            android:name="."
+            android:name=".PremiumActivity"
             android:exported="false"
             android:theme="@style/Theme.Finalproject"/>
+        <activity
+            android:name=".TrialActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Finalproject"/>
+        <activity
+            android:name=".MonthlyActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Finalproject"/>
+        <activity
+            android:name=".YearlyActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Finalproject"/>
+        <activity
+            android:name=".ThankYouActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Finalproject"/>
+
 
 
         <provider

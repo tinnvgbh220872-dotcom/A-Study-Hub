@@ -1,38 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/scrollPremium"
+    android:id="@+id/premium_scrollView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp">
 
     <LinearLayout
-        android:id="@+id/llContainer"
+        android:id="@+id/premium_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/tvPremiumHeader"
+            android:id="@+id/premium_header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Choose Your Premium Plan"
             android:textSize="22sp"
             android:textStyle="bold"
             android:gravity="center"
-            android:paddingBottom="12dp"/>
+            android:paddingBottom="12dp" />
 
         <TextView
-            android:id="@+id/tvPremiumDesc"
+            android:id="@+id/premium_description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Upgrade to access exclusive study materials, remove ads, and unlock advanced features."
             android:textSize="14sp"
             android:gravity="center"
-            android:layout_marginBottom="16dp"/>
+            android:layout_marginBottom="16dp" />
+
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/cardTrial"
+            android:id="@+id/premium_card_trial"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:cardCornerRadius="12dp"
@@ -52,29 +53,29 @@
                     android:gravity="center_vertical">
 
                     <TextView
-                        android:id="@+id/tvTrialTitle"
+                        android:id="@+id/premium_trial_title"
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
                         android:text="Trial Plan"
                         android:textSize="18sp"
-                        android:textStyle="bold"/>
+                        android:textStyle="bold" />
 
                     <TextView
-                        android:id="@+id/tvTrialPrice"
+                        android:id="@+id/premium_trial_price"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Free"
                         android:textSize="16sp"
-                        android:textStyle="bold"/>
+                        android:textStyle="bold" />
                 </LinearLayout>
 
                 <TextView
-                    android:id="@+id/tvTrialDesc"
+                    android:id="@+id/premium_trial_desc"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Try premium features for 7 days at no cost."
-                    android:layout_marginTop="8dp"/>
+                    android:layout_marginTop="8dp" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -84,23 +85,24 @@
                     android:gravity="end">
 
                     <Button
-                        android:id="@+id/btnTrialDetails"
+                        android:id="@+id/premium_btn_trial_details"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="View Details"/>
+                        android:text="View Details" />
 
                     <Button
-                        android:id="@+id/btnTrialSubscribe"
+                        android:id="@+id/premium_btn_trial_subscribe"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
-                        android:text="Subscribe"/>
+                        android:text="Subscribe" />
                 </LinearLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
+
         <androidx.cardview.widget.CardView
-            android:id="@+id/cardMonthly"
+            android:id="@+id/premium_card_monthly"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:cardCornerRadius="12dp"
@@ -120,29 +122,29 @@
                     android:gravity="center_vertical">
 
                     <TextView
-                        android:id="@+id/tvMonthlyTitle"
+                        android:id="@+id/premium_monthly_title"
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
                         android:text="Monthly Plan"
                         android:textSize="18sp"
-                        android:textStyle="bold"/>
+                        android:textStyle="bold" />
 
                     <TextView
-                        android:id="@+id/tvMonthlyPrice"
+                        android:id="@+id/premium_monthly_price"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="$4.99/month"
                         android:textSize="16sp"
-                        android:textStyle="bold"/>
+                        android:textStyle="bold" />
                 </LinearLayout>
 
                 <TextView
-                    android:id="@+id/tvMonthlyDesc"
+                    android:id="@+id/premium_monthly_desc"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Access all premium materials and ad-free experience for one month."
-                    android:layout_marginTop="8dp"/>
+                    android:layout_marginTop="8dp" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -152,23 +154,24 @@
                     android:gravity="end">
 
                     <Button
-                        android:id="@+id/btnMonthlyDetails"
+                        android:id="@+id/premium_btn_monthly_details"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="View Details"/>
+                        android:text="View Details" />
 
                     <Button
-                        android:id="@+id/btnMonthlySubscribe"
+                        android:id="@+id/premium_btn_monthly_subscribe"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
-                        android:text="Subscribe"/>
+                        android:text="Subscribe" />
                 </LinearLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
+
         <androidx.cardview.widget.CardView
-            android:id="@+id/cardYearly"
+            android:id="@+id/premium_card_yearly"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:cardCornerRadius="12dp"
@@ -188,29 +191,29 @@
                     android:gravity="center_vertical">
 
                     <TextView
-                        android:id="@+id/tvYearlyTitle"
+                        android:id="@+id/premium_yearly_title"
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
                         android:text="Yearly Plan"
                         android:textSize="18sp"
-                        android:textStyle="bold"/>
+                        android:textStyle="bold" />
 
                     <TextView
-                        android:id="@+id/tvYearlyPrice"
+                        android:id="@+id/premium_yearly_price"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="$39.99/year"
                         android:textSize="16sp"
-                        android:textStyle="bold"/>
+                        android:textStyle="bold" />
                 </LinearLayout>
 
                 <TextView
-                    android:id="@+id/tvYearlyDesc"
+                    android:id="@+id/premium_yearly_desc"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Best value plan! Get full access for an entire year with 30% savings."
-                    android:layout_marginTop="8dp"/>
+                    android:layout_marginTop="8dp" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -220,17 +223,17 @@
                     android:gravity="end">
 
                     <Button
-                        android:id="@+id/btnYearlyDetails"
+                        android:id="@+id/premium_btn_yearly_details"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="View Details"/>
+                        android:text="View Details" />
 
                     <Button
-                        android:id="@+id/btnYearlySubscribe"
+                        android:id="@+id/premium_btn_yearly_subscribe"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
-                        android:text="Subscribe"/>
+                        android:text="Subscribe" />
                 </LinearLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>

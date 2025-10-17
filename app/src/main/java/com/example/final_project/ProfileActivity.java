@@ -50,7 +50,7 @@ public class ProfileActivity extends AppCompatActivity {
                     overridePendingTransition(0, 0);
                     return true;
                 } else if (itemId == R.id.nav_orders) {
-                    startActivity(new Intent(ProfileActivity.this, OrderActivity.class));
+                    startActivity(new Intent(ProfileActivity.this, PremiumActivity.class));
                     overridePendingTransition(0, 0);
                     return true;
                 } else if (itemId == R.id.nav_profile) {
