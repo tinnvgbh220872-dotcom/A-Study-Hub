@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class UserDatabase extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "UserDB.db";
-    private static final int DATABASE_VERSION = 7;
+    private static final int DATABASE_VERSION = 10;
 
     private static final String TABLE_USERS = "users";
     private static final String COLUMN_ID = "id";
@@ -24,6 +24,19 @@ public class UserDatabase extends SQLiteOpenHelper {
     private static final String COLUMN_FILENAME = "filename";
     private static final String COLUMN_FILEURI = "fileuri";
     private static final String COLUMN_FILESIZE = "filesize";
+
+    private static final String TABLE_ORDERS = "orders";
+    private static final String COLUMN_ORDER_ID = "order_id";
+    private static final String COLUMN_ORDER_EMAIL = "email";
+    private static final String COLUMN_ORDER_NAME = "order_name";
+    private static final String COLUMN_ORDER_PRICE = "order_price";
+
+    private static final String TABLE_TRANSACTIONS = "transactions";
+    private static final String COLUMN_TRANSACTION_ID = "id";
+    private static final String COLUMN_TRANSACTION_EMAIL = "email";
+    private static final String COLUMN_TRANSACTION_TYPE = "type";
+    private static final String COLUMN_TRANSACTION_AMOUNT = "amount";
+    private static final String COLUMN_TRANSACTION_DATE = "date";
 
     public UserDatabase(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -46,17 +59,31 @@ public class UserDatabase extends SQLiteOpenHelper {
                 COLUMN_FILEURI + " TEXT, " +
                 COLUMN_FILESIZE + " INTEGER)";
         db.execSQL(createFiles);
+
+        String createOrders = "CREATE TABLE " + TABLE_ORDERS + " (" +
+                COLUMN_ORDER_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_ORDER_EMAIL + " TEXT, " +
+                COLUMN_ORDER_NAME + " TEXT, " +
+                COLUMN_ORDER_PRICE + " REAL)";
+        db.execSQL(createOrders);
+
+        String createTransactions = "CREATE TABLE " + TABLE_TRANSACTIONS + " (" +
+                COLUMN_TRANSACTION_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_TRANSACTION_EMAIL + " TEXT, " +
+                COLUMN_TRANSACTION_TYPE + " TEXT, " +
+                COLUMN_TRANSACTION_AMOUNT + " REAL, " +
+                COLUMN_TRANSACTION_DATE + " TEXT)";
+        db.execSQL(createTransactions);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if (oldVersion < 6) {
-            try {
-                db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + COLUMN_IS_PREMIUM + " INTEGER DEFAULT 0");
-            } catch (Exception ignored) {}
-        }
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_FILES);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_ORDERS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_TRANSACTIONS);
+        onCreate(db);
     }
-
 
     public boolean insertUser(String fullname, String email, String password, String phone) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -67,7 +94,6 @@ public class UserDatabase extends SQLiteOpenHelper {
             return false;
         }
         cursor.close();
-
         ContentValues values = new ContentValues();
         values.put(COLUMN_FULLNAME, fullname);
         values.put(COLUMN_EMAIL, email);
@@ -125,9 +151,9 @@ public class UserDatabase extends SQLiteOpenHelper {
         return rows > 0;
     }
 
-    public Cursor getAllFiles() {
+    public Cursor getAllUsers() {
         SQLiteDatabase db = this.getReadableDatabase();
-        return db.rawQuery("SELECT * FROM " + TABLE_FILES, null);
+        return db.rawQuery("SELECT * FROM " + TABLE_USERS, null);
     }
 
     public boolean insertFile(String filename, String fileuri, int filesize) {
@@ -139,6 +165,11 @@ public class UserDatabase extends SQLiteOpenHelper {
         long result = db.insert(TABLE_FILES, null, values);
         db.close();
         return result != -1;
+    }
+
+    public Cursor getAllFiles() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("SELECT * FROM " + TABLE_FILES, null);
     }
 
     public void clearAllFiles() {
@@ -180,5 +211,86 @@ public class UserDatabase extends SQLiteOpenHelper {
         int rows = db.update(TABLE_USERS, values, COLUMN_ID + "=?", new String[]{String.valueOf(id)});
         db.close();
         return rows > 0;
+    }
+
+    public boolean insertOrder(String email, String orderName, double orderPrice) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_ORDER_EMAIL, email);
+        values.put(COLUMN_ORDER_NAME, orderName);
+        values.put(COLUMN_ORDER_PRICE, orderPrice);
+        long result = db.insert(TABLE_ORDERS, null, values);
+        db.close();
+        return result != -1;
+    }
+
+    public Cursor getOrdersByEmail(String email) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.query(TABLE_ORDERS,
+                new String[]{COLUMN_ORDER_ID, COLUMN_ORDER_NAME, COLUMN_ORDER_PRICE},
+                COLUMN_ORDER_EMAIL + "=?",
+                new String[]{email},
+                null, null, COLUMN_ORDER_ID + " DESC");
+    }
+
+    public boolean insertTransaction(String email, String type, double amount, String date) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        if (email == null || email.trim().isEmpty()) {
+            db.close();
+            return false;
+        }
+        if (type == null || type.trim().isEmpty()) {
+            type = "Top Up";
+        }
+        values.put(COLUMN_TRANSACTION_EMAIL, email);
+        values.put(COLUMN_TRANSACTION_TYPE, type);
+        values.put(COLUMN_TRANSACTION_AMOUNT, amount);
+        values.put(COLUMN_TRANSACTION_DATE, date);
+        long result = db.insert(TABLE_TRANSACTIONS, null, values);
+        db.close();
+        return result != -1;
+    }
+
+    public Cursor getTransactionsByEmail(String email) {
+        if (email == null || email.trim().isEmpty()) {
+            return null;
+        }
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.query(TABLE_TRANSACTIONS,
+                new String[]{COLUMN_TRANSACTION_ID, COLUMN_TRANSACTION_TYPE, COLUMN_TRANSACTION_AMOUNT, COLUMN_TRANSACTION_DATE},
+                COLUMN_TRANSACTION_EMAIL + "=?",
+                new String[]{email},
+                null, null, COLUMN_TRANSACTION_DATE + " DESC");
+    }
+
+    public double getTotalBalance(String email) {
+        double balance = 0;
+        if (email == null || email.trim().isEmpty()) {
+            return 0;
+        }
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_TRANSACTIONS,
+                new String[]{COLUMN_TRANSACTION_TYPE, COLUMN_TRANSACTION_AMOUNT},
+                COLUMN_TRANSACTION_EMAIL + "=?",
+                new String[]{email},
+                null, null, null);
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                String type = cursor.getString(0);
+                double amount = cursor.getDouble(1);
+                if (type != null) {
+                    String t = type.trim().toLowerCase();
+                    if (t.equals("top up") || t.equals("deposit") || t.equals("recharge")) {
+                        balance += amount;
+                    } else if (t.equals("withdraw") || t.equals("purchase") || t.equals("payment")) {
+                        balance -= amount;
+                    }
+                }
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        db.close();
+        return balance;
     }
 }

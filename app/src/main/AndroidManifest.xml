@@ -106,7 +106,22 @@
             android:name=".ThankYouActivity"
             android:exported="false"
             android:theme="@style/Theme.Finalproject"/>
-
+        <activity
+            android:name=".PaymentMethodActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Finalproject" />
+        <activity
+            android:name=".PaymentConfirmationActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Finalproject"/>
+        <activity
+            android:name=".MyOrdersActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Finalproject"/>
+        <activity
+            android:name=".WalletActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Finalproject"/>
 
 
         <provider

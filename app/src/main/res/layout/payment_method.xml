@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F9F9F9">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:id="@+id/tvPaymentTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Select payment method"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_gravity="center_horizontal"
+            android:paddingBottom="24dp" />
+
+        <Button
+            android:id="@+id/btnCreditCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Credit / Debit card"
+            android:backgroundTint="#7E57C2"
+            android:textColor="#FFFFFF"
+            android:layout_marginBottom="12dp"
+            android:padding="14dp" />
+
+        <Button
+            android:id="@+id/btnPayPal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="PayPal"
+            android:backgroundTint="#5C6BC0"
+            android:textColor="#FFFFFF"
+            android:layout_marginBottom="12dp"
+            android:padding="14dp" />
+
+        <Button
+            android:id="@+id/btnGooglePay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Google Pay"
+            android:backgroundTint="#43A047"
+            android:textColor="#FFFFFF"
+            android:layout_marginBottom="12dp"
+            android:padding="14dp" />
+
+        <Button
+            android:id="@+id/btnMoMo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="MoMo e-wallet"
+            android:backgroundTint="#D81B60"
+            android:textColor="#FFFFFF"
+            android:layout_marginBottom="12dp"
+            android:padding="14dp" />
+
+        <LinearLayout
+            android:id="@+id/layoutMoMoQR"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="10dp"
+            android:background="#FFF0F5"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:src="@drawable/ic_qr_example" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Scan this QR with MoMo app"
+                android:textSize="14sp"
+                android:textColor="#424242"
+                android:layout_marginTop="8dp" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnVNBankQR"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="VN Bank QR"
+            android:backgroundTint="#1976D2"
+            android:textColor="#FFFFFF"
+            android:layout_marginBottom="12dp"
+            android:padding="14dp" />
+
+        <LinearLayout
+            android:id="@+id/layoutVNBankQR"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="10dp"
+            android:background="#E3F2FD"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:src="@drawable/ic_qr_example" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Scan this QR with your banking app"
+                android:textSize="14sp"
+                android:textColor="#424242"
+                android:layout_marginTop="8dp" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnConfirmPayment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Confirm payment"
+            android:backgroundTint="#512DA8"
+            android:textColor="#FFFFFF"
+            android:layout_marginTop="20dp"
+            android:padding="16dp" />
+    </LinearLayout>
+</ScrollView>

@@ -4,15 +4,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class ProfileActivity extends AppCompatActivity {
 
-    private TextView btnEditProfile, btnMyDocuments, btnPremium, btnSettings, btnLogout;
+    private TextView btnEditProfile, btnMyDocuments, btnMyWallet, btnPremium, btnSettings, btnLogout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,6 +19,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         btnEditProfile = findViewById(R.id.btnEditProfile);
         btnMyDocuments = findViewById(R.id.btnMyDocuments);
+        btnMyWallet = findViewById(R.id.btnMyWallet);
         btnPremium = findViewById(R.id.btnPremium);
         btnSettings = findViewById(R.id.btnSettings);
         btnLogout = findViewById(R.id.btnLogout);
@@ -29,6 +28,18 @@ public class ProfileActivity extends AppCompatActivity {
             Intent intent = new Intent(ProfileActivity.this, EditProfileActivity.class);
             startActivity(intent);
         });
+
+
+        btnMyWallet.setOnClickListener(v -> {
+            Intent intent = new Intent(ProfileActivity.this, WalletActivity.class);
+            startActivity(intent);
+        });
+
+        btnPremium.setOnClickListener(v -> {
+            Intent intent = new Intent(ProfileActivity.this, PremiumActivity.class);
+            startActivity(intent);
+        });
+
 
         btnLogout.setOnClickListener(v -> {
             Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);

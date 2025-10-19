@@ -32,12 +32,12 @@ public class PremiumActivity extends AppCompatActivity {
         btnMonthlyDetails.setOnClickListener(v -> startActivity(new Intent(this, MonthlyActivity.class)));
         btnYearlyDetails.setOnClickListener(v -> startActivity(new Intent(this, YearlyActivity.class)));
 
-        btnTrialSubscribe.setOnClickListener(v -> subscribe("Trial Plan"));
-        btnMonthlySubscribe.setOnClickListener(v -> subscribe("Monthly Plan"));
-        btnYearlySubscribe.setOnClickListener(v -> subscribe("Yearly Plan"));
+        btnTrialSubscribe.setOnClickListener(v -> subscribeTrial());
+        btnMonthlySubscribe.setOnClickListener(v -> subscribePaid("Monthly Plan"));
+        btnYearlySubscribe.setOnClickListener(v -> subscribePaid("Yearly Plan"));
     }
 
-    private void subscribe(String planName) {
+    private void subscribeTrial() {
         if (userEmail == null || userEmail.isEmpty()) {
             startActivity(new Intent(this, ThankYouActivity.class));
             return;
@@ -58,7 +58,27 @@ public class PremiumActivity extends AppCompatActivity {
             c.close();
         }
 
-        Intent intent = new Intent(this, MainScreenActivity.class);
+        Intent intent = new Intent(this, ThankYouActivity.class);
+        intent.putExtra("email", userEmail);
+        startActivity(intent);
+        finish();
+    }
+
+    private void subscribePaid(String planName) {
+        if (userEmail == null || userEmail.isEmpty()) {
+            startActivity(new Intent(this, PaymentMethodActivity.class));
+            return;
+        }
+
+        UserDatabase db = new UserDatabase(this);
+        Cursor c = db.getUserByEmail(userEmail);
+        if (c != null && c.moveToFirst()) {
+            int before = c.getInt(c.getColumnIndexOrThrow("isPremium"));
+            Log.d("PremiumActivity", "Before update, isPremium = " + before);
+            c.close();
+        }
+
+        Intent intent = new Intent(this, PaymentMethodActivity.class);
         intent.putExtra("email", userEmail);
         intent.putExtra("selectedPlan", planName);
         startActivity(intent);

@@ -31,7 +31,6 @@ public class ResetPasswordActivity extends AppCompatActivity {
 
         userDatabase = new UserDatabase(this);
 
-        // ✅ Nhận email & code từ màn trước
         emailFromIntent = getIntent().getStringExtra("email");
         verificationCodeFromIntent = getIntent().getStringExtra("code");
 

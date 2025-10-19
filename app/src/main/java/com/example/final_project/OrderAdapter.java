@@ -4,44 +4,46 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
-import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import java.util.ArrayList;
+import java.util.Locale;
 
-import java.util.List;
+public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> {
 
-public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHolder> {
+    private ArrayList<Order> list;
 
-    private List<String> orderList;
-
-    public OrderAdapter(List<String> orderList) {
-        this.orderList = orderList;
-    }
-
-    @NonNull
-    @Override
-    public OrderViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(android.R.layout.simple_list_item_1, parent, false);
-        return new OrderViewHolder(view);
+    public OrderAdapter(ArrayList<Order> list) {
+        this.list = list;
     }
 
     @Override
-    public void onBindViewHolder(@NonNull OrderViewHolder holder, int position) {
-        String order = orderList.get(position);
-        holder.tvOrder.setText(order);
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_order, parent, false);
+        return new ViewHolder(v);
+    }
+
+    @Override
+    public void onBindViewHolder(ViewHolder h, int position) {
+        Order o = list.get(position);
+        h.tvOrderId.setText("Order #" + o.getId());
+        h.tvAmount.setText("₫" + String.format(Locale.getDefault(), "%.0f", o.getAmount()));
+        h.tvDate.setText(o.getDate());
+        h.tvStatus.setText("Status: " + o.getStatus());
     }
 
     @Override
     public int getItemCount() {
-        return orderList.size();
+        return list.size();
     }
 
-    static class OrderViewHolder extends RecyclerView.ViewHolder {
-        TextView tvOrder;
-
-        public OrderViewHolder(@NonNull View itemView) {
-            super(itemView);
-            tvOrder = itemView.findViewById(android.R.id.text1);
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        TextView tvOrderId, tvAmount, tvDate, tvStatus;
+        public ViewHolder(View v) {
+            super(v);
+            tvOrderId = v.findViewById(R.id.tv_order_id);
+            tvAmount = v.findViewById(R.id.tv_order_amount);
+            tvDate = v.findViewById(R.id.tv_order_date);
+            tvStatus = v.findViewById(R.id.tv_order_status);
         }
     }
 }

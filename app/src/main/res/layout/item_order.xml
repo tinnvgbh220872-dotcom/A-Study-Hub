@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/item_order_root"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:background="?android:attr/selectableItemBackground">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/tv_order_id"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Order #1234"
+            android:textSize="16sp"
+            android:textColor="#212121"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/tv_order_amount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="₫0"
+            android:textSize="14sp"
+            android:textColor="#512DA8"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_order_date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="2025-10-19 10:30"
+        android:textSize="12sp"
+        android:textColor="#757575"
+        android:layout_marginTop="6dp"/>
+
+    <TextView
+        android:id="@+id/tv_order_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Status: Paid"
+        android:textSize="12sp"
+        android:textColor="#388E3C"
+        android:layout_marginTop="6dp"/>
+</LinearLayout>
