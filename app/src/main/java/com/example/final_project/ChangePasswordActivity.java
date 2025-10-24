@@ -64,6 +64,14 @@ public class ChangePasswordActivity extends AppCompatActivity {
 
             boolean updated = userDatabase.updatePasswordById(userId, newPass);
             if (updated) {
+                String email = userDatabase.getEmailById(userId);
+                if (email != null) {
+                    SharedPreferences sp = getSharedPreferences("app_prefs", MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sp.edit();
+                    editor.putString("user_email", email);
+                    editor.apply();
+                }
+
                 Toast.makeText(this, "Password changed successfully", Toast.LENGTH_SHORT).show();
                 finish();
             } else {

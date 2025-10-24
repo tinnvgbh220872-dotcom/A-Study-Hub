@@ -1,6 +1,5 @@
 package com.example.final_project;
 
-import android.app.DownloadManager;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -14,7 +13,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -27,7 +25,7 @@ public class FileDetailActivity extends AppCompatActivity {
     private EditText etComment;
     private Button btnPreview, btnDownload, btnReport, btnComment;
     private ArrayList<String> commentList = new ArrayList<>();
-    private String fileName, fileUri;
+    private String fileName, fileUri, userEmail;
     private int fileSize;
 
     @Override
@@ -49,18 +47,19 @@ public class FileDetailActivity extends AppCompatActivity {
         fileName = intent.getStringExtra("filename");
         fileSize = intent.getIntExtra("filesize", 0);
         fileUri = intent.getStringExtra("fileuri");
+        userEmail = intent.getStringExtra("email");
 
         tvFileName.setText(fileName);
         tvFileSize.setText("Size: " + fileSize + " bytes");
 
         btnPreview.setOnClickListener(v -> previewFile());
         btnDownload.setOnClickListener(v -> downloadFile());
-        btnReport.setOnClickListener(v -> reportFile());
+        btnReport.setOnClickListener(v -> openReportPage());
         btnComment.setOnClickListener(v -> addComment());
+
         if (checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
         }
-
     }
 
     private void previewFile() {
@@ -85,50 +84,41 @@ public class FileDetailActivity extends AppCompatActivity {
         try {
             Uri uri = Uri.parse(fileUri);
             String fileName = tvFileName.getText().toString();
-
             InputStream inputStream = getContentResolver().openInputStream(uri);
-
             ContentValues values = new ContentValues();
             values.put(MediaStore.Downloads.DISPLAY_NAME, fileName);
             values.put(MediaStore.Downloads.MIME_TYPE, "*/*");
             values.put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
-
             Uri externalUri = getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
             if (externalUri == null) {
                 Toast.makeText(this, "Cannot create file in Downloads", Toast.LENGTH_LONG).show();
                 return;
             }
-
             OutputStream outputStream = getContentResolver().openOutputStream(externalUri);
-
             byte[] buffer = new byte[4096];
             int bytesRead;
             while ((bytesRead = inputStream.read(buffer)) != -1) {
                 outputStream.write(buffer, 0, bytesRead);
             }
-
             inputStream.close();
             outputStream.close();
-
-            Toast.makeText(this, " File saved to Downloads", Toast.LENGTH_LONG).show();
-
+            Toast.makeText(this, "File saved to Downloads", Toast.LENGTH_LONG).show();
         } catch (Exception e) {
-            Toast.makeText(this, " Error copying file: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Error copying file: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 
-
-    private void reportFile() {
-        btnReport.setOnClickListener(v -> {
-            Intent reportIntent = new Intent(FileDetailActivity.this, ReportActivity.class);
-            startActivity(reportIntent);
-        });
+    private void openReportPage() {
+        Intent reportIntent = new Intent(FileDetailActivity.this, ReportActivity.class);
+        reportIntent.putExtra("email", userEmail);
+        reportIntent.putExtra("filename", fileName);
+        startActivity(reportIntent);
     }
 
     private void addComment() {
         String comment = etComment.getText().toString().trim();
         if (!comment.isEmpty()) {
-            commentList.add(comment);
+            commentList.add(userEmail + ": " + comment);
             etComment.setText("");
             updateComments();
         }

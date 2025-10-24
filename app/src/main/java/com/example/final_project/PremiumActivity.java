@@ -5,7 +5,11 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class PremiumActivity extends AppCompatActivity {
 
@@ -13,6 +17,7 @@ public class PremiumActivity extends AppCompatActivity {
     private Button btnMonthlyDetails, btnMonthlySubscribe;
     private Button btnYearlyDetails, btnYearlySubscribe;
     private String userEmail;
+    private UserDatabase db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,14 +32,15 @@ public class PremiumActivity extends AppCompatActivity {
         btnYearlySubscribe = findViewById(R.id.premium_btn_yearly_subscribe);
 
         userEmail = getIntent().getStringExtra("email");
+        db = new UserDatabase(this);
 
         btnTrialDetails.setOnClickListener(v -> startActivity(new Intent(this, TrialActivity.class)));
         btnMonthlyDetails.setOnClickListener(v -> startActivity(new Intent(this, MonthlyActivity.class)));
         btnYearlyDetails.setOnClickListener(v -> startActivity(new Intent(this, YearlyActivity.class)));
 
         btnTrialSubscribe.setOnClickListener(v -> subscribeTrial());
-        btnMonthlySubscribe.setOnClickListener(v -> subscribePaid("Monthly Plan"));
-        btnYearlySubscribe.setOnClickListener(v -> subscribePaid("Yearly Plan"));
+        btnMonthlySubscribe.setOnClickListener(v -> subscribePaid("Monthly Plan", 99000));
+        btnYearlySubscribe.setOnClickListener(v -> subscribePaid("Yearly Plan", 999000));
     }
 
     private void subscribeTrial() {
@@ -43,20 +49,19 @@ public class PremiumActivity extends AppCompatActivity {
             return;
         }
 
-        UserDatabase db = new UserDatabase(this);
         Cursor c = db.getUserByEmail(userEmail);
         if (c != null && c.moveToFirst()) {
             int before = c.getInt(c.getColumnIndexOrThrow("isPremium"));
             Log.d("PremiumActivity", "Before update, isPremium = " + before);
             db.updatePremiumStatus(userEmail, 1);
-            Cursor c2 = db.getUserByEmail(userEmail);
-            if (c2 != null && c2.moveToFirst()) {
-                int after = c2.getInt(c2.getColumnIndexOrThrow("isPremium"));
-                Log.d("PremiumActivity", "After update, isPremium = " + after);
-                c2.close();
-            }
             c.close();
         }
+
+        db.insertOrder(userEmail, "Trial Plan", 0.0);
+        db.insertTransaction(userEmail, "subscription", 0.0,
+                new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(new Date()));
+
+        Toast.makeText(this, "Trial Activated!", Toast.LENGTH_SHORT).show();
 
         Intent intent = new Intent(this, ThankYouActivity.class);
         intent.putExtra("email", userEmail);
@@ -64,19 +69,24 @@ public class PremiumActivity extends AppCompatActivity {
         finish();
     }
 
-    private void subscribePaid(String planName) {
+    private void subscribePaid(String planName, double price) {
         if (userEmail == null || userEmail.isEmpty()) {
             startActivity(new Intent(this, PaymentMethodActivity.class));
             return;
         }
 
-        UserDatabase db = new UserDatabase(this);
         Cursor c = db.getUserByEmail(userEmail);
         if (c != null && c.moveToFirst()) {
             int before = c.getInt(c.getColumnIndexOrThrow("isPremium"));
             Log.d("PremiumActivity", "Before update, isPremium = " + before);
             c.close();
         }
+
+        db.insertOrder(userEmail, planName, price);
+        db.insertTransaction(userEmail, "subscription", price,
+                new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(new Date()));
+
+        Toast.makeText(this, planName + " subscribed successfully!", Toast.LENGTH_SHORT).show();
 
         Intent intent = new Intent(this, PaymentMethodActivity.class);
         intent.putExtra("email", userEmail);

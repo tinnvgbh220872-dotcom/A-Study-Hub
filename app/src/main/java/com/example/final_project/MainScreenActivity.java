@@ -50,9 +50,11 @@ public class MainScreenActivity extends AppCompatActivity {
         loadUserInfo();
         loadFiles();
 
-        btnUpFile.setOnClickListener(v ->
-                startActivity(new Intent(MainScreenActivity.this, UploadFileActivity.class))
-        );
+        btnUpFile.setOnClickListener(v -> {
+            Intent intent = new Intent(MainScreenActivity.this, UploadFileActivity.class);
+            intent.putExtra("email", currentUserEmail);
+            startActivity(intent);
+        });
 
         btnPremiumTitle.setOnClickListener(v -> {
             Intent intent = new Intent(MainScreenActivity.this, PremiumActivity.class);
@@ -71,16 +73,13 @@ public class MainScreenActivity extends AppCompatActivity {
 
     private void loadUserInfo() {
         if (currentUserEmail == null) return;
-
         Cursor cursor = userDatabase.getUserByEmail(currentUserEmail);
         if (cursor != null && cursor.moveToFirst()) {
             String fullname = cursor.getString(cursor.getColumnIndexOrThrow("fullname"));
             int isPremium = cursor.getInt(cursor.getColumnIndexOrThrow("isPremium"));
-
             tvWelcome.setText("Welcome, " + fullname + "!");
             tvHelloUser.setText("Hello, " + fullname);
             imgPremiumStar.setVisibility(isPremium == 1 ? ImageView.VISIBLE : ImageView.GONE);
-
             Log.d("MainScreen", "User: " + fullname + ", isPremium: " + isPremium);
             cursor.close();
         }
@@ -117,7 +116,9 @@ public class MainScreenActivity extends AppCompatActivity {
                 overridePendingTransition(0, 0);
                 return true;
             } else if (id == R.id.nav_profile) {
-                startActivity(new Intent(this, ProfileActivity.class));
+                Intent intent = new Intent(this, ProfileActivity.class);
+                intent.putExtra("email", currentUserEmail);
+                startActivity(intent);
                 overridePendingTransition(0, 0);
                 return true;
             } else if (id == R.id.nav_logout) {

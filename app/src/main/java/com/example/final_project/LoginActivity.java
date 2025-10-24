@@ -45,9 +45,12 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         tvForgotPassword.setOnClickListener(v -> {
+            String email = etEmail.getText().toString().trim();
             Intent intent = new Intent(LoginActivity.this, ForgotPasswordActivity.class);
+            intent.putExtra("email_from_login", email);
             startActivity(intent);
         });
+
 
         btnGoogle.setOnClickListener(v -> {
             Intent intent = new Intent(LoginActivity.this, GoogleLoginActivity.class);

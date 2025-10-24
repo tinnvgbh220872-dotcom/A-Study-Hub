@@ -293,4 +293,16 @@ public class UserDatabase extends SQLiteOpenHelper {
         db.close();
         return balance;
     }
+    public String getEmailById(int id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String email = null;
+        Cursor cursor = db.rawQuery("SELECT email FROM users WHERE id=?", new String[]{String.valueOf(id)});
+        if (cursor.moveToFirst()) {
+            email = cursor.getString(0);
+        }
+        cursor.close();
+        db.close();
+        return email;
+    }
+
 }

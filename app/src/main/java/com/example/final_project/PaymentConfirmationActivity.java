@@ -43,6 +43,7 @@ public class PaymentConfirmationActivity extends AppCompatActivity {
 
         btnBackToHome.setOnClickListener(v -> {
             Intent intent = new Intent(PaymentConfirmationActivity.this, MainScreenActivity.class);
+            intent.putExtra("email", userEmail);
             startActivity(intent);
             finish();
         });

@@ -34,6 +34,10 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         btnGetCode = findViewById(R.id.btnGetCode);
         btnBackToLogin = findViewById(R.id.btnBackToLogin);
         dbHelper = new UserDatabase(this);
+        String emailFromLogin = getIntent().getStringExtra("email_from_login");
+        if (emailFromLogin != null && !emailFromLogin.isEmpty()) {
+            etEmailRequest.setText(emailFromLogin);
+        }
 
         btnGetCode.setOnClickListener(v -> handleGetCode());
         btnBackToLogin.setOnClickListener(v -> {

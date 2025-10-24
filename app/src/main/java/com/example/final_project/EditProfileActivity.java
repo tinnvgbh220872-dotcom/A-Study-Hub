@@ -6,18 +6,14 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
-
 import java.util.Properties;
 import java.util.Random;
-
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.PasswordAuthentication;
@@ -35,9 +31,6 @@ public class EditProfileActivity extends AppCompatActivity {
     private int userId;
     private int generatedCode = 0;
     private boolean isVerified = false;
-
-    private final String SENDER_EMAIL = "tinnvgbh220872@fpt.edu.vn";
-    private final String SENDER_PASSWORD = "ybko bfxf ajfh node";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,14 +58,23 @@ public class EditProfileActivity extends AppCompatActivity {
             return;
         }
 
+        String passedEmail = getIntent().getStringExtra("email");
+        if (passedEmail != null && !passedEmail.isEmpty()) {
+            etEmail.setText(passedEmail);
+        }
+
         loadUserInfo();
 
         btnSendCode.setOnClickListener(v -> sendVerificationCode());
+
         btnChangePassword.setOnClickListener(v -> {
+            String email = etEmail.getText().toString().trim();
             Intent intent = new Intent(this, ChangePasswordActivity.class);
             intent.putExtra("user_id", userId);
+            intent.putExtra("email", email);
             startActivity(intent);
         });
+
         btnSaveProfile.setOnClickListener(v -> saveProfile());
     }
 
@@ -82,8 +84,6 @@ public class EditProfileActivity extends AppCompatActivity {
             etFullName.setText(c.getString(0));
             etEmail.setText(c.getString(1));
             etPhone.setText(c.getString(2));
-        } else {
-            Toast.makeText(this, "User not found in database", Toast.LENGTH_SHORT).show();
         }
         c.close();
     }
@@ -95,7 +95,7 @@ public class EditProfileActivity extends AppCompatActivity {
             return;
         }
         generatedCode = new Random().nextInt(900000) + 100000;
-        new SendEmailTask().execute(email, String.valueOf(generatedCode));
+        sendEmailDirect(email, String.valueOf(generatedCode));
         etEmailCode.setVisibility(View.VISIBLE);
         btnSendCode.setText("Verify");
         btnSendCode.setOnClickListener(v -> verifyCode());
@@ -140,8 +140,12 @@ public class EditProfileActivity extends AppCompatActivity {
 
         int rows = db.update("users", cv, "id=?", new String[]{String.valueOf(userId)});
         if (rows > 0) {
+            SharedPreferences.Editor editor = getSharedPreferences("UserPrefs", MODE_PRIVATE).edit();
+            editor.putString("email", email);
+            editor.apply();
             Toast.makeText(this, "Profile updated successfully", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(this, MainScreenActivity.class);
+            intent.putExtra("email", email);
             startActivity(intent);
             finish();
         } else {
@@ -149,49 +153,43 @@ public class EditProfileActivity extends AppCompatActivity {
         }
     }
 
-    private class SendEmailTask extends AsyncTask<String, Void, Boolean> {
-        @Override
-        protected Boolean doInBackground(String... params) {
-            String recipient = params[0];
-            String code = params[1];
-
-            Properties props = new Properties();
-            props.put("mail.smtp.auth", "true");
-            props.put("mail.smtp.starttls.enable", "true");
-            props.put("mail.smtp.host", "smtp.gmail.com");
-            props.put("mail.smtp.port", "587");
-
-            Session session = Session.getInstance(props, new javax.mail.Authenticator() {
-                protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(SENDER_EMAIL, SENDER_PASSWORD);
-                }
-            });
-
+    private void sendEmailDirect(String recipientEmail, String code) {
+        new Thread(() -> {
             try {
-                Message message = new MimeMessage(session);
-                message.setFrom(new InternetAddress(SENDER_EMAIL));
-                message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipient));
+                final String senderEmail = "tinnvgbh220872@fpt.edu.vn";
+                final String senderPassword = "ybko bfxf ajfh node";
+
+                Properties props = new Properties();
+                props.put("mail.smtp.auth", "true");
+                props.put("mail.smtp.starttls.enable", "true");
+                props.put("mail.smtp.host", "smtp.gmail.com");
+                props.put("mail.smtp.port", "587");
+
+                Session session = Session.getInstance(props,
+                        new javax.mail.Authenticator() {
+                            protected PasswordAuthentication getPasswordAuthentication() {
+                                return new PasswordAuthentication(senderEmail, senderPassword);
+                            }
+                        });
+
+                MimeMessage message = new MimeMessage(session);
+                message.setFrom(new InternetAddress(senderEmail));
+                message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipientEmail));
                 message.setSubject("Your Verification Code");
                 message.setText("Your verification code is: " + code);
-                Transport.send(message);
-                return true;
-            } catch (MessagingException e) {
-                e.printStackTrace();
-                return false;
-            }
-        }
 
-        @Override
-        protected void onPostExecute(Boolean success) {
-            if (success) {
-                new AlertDialog.Builder(EditProfileActivity.this)
+                Transport.send(message);
+
+                runOnUiThread(() -> new AlertDialog.Builder(EditProfileActivity.this)
                         .setTitle("Verification Code Sent")
                         .setMessage("A verification code has been sent to your email.")
                         .setPositiveButton("OK", null)
-                        .show();
-            } else {
-                Toast.makeText(EditProfileActivity.this, "Failed to send verification email", Toast.LENGTH_SHORT).show();
+                        .show());
+            } catch (MessagingException e) {
+                e.printStackTrace();
+                runOnUiThread(() ->
+                        Toast.makeText(EditProfileActivity.this, "Failed to send email", Toast.LENGTH_SHORT).show());
             }
-        }
+        }).start();
     }
 }

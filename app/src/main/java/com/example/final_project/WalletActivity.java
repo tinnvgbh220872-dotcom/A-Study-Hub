@@ -35,14 +35,15 @@ public class WalletActivity extends AppCompatActivity {
 
         db = new UserDatabase(this);
 
-        // ✅ Lấy email từ Intent hoặc SharedPreferences (phòng khi null)
         userEmail = getIntent().getStringExtra("email");
-        if (userEmail == null || userEmail.isEmpty()) {
+        if (userEmail != null && !userEmail.isEmpty()) {
+            SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
+            prefs.edit().putString("email", userEmail).apply();
+        } else {
             SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
             userEmail = prefs.getString("email", null);
         }
 
-        // ✅ Nếu vẫn null thì ngăn lỗi
         if (userEmail == null || userEmail.isEmpty()) {
             tvBalance.setText("Error: No user email found");
             tvEmpty.setText("Please log in again");

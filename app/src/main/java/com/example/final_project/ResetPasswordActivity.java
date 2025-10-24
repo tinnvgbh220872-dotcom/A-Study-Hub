@@ -6,14 +6,12 @@ import android.text.TextUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
 
 public class ResetPasswordActivity extends AppCompatActivity {
 
     private EditText etVerificationCode, etNewPassword, etConfirmPassword;
     private Button btnResetPassword, btnBackToLogin;
-
     private UserDatabase userDatabase;
     private String emailFromIntent;
     private String verificationCodeFromIntent;
@@ -30,7 +28,6 @@ public class ResetPasswordActivity extends AppCompatActivity {
         btnBackToLogin = findViewById(R.id.btnBackToLogin);
 
         userDatabase = new UserDatabase(this);
-
         emailFromIntent = getIntent().getStringExtra("email");
         verificationCodeFromIntent = getIntent().getStringExtra("code");
 
@@ -50,22 +47,18 @@ public class ResetPasswordActivity extends AppCompatActivity {
             etVerificationCode.setError("Please enter the verification code");
             return;
         }
-
         if (!enteredCode.equals(verificationCodeFromIntent)) {
             etVerificationCode.setError("Incorrect verification code");
             return;
         }
-
         if (TextUtils.isEmpty(newPassword)) {
             etNewPassword.setError("Please enter a new password");
             return;
         }
-
         if (newPassword.length() < 6) {
             etNewPassword.setError("Password must be at least 6 characters");
             return;
         }
-
         if (!newPassword.equals(confirmPassword)) {
             etConfirmPassword.setError("Passwords do not match");
             return;
@@ -74,7 +67,9 @@ public class ResetPasswordActivity extends AppCompatActivity {
         boolean updated = userDatabase.updatePassword(emailFromIntent, newPassword);
         if (updated) {
             Toast.makeText(this, "Password reset successfully!", Toast.LENGTH_LONG).show();
-            startActivity(new Intent(this, LoginActivity.class));
+            Intent intent = new Intent(this, LoginActivity.class);
+            intent.putExtra("email", emailFromIntent);
+            startActivity(intent);
             finish();
         } else {
             Toast.makeText(this, "Error updating password. Please try again.", Toast.LENGTH_SHORT).show();

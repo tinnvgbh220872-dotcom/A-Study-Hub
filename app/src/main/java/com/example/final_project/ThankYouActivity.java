@@ -10,6 +10,7 @@ public class ThankYouActivity extends AppCompatActivity {
 
     private TextView tvThankYouMessage;
     private Button btnBackHome;
+    private String userEmail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,6 +21,7 @@ public class ThankYouActivity extends AppCompatActivity {
         btnBackHome = findViewById(R.id.btnBackHome);
 
         String planName = getIntent().getStringExtra("selectedPlan");
+        userEmail = getIntent().getStringExtra("email");
         if (planName == null) planName = "your subscription";
 
         String message = "We sincerely thank you for choosing the " + planName + " 🎉\n\n"
@@ -31,6 +33,7 @@ public class ThankYouActivity extends AppCompatActivity {
 
         btnBackHome.setOnClickListener(v -> {
             Intent intent = new Intent(ThankYouActivity.this, MainScreenActivity.class);
+            intent.putExtra("email", userEmail);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
         });

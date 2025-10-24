@@ -21,6 +21,7 @@ public class UploadFileActivity extends AppCompatActivity {
     private static final int PICK_FILE_REQUEST = 1;
     private Uri fileUri;
     private String fileName;
+    private String userEmail;
     private Button btnSelectFile, btnUpload;
     private TextView tvSelectedFile, tvStatus;
     private ProgressBar progressBar;
@@ -37,6 +38,7 @@ public class UploadFileActivity extends AppCompatActivity {
         tvStatus = findViewById(R.id.tvStatus);
         progressBar = findViewById(R.id.progressBar);
         dbHelper = new UserDatabase(this);
+        userEmail = getIntent().getStringExtra("email");
 
         btnSelectFile.setOnClickListener(v -> openFilePicker());
         btnUpload.setOnClickListener(v -> uploadFile());
@@ -58,10 +60,7 @@ public class UploadFileActivity extends AppCompatActivity {
         if (requestCode == PICK_FILE_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
             fileUri = data.getData();
             if (fileUri != null) {
-                getContentResolver().takePersistableUriPermission(
-                        fileUri,
-                        Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                );
+                getContentResolver().takePersistableUriPermission(fileUri, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                 fileName = getFileName(fileUri);
                 tvSelectedFile.setText("Selected: " + fileName);
             }
@@ -107,8 +106,10 @@ public class UploadFileActivity extends AppCompatActivity {
             tvStatus.setText("Failed to save to database!");
         }
 
-        startActivity(new Intent(UploadFileActivity.this, MainScreenActivity.class));
-        finish();
+        Intent intent = new Intent(UploadFileActivity.this, MainScreenActivity.class);
+        intent.putExtra("email", userEmail);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
     }
 
     private boolean insertFileToDatabase(String name, String uri, int size) {
@@ -118,6 +119,7 @@ public class UploadFileActivity extends AppCompatActivity {
             values.put("filename", name);
             values.put("fileuri", uri);
             values.put("filesize", size);
+            values.put("useremail", userEmail);
             long id = db.insert("uploaded_files", null, values);
             db.close();
             return id != -1;

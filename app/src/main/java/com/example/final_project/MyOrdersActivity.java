@@ -39,10 +39,10 @@ public class MyOrdersActivity extends AppCompatActivity {
         Cursor c = db.getOrdersByEmail(userEmail);
         if (c != null && c.moveToFirst()) {
             do {
-                double amount = c.getDouble(c.getColumnIndexOrThrow("amount"));
-                String date = c.getString(c.getColumnIndexOrThrow("date"));
-                String status = c.getString(c.getColumnIndexOrThrow("status"));
                 int id = c.getInt(c.getColumnIndexOrThrow("order_id"));
+                double amount = c.getDouble(c.getColumnIndexOrThrow("order_price"));
+                String date = "N/A";
+                String status = c.getString(c.getColumnIndexOrThrow("order_name"));
                 list.add(new Order(id, amount, date, status));
             } while (c.moveToNext());
             c.close();
