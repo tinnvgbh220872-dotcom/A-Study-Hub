@@ -44,10 +44,7 @@ public class PremiumActivity extends AppCompatActivity {
     }
 
     private void subscribeTrial() {
-        if (userEmail == null || userEmail.isEmpty()) {
-            startActivity(new Intent(this, ThankYouActivity.class));
-            return;
-        }
+        if (userEmail == null || userEmail.isEmpty()) return;
 
         Cursor c = db.getUserByEmail(userEmail);
         if (c != null && c.moveToFirst()) {
@@ -70,10 +67,7 @@ public class PremiumActivity extends AppCompatActivity {
     }
 
     private void subscribePaid(String planName, double price) {
-        if (userEmail == null || userEmail.isEmpty()) {
-            startActivity(new Intent(this, PaymentMethodActivity.class));
-            return;
-        }
+        if (userEmail == null || userEmail.isEmpty()) return;
 
         Cursor c = db.getUserByEmail(userEmail);
         if (c != null && c.moveToFirst()) {
@@ -83,13 +77,11 @@ public class PremiumActivity extends AppCompatActivity {
         }
 
         db.insertOrder(userEmail, planName, price);
-        db.insertTransaction(userEmail, "subscription", price,
-                new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(new Date()));
-
-        Toast.makeText(this, planName + " subscribed successfully!", Toast.LENGTH_SHORT).show();
 
         Intent intent = new Intent(this, PaymentMethodActivity.class);
-        intent.putExtra("email", userEmail);
+        intent.putExtra("userEmail", userEmail);
+        intent.putExtra("isPremium", true);
+        intent.putExtra("paymentAmount", price);
         intent.putExtra("selectedPlan", planName);
         startActivity(intent);
         finish();

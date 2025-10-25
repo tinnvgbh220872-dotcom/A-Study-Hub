@@ -2,7 +2,6 @@ package com.example.final_project;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -41,7 +40,6 @@ public class PaymentMethodActivity extends AppCompatActivity {
 
         userDatabase = new UserDatabase(this);
 
-        // Nhận dữ liệu từ Activity trước
         userEmail = getIntent().getStringExtra("userEmail");
         paymentAmount = getIntent().getDoubleExtra("paymentAmount", 0);
         isPremium = getIntent().getBooleanExtra("isPremium", false);
@@ -53,13 +51,13 @@ public class PaymentMethodActivity extends AppCompatActivity {
         btnGooglePay.setOnClickListener(v -> selectMethod("Google Pay"));
         btnMoMo.setOnClickListener(v -> {
             selectMethod("MoMo");
-            layoutMoMoQR.setVisibility(View.VISIBLE);
-            layoutVNBankQR.setVisibility(View.GONE);
+            layoutMoMoQR.setVisibility(android.view.View.VISIBLE);
+            layoutVNBankQR.setVisibility(android.view.View.GONE);
         });
         btnVNBankQR.setOnClickListener(v -> {
             selectMethod("VN Bank");
-            layoutVNBankQR.setVisibility(View.VISIBLE);
-            layoutMoMoQR.setVisibility(View.GONE);
+            layoutVNBankQR.setVisibility(android.view.View.VISIBLE);
+            layoutMoMoQR.setVisibility(android.view.View.GONE);
         });
 
         btnConfirmPayment.setOnClickListener(v -> confirmPayment());
@@ -67,17 +65,17 @@ public class PaymentMethodActivity extends AppCompatActivity {
 
     private void selectMethod(String method) {
         selectedMethod = method;
-        if (!method.equals("MoMo")) layoutMoMoQR.setVisibility(View.GONE);
-        if (!method.equals("VN Bank")) layoutVNBankQR.setVisibility(View.GONE);
+        if (!method.equals("MoMo")) layoutMoMoQR.setVisibility(android.view.View.GONE);
+        if (!method.equals("VN Bank")) layoutVNBankQR.setVisibility(android.view.View.GONE);
     }
 
     private void confirmPayment() {
         if (userEmail == null || userEmail.isEmpty()) {
-            Toast.makeText(this, "Invalid email address.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Invalid email.", Toast.LENGTH_SHORT).show();
             return;
         }
         if (selectedMethod.isEmpty()) {
-            Toast.makeText(this, "Please select a payment method.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Select a payment method.", Toast.LENGTH_SHORT).show();
             return;
         }
         if (paymentAmount <= 0) {
@@ -86,22 +84,22 @@ public class PaymentMethodActivity extends AppCompatActivity {
         }
 
         String now = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(new Date());
+        double transactionAmount = isPremium ? -paymentAmount : paymentAmount;
 
-        if (isPremium) {
-            boolean added = userDatabase.insertTransaction(userEmail, "Premium Subscription", paymentAmount, now);
-            if (!added) {
-                Toast.makeText(this, "Error processing premium subscription.", Toast.LENGTH_SHORT).show();
-                return;
-            }
-        } else {
-            boolean added = userDatabase.insertTransaction(userEmail, "Top Up", paymentAmount, now);
-            if (!added) {
-                Toast.makeText(this, "Error processing top-up.", Toast.LENGTH_SHORT).show();
-                return;
-            }
+        boolean added = userDatabase.insertTransaction(userEmail,
+                isPremium ? "Premium Subscription" : "Top Up",
+                transactionAmount, now);
+
+        if (!added) {
+            Toast.makeText(this, "Payment failed.", Toast.LENGTH_SHORT).show();
+            return;
         }
 
-        Intent intent = new Intent(PaymentMethodActivity.this, PaymentConfirmationActivity.class);
+        if (isPremium) {
+            userDatabase.updatePremiumStatus(userEmail, 1);
+        }
+
+        Intent intent = new Intent(this, PaymentConfirmationActivity.class);
         intent.putExtra("email", userEmail);
         intent.putExtra("isPremium", isPremium);
         intent.putExtra("paymentAmount", paymentAmount);
@@ -109,3 +107,4 @@ public class PaymentMethodActivity extends AppCompatActivity {
         finish();
     }
 }
+

@@ -84,12 +84,14 @@ public class WalletActivity extends AppCompatActivity {
     private void loadData() {
         list.clear();
         Cursor c = db.getTransactionsByEmail(userEmail);
+        double balance = 0;
         if (c != null && c.moveToFirst()) {
             do {
                 String type = c.getString(c.getColumnIndexOrThrow("type"));
                 double amount = c.getDouble(c.getColumnIndexOrThrow("amount"));
                 String date = c.getString(c.getColumnIndexOrThrow("date"));
                 list.add(new Transaction(type, amount, date));
+                balance += amount;
             } while (c.moveToNext());
             c.close();
             tvEmpty.setVisibility(android.view.View.GONE);
@@ -97,7 +99,6 @@ public class WalletActivity extends AppCompatActivity {
             tvEmpty.setVisibility(android.view.View.VISIBLE);
         }
         adapter.notifyDataSetChanged();
-        double balance = db.getTotalBalance(userEmail);
         tvBalance.setText("$" + String.format(Locale.getDefault(), "%.2f", balance));
     }
 }
