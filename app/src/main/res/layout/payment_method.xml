@@ -19,6 +19,16 @@
             android:textStyle="bold"
             android:layout_gravity="center_horizontal"
             android:paddingBottom="24dp" />
+        <TextView
+            android:id="@+id/tvAmount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="$0.00"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#D32F2F"
+            android:layout_gravity="center_horizontal"
+            android:paddingBottom="24dp" />
 
         <Button
             android:id="@+id/btnCreditCard"

@@ -1,10 +1,12 @@
 package com.example.final_project;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -22,6 +24,8 @@ public class WalletActivity extends AppCompatActivity {
     private TransactionAdapter adapter;
     private String userEmail;
     private ArrayList<Transaction> list = new ArrayList<>();
+
+    private static final int TOPUP_REQUEST_CODE = 1001;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,10 +62,23 @@ public class WalletActivity extends AppCompatActivity {
         loadData();
 
         btnTopUp.setOnClickListener(v -> {
-            String now = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(new Date());
-            db.insertTransaction(userEmail, "Top Up", 100000, now);
-            loadData();
+            Intent intent = new Intent(WalletActivity.this, TopupActivity.class);
+            intent.putExtra("userEmail", userEmail);
+            startActivityForResult(intent, TOPUP_REQUEST_CODE);
         });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == TOPUP_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
+            double topupAmount = data.getDoubleExtra("topupAmount", 0);
+            if (topupAmount > 0) {
+                String now = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(new Date());
+                db.insertTransaction(userEmail, "Top Up", topupAmount, now);
+                loadData();
+            }
+        }
     }
 
     private void loadData() {
@@ -81,6 +98,6 @@ public class WalletActivity extends AppCompatActivity {
         }
         adapter.notifyDataSetChanged();
         double balance = db.getTotalBalance(userEmail);
-        tvBalance.setText("₫" + String.format(Locale.getDefault(), "%.0f", balance));
+        tvBalance.setText("$" + String.format(Locale.getDefault(), "%.2f", balance));
     }
 }

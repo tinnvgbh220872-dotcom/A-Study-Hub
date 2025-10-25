@@ -1,21 +1,28 @@
 package com.example.final_project;
 
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class PaymentMethodActivity extends AppCompatActivity {
 
     private Button btnCreditCard, btnPayPal, btnGooglePay, btnMoMo, btnVNBankQR, btnConfirmPayment;
     private LinearLayout layoutMoMoQR, layoutVNBankQR;
+    private TextView tvAmount;
+
     private String userEmail;
     private UserDatabase userDatabase;
     private String selectedMethod = "";
+    private double paymentAmount = 0;
+    private boolean isPremium = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,9 +37,16 @@ public class PaymentMethodActivity extends AppCompatActivity {
         btnConfirmPayment = findViewById(R.id.btnConfirmPayment);
         layoutMoMoQR = findViewById(R.id.layoutMoMoQR);
         layoutVNBankQR = findViewById(R.id.layoutVNBankQR);
+        tvAmount = findViewById(R.id.tvAmount);
 
         userDatabase = new UserDatabase(this);
-        userEmail = getIntent().getStringExtra("email");
+
+        // Nhận dữ liệu từ Activity trước
+        userEmail = getIntent().getStringExtra("userEmail");
+        paymentAmount = getIntent().getDoubleExtra("paymentAmount", 0);
+        isPremium = getIntent().getBooleanExtra("isPremium", false);
+
+        tvAmount.setText("$" + String.format(Locale.getDefault(), "%.2f", paymentAmount));
 
         btnCreditCard.setOnClickListener(v -> selectMethod("Credit Card"));
         btnPayPal.setOnClickListener(v -> selectMethod("PayPal"));
@@ -66,29 +80,32 @@ public class PaymentMethodActivity extends AppCompatActivity {
             Toast.makeText(this, "Please select a payment method.", Toast.LENGTH_SHORT).show();
             return;
         }
-
-        boolean updated = userDatabase.updatePremiumStatus(userEmail, 1);
-        if (updated) {
-            String fullname = "";
-            Cursor cursor = null;
-            try {
-                cursor = userDatabase.getUserByEmail(userEmail);
-                if (cursor != null && cursor.moveToFirst()) {
-                    int idx = cursor.getColumnIndex("fullname");
-                    if (idx >= 0) fullname = cursor.getString(idx);
-                }
-            } catch (Exception ignored) {
-            } finally {
-                if (cursor != null && !cursor.isClosed()) cursor.close();
-            }
-
-            Toast.makeText(this, "Payment successful! Thank you, " + fullname, Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(this, PaymentConfirmationActivity.class);
-            intent.putExtra("email", userEmail);
-            startActivity(intent);
-            finish();
-        } else {
-            Toast.makeText(this, "Error updating account status.", Toast.LENGTH_SHORT).show();
+        if (paymentAmount <= 0) {
+            Toast.makeText(this, "Invalid amount.", Toast.LENGTH_SHORT).show();
+            return;
         }
+
+        String now = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(new Date());
+
+        if (isPremium) {
+            boolean added = userDatabase.insertTransaction(userEmail, "Premium Subscription", paymentAmount, now);
+            if (!added) {
+                Toast.makeText(this, "Error processing premium subscription.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        } else {
+            boolean added = userDatabase.insertTransaction(userEmail, "Top Up", paymentAmount, now);
+            if (!added) {
+                Toast.makeText(this, "Error processing top-up.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }
+
+        Intent intent = new Intent(PaymentMethodActivity.this, PaymentConfirmationActivity.class);
+        intent.putExtra("email", userEmail);
+        intent.putExtra("isPremium", isPremium);
+        intent.putExtra("paymentAmount", paymentAmount);
+        startActivity(intent);
+        finish();
     }
 }

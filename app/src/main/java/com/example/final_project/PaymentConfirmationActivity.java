@@ -6,6 +6,7 @@ import android.widget.Button;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.util.Locale;
 import java.util.Properties;
 import javax.mail.Authenticator;
 import javax.mail.Message;
@@ -19,16 +20,21 @@ public class PaymentConfirmationActivity extends AppCompatActivity {
 
     private Button btnBackToMain;
     private String userEmail;
+    private boolean isPremium;
+    private double paymentAmount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.paymen_confirmation);
+        setContentView(R.layout.payment_confirmation);
 
         btnBackToMain = findViewById(R.id.btnBackToHome);
-        userEmail = getIntent().getStringExtra("email");
 
-        sendInvoiceEmail(userEmail);
+        userEmail = getIntent().getStringExtra("email");
+        isPremium = getIntent().getBooleanExtra("isPremium", false);
+        paymentAmount = getIntent().getDoubleExtra("paymentAmount", 0);
+
+        sendInvoiceEmail(userEmail, paymentAmount, isPremium);
 
         btnBackToMain.setOnClickListener(v -> {
             Intent intent = new Intent(PaymentConfirmationActivity.this, MainScreenActivity.class);
@@ -38,7 +44,7 @@ public class PaymentConfirmationActivity extends AppCompatActivity {
         });
     }
 
-    private void sendInvoiceEmail(String toEmail) {
+    private void sendInvoiceEmail(String toEmail, double amount, boolean isPremium) {
         if (toEmail == null || toEmail.isEmpty()) {
             Toast.makeText(this, "Invalid email address.", Toast.LENGTH_SHORT).show();
             return;
@@ -65,27 +71,39 @@ public class PaymentConfirmationActivity extends AppCompatActivity {
                 Message message = new MimeMessage(session);
                 message.setFrom(new InternetAddress(senderEmail));
                 message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
-                message.setSubject("Payment Confirmation - Premium Subscription");
-                message.setText(
-                        "Dear User,\n\n" +
-                                "Thank you for your payment! Your premium subscription is now active.\n\n" +
-                                "If you have any questions, feel free to contact our support.\n\n" +
-                                "Best regards,\nA-Study-Hub Team"
-                );
+
+                if (isPremium) {
+                    message.setSubject("Payment Confirmation - Premium Subscription");
+                    message.setText(
+                            "Dear User,\n\n" +
+                                    "Thank you for your payment! Your premium subscription is now active.\n\n" +
+                                    "If you have any questions, feel free to contact our support.\n\n" +
+                                    "Best regards,\nA-Study-Hub Team"
+                    );
+                } else {
+                    message.setSubject("Payment Confirmation - Top-up Successful");
+                    message.setText(String.format(Locale.getDefault(),
+                            "Dear User,\n\nThank you for trusting us! Your top-up of $%.2f has been successfully processed.\n\n" +
+                                    "Enjoy using our services, and if you have any questions, feel free to contact support.\n\n" +
+                                    "Best regards,\nA-Study-Hub Team", amount));
+                }
 
                 Transport.send(message);
 
-                runOnUiThread(() ->
-                        Toast.makeText(PaymentConfirmationActivity.this,
-                                "Invoice sent to " + toEmail, Toast.LENGTH_SHORT).show()
-                );
+                runOnUiThread(() -> Toast.makeText(
+                        PaymentConfirmationActivity.this,
+                        isPremium ? "Premium subscription activated!" :
+                                String.format(Locale.getDefault(), "Top-up successful! $%.2f added.", amount),
+                        Toast.LENGTH_SHORT
+                ).show());
 
             } catch (Exception e) {
                 e.printStackTrace();
-                runOnUiThread(() ->
-                        Toast.makeText(PaymentConfirmationActivity.this,
-                                "Failed to send email: " + e.getMessage(), Toast.LENGTH_LONG).show()
-                );
+                runOnUiThread(() -> Toast.makeText(
+                        PaymentConfirmationActivity.this,
+                        "Failed to send email: " + e.getMessage(),
+                        Toast.LENGTH_LONG
+                ).show());
             }
         }).start();
     }

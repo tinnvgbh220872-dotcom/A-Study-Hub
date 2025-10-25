@@ -122,6 +122,10 @@
             android:name=".WalletActivity"
             android:exported="false"
             android:theme="@style/Theme.Finalproject"/>
+        <activity
+            android:name=".TopupActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Finalproject"/>
 
 
         <provider
