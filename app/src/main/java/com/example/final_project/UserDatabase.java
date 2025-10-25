@@ -5,11 +5,15 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 
 public class UserDatabase extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "UserDB.db";
-    private static final int DATABASE_VERSION = 10;
+    private static final int DATABASE_VERSION = 23;
 
     private static final String TABLE_USERS = "users";
     private static final String COLUMN_ID = "id";
@@ -24,6 +28,8 @@ public class UserDatabase extends SQLiteOpenHelper {
     private static final String COLUMN_FILENAME = "filename";
     private static final String COLUMN_FILEURI = "fileuri";
     private static final String COLUMN_FILESIZE = "filesize";
+    private static final String COLUMN_FILE_EMAIL = "email";
+    private static final String COLUMN_FILE_DATE = "publishedDate";
 
     private static final String TABLE_ORDERS = "orders";
     private static final String COLUMN_ORDER_ID = "order_id";
@@ -57,7 +63,9 @@ public class UserDatabase extends SQLiteOpenHelper {
                 COLUMN_FILE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COLUMN_FILENAME + " TEXT, " +
                 COLUMN_FILEURI + " TEXT, " +
-                COLUMN_FILESIZE + " INTEGER)";
+                COLUMN_FILESIZE + " INTEGER, " +
+                COLUMN_FILE_EMAIL + " TEXT, " +
+                COLUMN_FILE_DATE + " TEXT)";
         db.execSQL(createFiles);
 
         String createOrders = "CREATE TABLE " + TABLE_ORDERS + " (" +
@@ -156,12 +164,14 @@ public class UserDatabase extends SQLiteOpenHelper {
         return db.rawQuery("SELECT * FROM " + TABLE_USERS, null);
     }
 
-    public boolean insertFile(String filename, String fileuri, int filesize) {
+    public boolean insertFile(String filename, String fileuri, int filesize, String email, String publishedDate) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_FILENAME, filename);
         values.put(COLUMN_FILEURI, fileuri);
         values.put(COLUMN_FILESIZE, filesize);
+        values.put(COLUMN_FILE_EMAIL, email);
+        values.put(COLUMN_FILE_DATE, publishedDate);
         long result = db.insert(TABLE_FILES, null, values);
         db.close();
         return result != -1;
@@ -293,6 +303,7 @@ public class UserDatabase extends SQLiteOpenHelper {
         db.close();
         return balance;
     }
+
     public String getEmailById(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
         String email = null;
@@ -304,5 +315,4 @@ public class UserDatabase extends SQLiteOpenHelper {
         db.close();
         return email;
     }
-
 }

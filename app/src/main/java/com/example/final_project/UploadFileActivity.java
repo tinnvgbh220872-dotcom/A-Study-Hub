@@ -1,9 +1,7 @@
 package com.example.final_project;
 
 import android.app.Activity;
-import android.content.ContentValues;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
@@ -15,6 +13,9 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class UploadFileActivity extends AppCompatActivity {
 
@@ -96,7 +97,8 @@ public class UploadFileActivity extends AppCompatActivity {
         progressBar.setVisibility(ProgressBar.VISIBLE);
         tvStatus.setText("Uploading...");
         int fileSize = getFileSize(fileUri);
-        boolean success = insertFileToDatabase(fileName, fileUri.toString(), fileSize);
+        String publishedDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
+        boolean success = dbHelper.insertFile(fileName, fileUri.toString(), fileSize, userEmail, publishedDate);
         progressBar.setProgress(100);
 
         if (success) {
@@ -110,21 +112,5 @@ public class UploadFileActivity extends AppCompatActivity {
         intent.putExtra("email", userEmail);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
-    }
-
-    private boolean insertFileToDatabase(String name, String uri, int size) {
-        try {
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
-            ContentValues values = new ContentValues();
-            values.put("filename", name);
-            values.put("fileuri", uri);
-            values.put("filesize", size);
-            values.put("useremail", userEmail);
-            long id = db.insert("uploaded_files", null, values);
-            db.close();
-            return id != -1;
-        } catch (Exception e) {
-            return false;
-        }
     }
 }

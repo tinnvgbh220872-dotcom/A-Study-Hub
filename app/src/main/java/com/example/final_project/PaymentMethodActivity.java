@@ -53,8 +53,8 @@ public class PaymentMethodActivity extends AppCompatActivity {
 
     private void selectMethod(String method) {
         selectedMethod = method;
-        layoutMoMoQR.setVisibility(View.GONE);
-        layoutVNBankQR.setVisibility(View.GONE);
+        if (!method.equals("MoMo")) layoutMoMoQR.setVisibility(View.GONE);
+        if (!method.equals("VN Bank")) layoutVNBankQR.setVisibility(View.GONE);
     }
 
     private void confirmPayment() {
@@ -62,7 +62,6 @@ public class PaymentMethodActivity extends AppCompatActivity {
             Toast.makeText(this, "Invalid email address.", Toast.LENGTH_SHORT).show();
             return;
         }
-
         if (selectedMethod.isEmpty()) {
             Toast.makeText(this, "Please select a payment method.", Toast.LENGTH_SHORT).show();
             return;
@@ -70,13 +69,21 @@ public class PaymentMethodActivity extends AppCompatActivity {
 
         boolean updated = userDatabase.updatePremiumStatus(userEmail, 1);
         if (updated) {
-            Cursor cursor = userDatabase.getUserByEmail(userEmail);
-            if (cursor != null && cursor.moveToFirst()) {
-                String fullname = cursor.getString(cursor.getColumnIndexOrThrow("fullname"));
-                cursor.close();
-                Toast.makeText(this, "Payment successful! Thank you, " + fullname, Toast.LENGTH_SHORT).show();
+            String fullname = "";
+            Cursor cursor = null;
+            try {
+                cursor = userDatabase.getUserByEmail(userEmail);
+                if (cursor != null && cursor.moveToFirst()) {
+                    int idx = cursor.getColumnIndex("fullname");
+                    if (idx >= 0) fullname = cursor.getString(idx);
+                }
+            } catch (Exception ignored) {
+            } finally {
+                if (cursor != null && !cursor.isClosed()) cursor.close();
             }
-            Intent intent = new Intent(PaymentMethodActivity.this, PaymentConfirmationActivity.class);
+
+            Toast.makeText(this, "Payment successful! Thank you, " + fullname, Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, PaymentConfirmationActivity.class);
             intent.putExtra("email", userEmail);
             startActivity(intent);
             finish();

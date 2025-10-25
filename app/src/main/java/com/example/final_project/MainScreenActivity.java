@@ -69,6 +69,7 @@ public class MainScreenActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         loadUserInfo();
+        loadFiles();
     }
 
     private void loadUserInfo() {
@@ -95,7 +96,9 @@ public class MainScreenActivity extends AppCompatActivity {
                     String name = cursor.getString(cursor.getColumnIndexOrThrow("filename"));
                     int size = cursor.getInt(cursor.getColumnIndexOrThrow("filesize"));
                     String uri = cursor.getString(cursor.getColumnIndexOrThrow("fileuri"));
-                    fileList.add(new FileItem(name, size, uri));
+                    String email = cursor.getString(cursor.getColumnIndexOrThrow("email"));
+                    String date = cursor.getString(cursor.getColumnIndexOrThrow("publishedDate"));
+                    fileList.add(new FileItem(name, size, uri, email, date));
                 } while (cursor.moveToNext());
             }
             fileAdapter.notifyDataSetChanged();

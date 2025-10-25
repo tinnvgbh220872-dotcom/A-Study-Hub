@@ -34,6 +34,8 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
         FileItem file = fileList.get(position);
         holder.tvName.setText(file.getName());
         holder.tvSize.setText(file.getSize() + " bytes");
+        holder.tvEmail.setText("Uploaded by: " + file.getEmail());
+        holder.tvDate.setText("Published: " + file.getPublishedDate());
 
         Uri uri = Uri.parse(file.getUri());
         String mimeType = context.getContentResolver().getType(uri);
@@ -49,12 +51,10 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
             intent.putExtra("filename", file.getName());
             intent.putExtra("filesize", file.getSize());
             intent.putExtra("fileuri", file.getUri());
+            intent.putExtra("email", file.getEmail());
+            intent.putExtra("publishedDate", file.getPublishedDate());
             context.startActivity(intent);
         });
-    }
-
-    public List<FileItem> getFileList() {
-        return this.fileList;
     }
 
     @Override
@@ -64,13 +64,15 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
 
     public static class FileViewHolder extends RecyclerView.ViewHolder {
         ImageView ivFileIcon;
-        TextView tvName, tvSize;
+        TextView tvName, tvSize, tvEmail, tvDate;
 
         public FileViewHolder(@NonNull View itemView) {
             super(itemView);
             ivFileIcon = itemView.findViewById(R.id.ivFileIcon);
             tvName = itemView.findViewById(R.id.tvName);
             tvSize = itemView.findViewById(R.id.tvSize);
+            tvEmail = itemView.findViewById(R.id.tvEmail);
+            tvDate = itemView.findViewById(R.id.tvDate);
         }
     }
 }
