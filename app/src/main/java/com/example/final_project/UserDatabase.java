@@ -13,7 +13,7 @@ import java.util.Locale;
 public class UserDatabase extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "UserDB.db";
-    private static final int DATABASE_VERSION = 24;
+    private static final int DATABASE_VERSION = 25;
 
     private static final String TABLE_USERS = "users";
     private static final String COLUMN_ID = "id";
@@ -127,6 +127,31 @@ public class UserDatabase extends SQLiteOpenHelper {
         db.close();
         return exists;
     }
+    public boolean updateFile(int fileId, String filename, String fileuri, int filesize, String status) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_FILENAME, filename);
+        values.put(COLUMN_FILEURI, fileuri);
+        values.put(COLUMN_FILESIZE, filesize);
+        values.put(COLUMN_FILE_STATUS, status);
+
+        int rows = db.update(TABLE_FILES, values, COLUMN_FILE_ID + "=?", new String[]{String.valueOf(fileId)});
+        db.close();
+        return rows > 0;
+    }
+
+    public boolean deleteFile(int fileId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int rows = db.delete(TABLE_FILES, COLUMN_FILE_ID + "=?", new String[]{String.valueOf(fileId)});
+        db.close();
+        return rows > 0;
+    }
+
+    public Cursor getFileById(int fileId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.query(TABLE_FILES, null, COLUMN_FILE_ID + "=?", new String[]{String.valueOf(fileId)}, null, null, null);
+    }
+
 
     public Cursor getUserByEmail(String email) {
         SQLiteDatabase db = this.getReadableDatabase();

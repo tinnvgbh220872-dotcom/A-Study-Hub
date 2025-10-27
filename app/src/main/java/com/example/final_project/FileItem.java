@@ -1,6 +1,7 @@
 package com.example.final_project;
 
 public class FileItem {
+    private int fileId;
     private String name;
     private int size;
     private String uri;
@@ -8,7 +9,8 @@ public class FileItem {
     private String publishedDate;
     private String status;
 
-    public FileItem(String name, int size, String uri, String email, String publishedDate, String status) {
+    public FileItem(int fileId,String name, int size, String uri, String email, String publishedDate, String status) {
+        this.fileId = fileId;
         this.name = name;
         this.size = size;
         this.uri = uri;
@@ -16,6 +18,8 @@ public class FileItem {
         this.publishedDate = publishedDate;
         this.status = status;
     }
+
+    public int getFileId() { return fileId; }
 
     public String getName() { return name; }
     public int getSize() { return size; }

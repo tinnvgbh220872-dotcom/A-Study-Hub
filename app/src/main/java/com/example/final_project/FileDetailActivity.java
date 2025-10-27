@@ -3,13 +3,14 @@ package com.example.final_project;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.pdf.PdfRenderer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
-import android.provider.OpenableColumns;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -25,8 +26,10 @@ public class FileDetailActivity extends AppCompatActivity {
     private TextView tvFileName, tvFileSize, tvComments;
     private ImageView ivPreview;
     private EditText etComment;
-    private Button btnPreview, btnDownload, btnReport, btnComment, btnEdit, btnDelete;
+    private Button btnPreview, btnDownload, btnReport, btnSendComment, btnEditFile, btnDeleteFile;
+
     private ArrayList<String> commentList = new ArrayList<>();
+    private int fileId;
     private String fileName, fileUri, userEmail, status;
     private int fileSize;
 
@@ -43,11 +46,12 @@ public class FileDetailActivity extends AppCompatActivity {
         btnPreview = findViewById(R.id.btnPreview);
         btnDownload = findViewById(R.id.btnDownload);
         btnReport = findViewById(R.id.btnReport);
-        btnComment = findViewById(R.id.btnSendComment);
-        btnEdit = findViewById(R.id.btnEditFile);
-        btnDelete = findViewById(R.id.btnDeleteFile);
+        btnSendComment = findViewById(R.id.btnSendComment);
+        btnEditFile = findViewById(R.id.btnEditFile);
+        btnDeleteFile = findViewById(R.id.btnDeleteFile);
 
         Intent intent = getIntent();
+        fileId = intent.getIntExtra("fileId", -1);
         fileName = intent.getStringExtra("filename");
         fileSize = intent.getIntExtra("filesize", 0);
         fileUri = intent.getStringExtra("fileuri");
@@ -57,17 +61,26 @@ public class FileDetailActivity extends AppCompatActivity {
         tvFileName.setText(fileName);
         tvFileSize.setText("Size: " + fileSize + " bytes");
 
-        setupUIByStatus();
+        if (fileUri != null && !fileUri.isEmpty()) {
+            try {
+                Uri uri = Uri.parse(fileUri);
+                getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        updateUIByStatus();
+        previewFile();
 
         btnPreview.setOnClickListener(v -> previewFile());
         btnDownload.setOnClickListener(v -> downloadFile());
         btnReport.setOnClickListener(v -> openReportPage());
-        btnComment.setOnClickListener(v -> addComment());
-        btnEdit.setOnClickListener(v -> openEditPage());
-        btnDelete.setOnClickListener(v -> deleteFile());
+        btnSendComment.setOnClickListener(v -> addComment());
+        btnEditFile.setOnClickListener(v -> selectNewFile());
+        btnDeleteFile.setOnClickListener(v -> deleteFile());
 
-        if (checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
+        if (checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{
                     android.Manifest.permission.READ_EXTERNAL_STORAGE,
                     android.Manifest.permission.WRITE_EXTERNAL_STORAGE
@@ -75,81 +88,140 @@ public class FileDetailActivity extends AppCompatActivity {
         }
     }
 
-    private void setupUIByStatus() {
-        if (status != null && status.equalsIgnoreCase("pending")) {
-            btnPreview.setVisibility(Button.VISIBLE);
-            btnEdit.setVisibility(Button.VISIBLE);
-            btnDelete.setVisibility(Button.VISIBLE);
+    private void updateUIByStatus() {
+        boolean isPending = status != null && status.equalsIgnoreCase("pending");
 
-            btnDownload.setVisibility(Button.GONE);
-            btnComment.setVisibility(Button.GONE);
-            btnReport.setVisibility(Button.GONE);
-            etComment.setVisibility(EditText.GONE);
-            tvComments.setVisibility(TextView.GONE);
-        } else {
-            btnPreview.setVisibility(Button.VISIBLE);
-            btnDownload.setVisibility(Button.VISIBLE);
-            btnComment.setVisibility(Button.VISIBLE);
-            btnReport.setVisibility(Button.VISIBLE);
-            etComment.setVisibility(EditText.VISIBLE);
-            tvComments.setVisibility(TextView.VISIBLE);
-
-            btnEdit.setVisibility(Button.GONE);
-            btnDelete.setVisibility(Button.GONE);
-        }
+        btnPreview.setVisibility(Button.VISIBLE);
+        btnEditFile.setVisibility(isPending ? Button.VISIBLE : Button.GONE);
+        btnDeleteFile.setVisibility(isPending ? Button.VISIBLE : Button.GONE);
+        btnDownload.setVisibility(isPending ? Button.GONE : Button.VISIBLE);
+        btnSendComment.setVisibility(isPending ? Button.GONE : Button.VISIBLE);
+        btnReport.setVisibility(isPending ? Button.GONE : Button.VISIBLE);
+        etComment.setVisibility(isPending ? EditText.GONE : EditText.VISIBLE);
+        tvComments.setVisibility(isPending ? TextView.GONE : TextView.VISIBLE);
     }
 
     private void previewFile() {
+        if (fileUri == null || fileUri.isEmpty()) return;
+
+        ivPreview.setVisibility(ImageView.GONE);
+        tvComments.setVisibility(TextView.GONE);
+
+        String lowerName = fileName.trim().toLowerCase();
+        Uri uri = Uri.parse(fileUri);
+
         try {
-            if (fileName.endsWith(".png") || fileName.endsWith(".jpg") || fileName.endsWith(".jpeg")) {
+            if (lowerName.endsWith(".png") || lowerName.endsWith(".jpg") || lowerName.endsWith(".jpeg")) {
                 ivPreview.setVisibility(ImageView.VISIBLE);
-                try (InputStream is = getContentResolver().openInputStream(Uri.parse(fileUri))) {
-                    ivPreview.setImageBitmap(BitmapFactory.decodeStream(is));
+                try (InputStream is = getContentResolver().openInputStream(uri)) {
+                    Bitmap bmp = BitmapFactory.decodeStream(is);
+                    ivPreview.setImageBitmap(bmp);
                 }
+            } else if (lowerName.endsWith(".pdf")) {
+                tvComments.setVisibility(TextView.VISIBLE);
+                try (ParcelFileDescriptor pfd = getContentResolver().openFileDescriptor(uri, "r")) {
+                    if (pfd != null) {
+                        PdfRenderer renderer = new PdfRenderer(pfd);
+                        if (renderer.getPageCount() > 0) {
+                            PdfRenderer.Page page = renderer.openPage(0);
+                            Bitmap bmp = Bitmap.createBitmap(page.getWidth(), page.getHeight(), Bitmap.Config.ARGB_8888);
+                            page.render(bmp, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
+                            ivPreview.setVisibility(ImageView.VISIBLE);
+                            ivPreview.setImageBitmap(bmp);
+                            page.close();
+                        }
+                        renderer.close();
+                    }
+                }
+            } else if (lowerName.endsWith(".txt")) {
+                tvComments.setVisibility(TextView.VISIBLE);
+                StringBuilder sb = new StringBuilder();
+                try (InputStream is = getContentResolver().openInputStream(uri)) {
+                    int ch;
+                    while ((ch = is.read()) != -1) sb.append((char) ch);
+                }
+                tvComments.setText(sb.toString());
             } else {
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setDataAndType(Uri.parse(fileUri), "*/*");
-                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                startActivity(Intent.createChooser(intent, "Preview File"));
+                Toast.makeText(this, "Preview not supported for this file type", Toast.LENGTH_SHORT).show();
             }
         } catch (Exception e) {
             e.printStackTrace();
+            Toast.makeText(this, "Cannot preview file", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void selectNewFile() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("*/*");
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        startActivityForResult(intent, 2);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 2 && resultCode == RESULT_OK && data != null) {
+            Uri newUri = data.getData();
+            if (newUri != null) {
+                try {
+                    getContentResolver().takePersistableUriPermission(
+                            newUri,
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                    );
+                } catch (Exception e) { e.printStackTrace(); }
+
+                fileUri = newUri.toString();
+                fileName = getFileName(newUri);
+                try (InputStream is = getContentResolver().openInputStream(newUri)) {
+                    if (is != null) fileSize = is.available();
+                } catch (Exception e) { e.printStackTrace(); }
+
+                tvFileName.setText(fileName);
+                tvFileSize.setText("Size: " + fileSize + " bytes");
+
+                UserDatabase db = new UserDatabase(this);
+                db.updateFile(fileId, fileName, fileUri, fileSize, status);
+                db.close();
+
+                previewFile();
+            }
+        }
+    }
+
+    private String getFileName(Uri uri) {
+        String result = uri.getLastPathSegment();
+        return result != null ? result : "Unnamed File";
     }
 
     private void downloadFile() {
         try {
             Uri uri = Uri.parse(fileUri);
-            String fileName = tvFileName.getText().toString();
-            InputStream inputStream = getContentResolver().openInputStream(uri);
+            InputStream is = getContentResolver().openInputStream(uri);
             ContentValues values = new ContentValues();
             values.put(MediaStore.Downloads.DISPLAY_NAME, fileName);
             values.put(MediaStore.Downloads.MIME_TYPE, "*/*");
             values.put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
-            Uri externalUri = getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
-            if (externalUri == null) {
-                Toast.makeText(this, "Cannot create file in Downloads", Toast.LENGTH_LONG).show();
-                return;
+            Uri saveUri = getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
+            if (saveUri == null) return;
+
+            try (OutputStream os = getContentResolver().openOutputStream(saveUri)) {
+                byte[] buffer = new byte[4096];
+                int read;
+                while ((read = is.read(buffer)) != -1) os.write(buffer, 0, read);
             }
-            OutputStream outputStream = getContentResolver().openOutputStream(externalUri);
-            byte[] buffer = new byte[4096];
-            int bytesRead;
-            while ((bytesRead = inputStream.read(buffer)) != -1) {
-                outputStream.write(buffer, 0, bytesRead);
-            }
-            inputStream.close();
-            outputStream.close();
-            Toast.makeText(this, "File saved to Downloads", Toast.LENGTH_LONG).show();
+            is.close();
+            Toast.makeText(this, "File saved to Downloads", Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
-            Toast.makeText(this, "Error copying file: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Error saving file", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void openReportPage() {
-        Intent reportIntent = new Intent(FileDetailActivity.this, ReportActivity.class);
-        reportIntent.putExtra("email", userEmail);
-        reportIntent.putExtra("filename", fileName);
-        startActivity(reportIntent);
+        Intent intent = new Intent(this, ReportActivity.class);
+        intent.putExtra("email", userEmail);
+        intent.putExtra("filename", fileName);
+        startActivity(intent);
     }
 
     private void addComment() {
@@ -162,55 +234,29 @@ public class FileDetailActivity extends AppCompatActivity {
     }
 
     private void updateComments() {
-        StringBuilder allComments = new StringBuilder();
-        for (String c : commentList) {
-            allComments.append("- ").append(c).append("\n");
-        }
-        tvComments.setText(allComments.toString());
+        StringBuilder sb = new StringBuilder();
+        for (String c : commentList) sb.append("- ").append(c).append("\n");
+        tvComments.setText(sb.toString());
     }
-
-    private static final int PICK_NEW_FILE_REQUEST = 99;
-    private Uri newFileUri;
-    private String newFileName;
-
-    private void openEditPage() {
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("*/*");
-        intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        startActivityForResult(intent, PICK_NEW_FILE_REQUEST);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PICK_NEW_FILE_REQUEST && resultCode == RESULT_OK && data != null) {
-            newFileUri = data.getData();
-            getContentResolver().takePersistableUriPermission(newFileUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
-
-            newFileName = getFileName(newFileUri);
-
-            tvFileName.setText("New file selected: " + newFileName);
-
-            Toast.makeText(this, "New file selected!", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private String getFileName(Uri uri) {
-        String result = null;
-        try (Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
-            if (cursor != null && cursor.moveToFirst()) {
-                int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-                if (nameIndex != -1) result = cursor.getString(nameIndex);
-            }
-        }
-        if (result == null) result = uri.getLastPathSegment();
-        return result;
-    }
-
 
     private void deleteFile() {
-        Toast.makeText(this, "File deleted (demo only)", Toast.LENGTH_SHORT).show();
+        if (fileId == -1) return;
+
+        boolean deletedFromStorage = false;
+        try {
+            Uri uri = Uri.parse(fileUri);
+            if ("content".equals(uri.getScheme())) {
+                deletedFromStorage = getContentResolver().delete(uri, null, null) > 0;
+            } else if ("file".equals(uri.getScheme())) {
+                java.io.File file = new java.io.File(uri.getPath());
+                deletedFromStorage = file.exists() && file.delete();
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+
+        UserDatabase db = new UserDatabase(this);
+        boolean deletedFromDB = db.deleteFile(fileId);
+        db.close();
+
+        finish();
     }
 }

@@ -93,6 +93,7 @@ public class MainScreenActivity extends AppCompatActivity {
             fileList.clear();
             if (cursor != null && cursor.moveToFirst()) {
                 do {
+                    int fileId = cursor.getInt(cursor.getColumnIndexOrThrow("file_id"));
                     String name = cursor.getString(cursor.getColumnIndexOrThrow("filename"));
                     int size = cursor.getInt(cursor.getColumnIndexOrThrow("filesize"));
                     String uri = cursor.getString(cursor.getColumnIndexOrThrow("fileuri"));
@@ -102,7 +103,7 @@ public class MainScreenActivity extends AppCompatActivity {
 
                     if ("global".equalsIgnoreCase(status) ||
                             (email.equalsIgnoreCase(currentUserEmail) && "pending".equalsIgnoreCase(status))) {
-                        fileList.add(new FileItem(name, size, uri, email, date, status));
+                        fileList.add(new FileItem(fileId, name, size, uri, email, date, status));
                     }
 
                 } while (cursor.moveToNext());

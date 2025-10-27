@@ -11,7 +11,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
-import java.util.Locale;
 
 public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder> {
 
@@ -56,10 +55,15 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
             holder.itemView.setVisibility(View.GONE);
             holder.itemView.setLayoutParams(new RecyclerView.LayoutParams(0, 0));
             return;
+        } else {
+            holder.itemView.setVisibility(View.VISIBLE);
+            holder.itemView.setLayoutParams(new RecyclerView.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         }
 
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, FileDetailActivity.class);
+            intent.putExtra("fileId", file.getFileId());
             intent.putExtra("filename", file.getName());
             intent.putExtra("filesize", file.getSize());
             intent.putExtra("fileuri", file.getUri());
