@@ -13,7 +13,7 @@ import java.util.Locale;
 public class UserDatabase extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "UserDB.db";
-    private static final int DATABASE_VERSION = 23;
+    private static final int DATABASE_VERSION = 24;
 
     private static final String TABLE_USERS = "users";
     private static final String COLUMN_ID = "id";
@@ -30,6 +30,7 @@ public class UserDatabase extends SQLiteOpenHelper {
     private static final String COLUMN_FILESIZE = "filesize";
     private static final String COLUMN_FILE_EMAIL = "email";
     private static final String COLUMN_FILE_DATE = "publishedDate";
+    private static final String COLUMN_FILE_STATUS = "status";
 
     private static final String TABLE_ORDERS = "orders";
     private static final String COLUMN_ORDER_ID = "order_id";
@@ -65,7 +66,8 @@ public class UserDatabase extends SQLiteOpenHelper {
                 COLUMN_FILEURI + " TEXT, " +
                 COLUMN_FILESIZE + " INTEGER, " +
                 COLUMN_FILE_EMAIL + " TEXT, " +
-                COLUMN_FILE_DATE + " TEXT)";
+                COLUMN_FILE_DATE + " TEXT," +
+                COLUMN_FILE_STATUS + " TEXT DEFAULT 'pending'" + ")";
         db.execSQL(createFiles);
 
         String createOrders = "CREATE TABLE " + TABLE_ORDERS + " (" +
@@ -164,7 +166,8 @@ public class UserDatabase extends SQLiteOpenHelper {
         return db.rawQuery("SELECT * FROM " + TABLE_USERS, null);
     }
 
-    public boolean insertFile(String filename, String fileuri, int filesize, String email, String publishedDate) {
+    public boolean insertFile(String filename, String fileuri, int filesize, String email, String publishedDate)
+    {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_FILENAME, filename);
@@ -172,6 +175,7 @@ public class UserDatabase extends SQLiteOpenHelper {
         values.put(COLUMN_FILESIZE, filesize);
         values.put(COLUMN_FILE_EMAIL, email);
         values.put(COLUMN_FILE_DATE, publishedDate);
+        values.put(COLUMN_FILE_STATUS, "pending");
         long result = db.insert(TABLE_FILES, null, values);
         db.close();
         return result != -1;

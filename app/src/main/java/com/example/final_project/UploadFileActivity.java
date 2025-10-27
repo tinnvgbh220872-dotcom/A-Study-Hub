@@ -98,7 +98,7 @@ public class UploadFileActivity extends AppCompatActivity {
         tvStatus.setText("Uploading...");
         int fileSize = getFileSize(fileUri);
         String publishedDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
-        boolean success = dbHelper.insertFile(fileName, fileUri.toString(), fileSize, userEmail, publishedDate);
+        boolean success = dbHelper.insertFile(fileName, fileUri.toString(), fileSize, userEmail, publishedDate );
         progressBar.setProgress(100);
 
         if (success) {

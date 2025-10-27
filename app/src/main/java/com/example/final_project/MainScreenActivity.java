@@ -43,7 +43,7 @@ public class MainScreenActivity extends AppCompatActivity {
         userDatabase = new UserDatabase(this);
 
         fileList = new ArrayList<>();
-        fileAdapter = new FileAdapter(this, fileList);
+        fileAdapter = new FileAdapter(this, fileList, currentUserEmail);
         rvFiles.setLayoutManager(new LinearLayoutManager(this));
         rvFiles.setAdapter(fileAdapter);
 
@@ -98,7 +98,13 @@ public class MainScreenActivity extends AppCompatActivity {
                     String uri = cursor.getString(cursor.getColumnIndexOrThrow("fileuri"));
                     String email = cursor.getString(cursor.getColumnIndexOrThrow("email"));
                     String date = cursor.getString(cursor.getColumnIndexOrThrow("publishedDate"));
-                    fileList.add(new FileItem(name, size, uri, email, date));
+                    String status = cursor.getString(cursor.getColumnIndexOrThrow("status"));
+
+                    if ("global".equalsIgnoreCase(status) ||
+                            (email.equalsIgnoreCase(currentUserEmail) && "pending".equalsIgnoreCase(status))) {
+                        fileList.add(new FileItem(name, size, uri, email, date, status));
+                    }
+
                 } while (cursor.moveToNext());
             }
             fileAdapter.notifyDataSetChanged();

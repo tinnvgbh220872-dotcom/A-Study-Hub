@@ -11,15 +11,18 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
+import java.util.Locale;
 
 public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder> {
 
     private Context context;
     private List<FileItem> fileList;
+    private String currentUserEmail;
 
-    public FileAdapter(Context context, List<FileItem> fileList) {
+    public FileAdapter(Context context, List<FileItem> fileList, String currentUserEmail) {
         this.context = context;
         this.fileList = fileList;
+        this.currentUserEmail = currentUserEmail;
     }
 
     @NonNull
@@ -37,13 +40,22 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
         holder.tvEmail.setText("Uploaded by: " + file.getEmail());
         holder.tvDate.setText("Published: " + file.getPublishedDate());
 
+        String statusText = file.getStatus().equalsIgnoreCase("pending") ? "Pending" : "Global";
+        holder.tvStatus.setText(statusText);
+
         Uri uri = Uri.parse(file.getUri());
         String mimeType = context.getContentResolver().getType(uri);
-
         if (mimeType != null && mimeType.startsWith("image/")) {
             holder.ivFileIcon.setImageURI(uri);
         } else {
             holder.ivFileIcon.setImageResource(R.drawable.ic_file);
+        }
+
+        if (file.getStatus().equalsIgnoreCase("pending") &&
+                !file.getEmail().equalsIgnoreCase(currentUserEmail)) {
+            holder.itemView.setVisibility(View.GONE);
+            holder.itemView.setLayoutParams(new RecyclerView.LayoutParams(0, 0));
+            return;
         }
 
         holder.itemView.setOnClickListener(v -> {
@@ -53,6 +65,7 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
             intent.putExtra("fileuri", file.getUri());
             intent.putExtra("email", file.getEmail());
             intent.putExtra("publishedDate", file.getPublishedDate());
+            intent.putExtra("status", file.getStatus());
             context.startActivity(intent);
         });
     }
@@ -64,7 +77,7 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
 
     public static class FileViewHolder extends RecyclerView.ViewHolder {
         ImageView ivFileIcon;
-        TextView tvName, tvSize, tvEmail, tvDate;
+        TextView tvName, tvSize, tvEmail, tvDate, tvStatus;
 
         public FileViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -73,6 +86,7 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
             tvSize = itemView.findViewById(R.id.tvSize);
             tvEmail = itemView.findViewById(R.id.tvEmail);
             tvDate = itemView.findViewById(R.id.tvDate);
+            tvStatus = itemView.findViewById(R.id.tvStatus);
         }
     }
 }
