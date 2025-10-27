@@ -39,8 +39,8 @@ public class PremiumActivity extends AppCompatActivity {
         btnYearlyDetails.setOnClickListener(v -> startActivity(new Intent(this, YearlyActivity.class)));
 
         btnTrialSubscribe.setOnClickListener(v -> subscribeTrial());
-        btnMonthlySubscribe.setOnClickListener(v -> subscribePaid("Monthly Plan", 99000));
-        btnYearlySubscribe.setOnClickListener(v -> subscribePaid("Yearly Plan", 999000));
+        btnMonthlySubscribe.setOnClickListener(v -> subscribePaid("Monthly Plan", 4.99));
+        btnYearlySubscribe.setOnClickListener(v -> subscribePaid("Yearly Plan", 39.99));
     }
 
     private void subscribeTrial() {

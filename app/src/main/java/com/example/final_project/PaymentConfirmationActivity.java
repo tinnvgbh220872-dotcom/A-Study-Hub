@@ -83,7 +83,7 @@ public class PaymentConfirmationActivity extends AppCompatActivity {
                 } else {
                     message.setSubject("Payment Confirmation - Top-up Successful");
                     message.setText(String.format(Locale.getDefault(),
-                            "Dear User,\n\nThank you for trusting us! Your top-up of $%.2f has been successfully processed.\n\n" +
+                            "Dear User,\n\nThank you for trusting us! Your top-up of $%.0f has been successfully processed.\n\n" +
                                     "Enjoy using our services, and if you have any questions, feel free to contact support.\n\n" +
                                     "Best regards,\nA-Study-Hub Team", amount));
                 }
@@ -93,7 +93,7 @@ public class PaymentConfirmationActivity extends AppCompatActivity {
                 runOnUiThread(() -> Toast.makeText(
                         PaymentConfirmationActivity.this,
                         isPremium ? "Premium subscription activated!" :
-                                String.format(Locale.getDefault(), "Top-up successful! $%.2f added.", amount),
+                                String.format(Locale.getDefault(), "Top-up successful! $%.0f added.", amount),
                         Toast.LENGTH_SHORT
                 ).show());
 

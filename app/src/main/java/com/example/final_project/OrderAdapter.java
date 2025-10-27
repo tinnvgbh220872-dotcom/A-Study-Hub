@@ -6,7 +6,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
-import java.util.Locale;
 
 public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> {
 
@@ -26,7 +25,13 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
     public void onBindViewHolder(ViewHolder h, int position) {
         Order o = list.get(position);
         h.tvOrderId.setText("Order #" + o.getId());
-        h.tvAmount.setText("₫" + String.format(Locale.getDefault(), "%.0f", o.getAmount()));
+
+        double amount = o.getAmount();
+        String amountText = (amount == (long) amount)
+                ? (long) amount + "$"
+                : amount + "$";
+        h.tvAmount.setText(amountText);
+
         h.tvDate.setText(o.getDate());
         h.tvStatus.setText("Status: " + o.getStatus());
     }
@@ -38,6 +43,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvOrderId, tvAmount, tvDate, tvStatus;
+
         public ViewHolder(View v) {
             super(v);
             tvOrderId = v.findViewById(R.id.tv_order_id);

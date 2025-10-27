@@ -24,7 +24,6 @@ public class WalletActivity extends AppCompatActivity {
     private TransactionAdapter adapter;
     private String userEmail;
     private ArrayList<Transaction> list = new ArrayList<>();
-
     private static final int TOPUP_REQUEST_CODE = 1001;
 
     @Override
@@ -36,7 +35,6 @@ public class WalletActivity extends AppCompatActivity {
         tvEmpty = findViewById(R.id.tv_transactions_empty);
         rvTransactions = findViewById(R.id.rv_transactions);
         btnTopUp = findViewById(R.id.btn_top_up);
-
         db = new UserDatabase(this);
 
         userEmail = getIntent().getStringExtra("email");
@@ -58,7 +56,6 @@ public class WalletActivity extends AppCompatActivity {
         rvTransactions.setLayoutManager(new LinearLayoutManager(this));
         adapter = new TransactionAdapter(list);
         rvTransactions.setAdapter(adapter);
-
         loadData();
 
         btnTopUp.setOnClickListener(v -> {
@@ -90,7 +87,7 @@ public class WalletActivity extends AppCompatActivity {
                 String type = c.getString(c.getColumnIndexOrThrow("type"));
                 double amount = c.getDouble(c.getColumnIndexOrThrow("amount"));
                 String date = c.getString(c.getColumnIndexOrThrow("date"));
-                list.add(new Transaction(type, amount, date));
+                list.add(new Transaction(type, Math.abs(amount), date));
                 balance += amount;
             } while (c.moveToNext());
             c.close();
@@ -99,6 +96,11 @@ public class WalletActivity extends AppCompatActivity {
             tvEmpty.setVisibility(android.view.View.VISIBLE);
         }
         adapter.notifyDataSetChanged();
-        tvBalance.setText("$" + String.format(Locale.getDefault(), "%.2f", balance));
+
+        if (balance == (long) balance) {
+            tvBalance.setText((long) balance + "$");
+        } else {
+            tvBalance.setText(balance + "$");
+        }
     }
 }

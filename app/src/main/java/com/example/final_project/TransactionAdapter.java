@@ -27,8 +27,16 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         Transaction t = list.get(position);
         h.tvTitle.setText(t.getType());
         h.tvSub.setText(t.getDate());
-        String prefix = t.getAmount() >= 0 ? "+" : "-";
-        h.tvAmount.setText(prefix + "₫" + String.format(Locale.getDefault(), "%.0f", Math.abs(t.getAmount())));
+
+        String typeLower = t.getType().toLowerCase(Locale.getDefault());
+        boolean isTopUp = typeLower.contains("topup")
+                || typeLower.contains("top up")
+                || typeLower.contains("top-up")
+                || typeLower.contains("deposit");
+
+        double amount = Math.abs(t.getAmount());
+        String prefix = isTopUp ? "+" : "-";
+        h.tvAmount.setText(prefix + "$" + String.format(Locale.getDefault(), "%.0f", amount));
     }
 
     @Override
