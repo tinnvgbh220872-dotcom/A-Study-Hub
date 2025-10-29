@@ -17,7 +17,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 public class FileDetailActivity extends AppCompatActivity {
 
@@ -101,6 +104,7 @@ public class FileDetailActivity extends AppCompatActivity {
                     android.Manifest.permission.WRITE_EXTERNAL_STORAGE
             }, 1);
         }
+        loadComments();
     }
 
     private void updateUIByStatus() {
@@ -266,16 +270,34 @@ public class FileDetailActivity extends AppCompatActivity {
     private void addComment() {
         String comment = etComment.getText().toString().trim();
         if (!comment.isEmpty()) {
-            commentList.add(userEmail + ": " + comment);
+            String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
+            UserDatabase db = new UserDatabase(this);
+            db.insertComment(fileId, userEmail, comment, time);
+            db.close();
             etComment.setText("");
-            updateComments();
+            loadComments();
         }
     }
 
-    private void updateComments() {
+    private void loadComments() {
+        UserDatabase db = new UserDatabase(this);
+        Cursor c = db.getCommentsByFileId(fileId);
         StringBuilder sb = new StringBuilder();
-        for (String c : commentList) sb.append("- ").append(c).append("\n");
+        if (c != null && c.moveToFirst()) {
+            do {
+                String email = c.getString(0);
+                String text = c.getString(1);
+                String time = c.getString(2);
+                sb.append("📧 ").append(email)
+                        .append("\n🕒 ").append(time)
+                        .append("\n💬 ").append(text)
+                        .append("\n\n");
+            } while (c.moveToNext());
+            c.close();
+        }
+        db.close();
         tvComments.setText(sb.toString());
+        tvComments.setVisibility(View.VISIBLE);
     }
 
     private void deleteFile() {

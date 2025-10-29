@@ -13,7 +13,7 @@ import java.util.Locale;
 public class UserDatabase extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "UserDB.db";
-    private static final int DATABASE_VERSION = 25;
+    private static final int DATABASE_VERSION = 26;
 
     private static final String TABLE_USERS = "users";
     private static final String COLUMN_ID = "id";
@@ -44,6 +44,12 @@ public class UserDatabase extends SQLiteOpenHelper {
     private static final String COLUMN_TRANSACTION_TYPE = "type";
     private static final String COLUMN_TRANSACTION_AMOUNT = "amount";
     private static final String COLUMN_TRANSACTION_DATE = "date";
+    private static final String TABLE_COMMENTS = "comments";
+    private static final String COLUMN_COMMENT_ID = "comment_id";
+    private static final String COLUMN_COMMENT_FILE_ID = "file_id";
+    private static final String COLUMN_COMMENT_EMAIL = "email";
+    private static final String COLUMN_COMMENT_TEXT = "comment";
+    private static final String COLUMN_COMMENT_TIME = "timestamp";
 
     public UserDatabase(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -84,6 +90,13 @@ public class UserDatabase extends SQLiteOpenHelper {
                 COLUMN_TRANSACTION_AMOUNT + " REAL, " +
                 COLUMN_TRANSACTION_DATE + " TEXT)";
         db.execSQL(createTransactions);
+
+        db.execSQL("CREATE TABLE " + TABLE_COMMENTS + " (" +
+                COLUMN_COMMENT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_COMMENT_FILE_ID + " INTEGER, " +
+                COLUMN_COMMENT_EMAIL + " TEXT, " +
+                COLUMN_COMMENT_TEXT + " TEXT, " +
+                COLUMN_COMMENT_TIME + " TEXT)");
     }
 
     @Override
@@ -92,6 +105,7 @@ public class UserDatabase extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_FILES);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_ORDERS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_TRANSACTIONS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_COMMENTS);
         onCreate(db);
     }
 
@@ -366,6 +380,27 @@ public class UserDatabase extends SQLiteOpenHelper {
         values.put(COLUMN_IS_PREMIUM, premium ? 1 : 0);
         db.update(TABLE_USERS, values, COLUMN_EMAIL + "=?", new String[]{email});
         db.close();
+    }
+    public boolean insertComment(int fileId, String email, String comment, String timestamp) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_COMMENT_FILE_ID, fileId);
+        values.put(COLUMN_COMMENT_EMAIL, email);
+        values.put(COLUMN_COMMENT_TEXT, comment);
+        values.put(COLUMN_COMMENT_TIME, timestamp);
+        long result = db.insert(TABLE_COMMENTS, null, values);
+        db.close();
+        return result != -1;
+    }
+
+    public Cursor getCommentsByFileId(int fileId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.query(TABLE_COMMENTS,
+                new String[]{COLUMN_COMMENT_EMAIL, COLUMN_COMMENT_TEXT, COLUMN_COMMENT_TIME},
+                COLUMN_COMMENT_FILE_ID + "=?",
+                new String[]{String.valueOf(fileId)},
+                null, null,
+                COLUMN_COMMENT_ID + " DESC");
     }
 
 }
