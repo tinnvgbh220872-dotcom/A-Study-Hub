@@ -344,4 +344,28 @@ public class UserDatabase extends SQLiteOpenHelper {
         db.close();
         return email;
     }
+    public boolean isPremiumUser(String email) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_USERS,
+                new String[]{COLUMN_IS_PREMIUM},
+                COLUMN_EMAIL + "=?",
+                new String[]{email},
+                null, null, null);
+        boolean isPremium = false;
+        if (cursor.moveToFirst()) {
+            isPremium = cursor.getInt(0) == 1;
+        }
+        cursor.close();
+        db.close();
+        return isPremium;
+    }
+
+    public void setPremiumStatus(String email, boolean premium) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_IS_PREMIUM, premium ? 1 : 0);
+        db.update(TABLE_USERS, values, COLUMN_EMAIL + "=?", new String[]{email});
+        db.close();
+    }
+
 }

@@ -31,6 +31,22 @@ public class MainScreenActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_screen_activity);
 
+        try {
+            UserDatabase db = new UserDatabase(this);
+            android.database.sqlite.SQLiteDatabase writableDb = db.getWritableDatabase();
+
+            android.content.ContentValues values = new android.content.ContentValues();
+            values.put("status", "pending");
+
+
+            int rows = writableDb.update("uploaded_files", values, "status = ?", new String[]{"pending"});
+
+            Log.d("MainScreen", "Updated " + rows + " files from pending → global");
+        } catch (Exception e) {
+            Log.e("MainScreen", "Error while updating file status: " + e.getMessage());
+        }
+
+
         tvWelcome = findViewById(R.id.tvWelcome);
         tvHelloUser = findViewById(R.id.tvHelloUser);
         imgPremiumStar = findViewById(R.id.imgPremiumStar);

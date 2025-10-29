@@ -3,6 +3,7 @@ package com.example.final_project;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.pdf.PdfRenderer;
@@ -11,12 +12,9 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
+import android.view.View;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -27,11 +25,13 @@ public class FileDetailActivity extends AppCompatActivity {
     private ImageView ivPreview;
     private EditText etComment;
     private Button btnPreview, btnDownload, btnReport, btnSendComment, btnEditFile, btnDeleteFile;
+    private View blurOverlay;
 
     private ArrayList<String> commentList = new ArrayList<>();
     private int fileId;
     private String fileName, fileUri, userEmail, status;
     private int fileSize;
+    private boolean isPremium = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +49,7 @@ public class FileDetailActivity extends AppCompatActivity {
         btnSendComment = findViewById(R.id.btnSendComment);
         btnEditFile = findViewById(R.id.btnEditFile);
         btnDeleteFile = findViewById(R.id.btnDeleteFile);
+        blurOverlay = findViewById(R.id.blurOverlay);
 
         Intent intent = getIntent();
         fileId = intent.getIntExtra("fileId", -1);
@@ -58,13 +59,27 @@ public class FileDetailActivity extends AppCompatActivity {
         userEmail = intent.getStringExtra("email");
         status = intent.getStringExtra("status");
 
+        UserDatabase db = new UserDatabase(this);
+        try (Cursor c = db.getUserByEmail(userEmail)) {
+            if (c != null && c.moveToFirst()) {
+                int idx = c.getColumnIndex("isPremium");
+                if (idx >= 0) {
+                    isPremium = c.getInt(idx) == 1;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        db.close();
+
         tvFileName.setText(fileName);
         tvFileSize.setText("Size: " + fileSize + " bytes");
 
         if (fileUri != null && !fileUri.isEmpty()) {
             try {
                 Uri uri = Uri.parse(fileUri);
-                getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                final int takeFlags = (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                getContentResolver().takePersistableUriPermission(uri, takeFlags);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -105,6 +120,7 @@ public class FileDetailActivity extends AppCompatActivity {
         if (fileUri == null || fileUri.isEmpty()) return;
 
         ivPreview.setVisibility(ImageView.GONE);
+        blurOverlay.setVisibility(View.GONE);
         tvComments.setVisibility(TextView.GONE);
 
         String lowerName = fileName.trim().toLowerCase();
@@ -115,24 +131,42 @@ public class FileDetailActivity extends AppCompatActivity {
                 ivPreview.setVisibility(ImageView.VISIBLE);
                 try (InputStream is = getContentResolver().openInputStream(uri)) {
                     Bitmap bmp = BitmapFactory.decodeStream(is);
-                    ivPreview.setImageBitmap(bmp);
+
+                    if (!isPremium) {
+                        int cutHeight = bmp.getHeight() / 2;
+                        Bitmap topHalf = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), cutHeight);
+                        ivPreview.setImageBitmap(topHalf);
+                        blurOverlay.setVisibility(View.VISIBLE);
+                        Toast.makeText(this, "Upgrade to Premium to view full image", Toast.LENGTH_SHORT).show();
+                    } else {
+                        ivPreview.setImageBitmap(bmp);
+                        blurOverlay.setVisibility(View.GONE);
+                    }
                 }
-            } else if (lowerName.endsWith(".pdf")) {
+
+
+        } else if (lowerName.endsWith(".pdf")) {
                 tvComments.setVisibility(TextView.VISIBLE);
                 try (ParcelFileDescriptor pfd = getContentResolver().openFileDescriptor(uri, "r")) {
                     if (pfd != null) {
                         PdfRenderer renderer = new PdfRenderer(pfd);
                         if (renderer.getPageCount() > 0) {
+                            int pageLimit = isPremium ? renderer.getPageCount() : 1;
                             PdfRenderer.Page page = renderer.openPage(0);
                             Bitmap bmp = Bitmap.createBitmap(page.getWidth(), page.getHeight(), Bitmap.Config.ARGB_8888);
                             page.render(bmp, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
+                            page.close();
+                            renderer.close();
+
                             ivPreview.setVisibility(ImageView.VISIBLE);
                             ivPreview.setImageBitmap(bmp);
-                            page.close();
+
+                            if (!isPremium)
+                                Toast.makeText(this, "Upgrade to Premium to view full PDF", Toast.LENGTH_SHORT).show();
                         }
-                        renderer.close();
                     }
                 }
+
             } else if (lowerName.endsWith(".txt")) {
                 tvComments.setVisibility(TextView.VISIBLE);
                 StringBuilder sb = new StringBuilder();
@@ -140,7 +174,12 @@ public class FileDetailActivity extends AppCompatActivity {
                     int ch;
                     while ((ch = is.read()) != -1) sb.append((char) ch);
                 }
-                tvComments.setText(sb.toString());
+                String text = sb.toString();
+                if (!isPremium && text.length() > 200) {
+                    text = text.substring(0, 200) + "\n\n[Upgrade to Premium to view the rest]";
+                }
+                tvComments.setText(text);
+
             } else {
                 Toast.makeText(this, "Preview not supported for this file type", Toast.LENGTH_SHORT).show();
             }
@@ -242,19 +281,18 @@ public class FileDetailActivity extends AppCompatActivity {
     private void deleteFile() {
         if (fileId == -1) return;
 
-        boolean deletedFromStorage = false;
         try {
             Uri uri = Uri.parse(fileUri);
             if ("content".equals(uri.getScheme())) {
-                deletedFromStorage = getContentResolver().delete(uri, null, null) > 0;
+                getContentResolver().delete(uri, null, null);
             } else if ("file".equals(uri.getScheme())) {
                 java.io.File file = new java.io.File(uri.getPath());
-                deletedFromStorage = file.exists() && file.delete();
+                if (file.exists()) file.delete();
             }
         } catch (Exception e) { e.printStackTrace(); }
 
         UserDatabase db = new UserDatabase(this);
-        boolean deletedFromDB = db.deleteFile(fileId);
+        db.deleteFile(fileId);
         db.close();
 
         finish();
