@@ -126,6 +126,10 @@
             android:name=".TopupActivity"
             android:exported="false"
             android:theme="@style/Theme.Finalproject"/>
+        <activity
+            android:name=".UserActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Finalproject"/>
 
 
         <provider
