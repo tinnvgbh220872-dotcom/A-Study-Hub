@@ -36,7 +36,7 @@ public class MainScreenActivity extends AppCompatActivity {
             android.database.sqlite.SQLiteDatabase writableDb = db.getWritableDatabase();
 
             android.content.ContentValues values = new android.content.ContentValues();
-            values.put("status", "pending");
+            values.put("status", "global");
 
 
             int rows = writableDb.update("uploaded_files", values, "status = ?", new String[]{"pending"});

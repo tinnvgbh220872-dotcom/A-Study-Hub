@@ -13,16 +13,17 @@ import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.widget.*;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
+import com.google.firebase.database.*;
+
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
 public class FileDetailActivity extends AppCompatActivity {
 
@@ -32,11 +33,12 @@ public class FileDetailActivity extends AppCompatActivity {
     private Button btnPreview, btnDownload, btnReport, btnSendComment, btnEditFile, btnDeleteFile;
     private View blurOverlay;
 
-    private ArrayList<String> commentList = new ArrayList<>();
     private int fileId;
     private String fileName, fileUri, userEmail, status;
     private int fileSize;
     private boolean isPremium = false;
+
+    private DatabaseReference commentRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,13 +70,9 @@ public class FileDetailActivity extends AppCompatActivity {
         try (Cursor c = db.getUserByEmail(userEmail)) {
             if (c != null && c.moveToFirst()) {
                 int idx = c.getColumnIndex("isPremium");
-                if (idx >= 0) {
-                    isPremium = c.getInt(idx) == 1;
-                }
+                if (idx >= 0) isPremium = c.getInt(idx) == 1;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } catch (Exception e) { e.printStackTrace(); }
         db.close();
 
         tvFileName.setText(fileName);
@@ -85,9 +83,7 @@ public class FileDetailActivity extends AppCompatActivity {
                 Uri uri = Uri.parse(fileUri);
                 final int takeFlags = (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                 getContentResolver().takePersistableUriPermission(uri, takeFlags);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            } catch (Exception e) { e.printStackTrace(); }
         }
 
         updateUIByStatus();
@@ -106,7 +102,9 @@ public class FileDetailActivity extends AppCompatActivity {
                     android.Manifest.permission.WRITE_EXTERNAL_STORAGE
             }, 1);
         }
-        loadComments();
+
+        commentRef = FirebaseDatabase.getInstance().getReference("comments").child(String.valueOf(fileId));
+        loadCommentsFromFirebase();
     }
 
     private void updateUIByStatus() {
@@ -116,7 +114,6 @@ public class FileDetailActivity extends AppCompatActivity {
         btnDeleteFile.setVisibility(isPending ? Button.VISIBLE : Button.GONE);
         btnDownload.setVisibility(isPending ? Button.GONE : Button.VISIBLE);
         btnSendComment.setVisibility(isPending ? Button.GONE : Button.VISIBLE);
-        btnReport.setVisibility(isPending ? Button.GONE : Button.VISIBLE);
         etComment.setVisibility(isPending ? EditText.GONE : EditText.VISIBLE);
         tvComments.setVisibility(isPending ? TextView.GONE : TextView.VISIBLE);
     }
@@ -254,36 +251,42 @@ public class FileDetailActivity extends AppCompatActivity {
     }
 
     private void addComment() {
-        String comment = etComment.getText().toString().trim();
-        if (!comment.isEmpty()) {
-            String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
-            UserDatabase db = new UserDatabase(this);
-            db.insertComment(fileId, userEmail, comment, time);
-            db.close();
-            etComment.setText("");
-            loadComments();
+        String commentText = etComment.getText().toString().trim();
+        if (commentText.isEmpty()) return;
+
+        String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
+        String commentId = commentRef.push().getKey();
+
+        if (commentId != null) {
+            CommentItem comment = new CommentItem(userEmail, commentText, timestamp);
+            commentRef.child(commentId).setValue(comment);
         }
+        etComment.setText("");
     }
 
-    private void loadComments() {
-        UserDatabase db = new UserDatabase(this);
-        Cursor c = db.getCommentsByFileId(fileId);
-        StringBuilder sb = new StringBuilder();
-        if (c != null && c.moveToFirst()) {
-            do {
-                String email = c.getString(0);
-                String text = c.getString(1);
-                String time = c.getString(2);
-                sb.append("📧 ").append(email)
-                        .append("\n🕒 ").append(time)
-                        .append("\n💬 ").append(text)
-                        .append("\n\n");
-            } while (c.moveToNext());
-            c.close();
-        }
-        db.close();
-        tvComments.setText(sb.toString());
-        tvComments.setVisibility(View.VISIBLE);
+    private void loadCommentsFromFirebase() {
+        commentRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                StringBuilder sb = new StringBuilder();
+                for (DataSnapshot commentSnapshot : snapshot.getChildren()) {
+                    CommentItem comment = commentSnapshot.getValue(CommentItem.class);
+                    if (comment != null) {
+                        sb.append("📧 ").append(comment.email)
+                                .append("\n🕒 ").append(comment.time)
+                                .append("\n💬 ").append(comment.text)
+                                .append("\n\n");
+                    }
+                }
+                tvComments.setText(sb.toString());
+                tvComments.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(FileDetailActivity.this, "Failed to load comments", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void deleteFile() {
@@ -301,5 +304,19 @@ public class FileDetailActivity extends AppCompatActivity {
         db.deleteFile(fileId);
         db.close();
         finish();
+    }
+
+    public static class CommentItem {
+        public String email;
+        public String text;
+        public String time;
+
+        public CommentItem() {}
+
+        public CommentItem(String email, String text, String time) {
+            this.email = email;
+            this.text = text;
+            this.time = time;
+        }
     }
 }
