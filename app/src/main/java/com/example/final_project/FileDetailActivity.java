@@ -24,7 +24,6 @@ import java.util.Locale;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-
 public class FileDetailActivity extends AppCompatActivity {
 
     private TextView tvFileName, tvFileSize, tvComments;
@@ -112,7 +111,6 @@ public class FileDetailActivity extends AppCompatActivity {
 
     private void updateUIByStatus() {
         boolean isPending = status != null && status.equalsIgnoreCase("pending");
-
         btnPreview.setVisibility(Button.VISIBLE);
         btnEditFile.setVisibility(isPending ? Button.VISIBLE : Button.GONE);
         btnDeleteFile.setVisibility(isPending ? Button.VISIBLE : Button.GONE);
@@ -125,20 +123,16 @@ public class FileDetailActivity extends AppCompatActivity {
 
     private void previewFile() {
         if (fileUri == null || fileUri.isEmpty()) return;
-
         ivPreview.setVisibility(ImageView.GONE);
         blurOverlay.setVisibility(View.GONE);
         tvComments.setVisibility(TextView.GONE);
-
         String lowerName = fileName.trim().toLowerCase();
         Uri uri = Uri.parse(fileUri);
-
         try {
             if (lowerName.endsWith(".png") || lowerName.endsWith(".jpg") || lowerName.endsWith(".jpeg")) {
                 ivPreview.setVisibility(ImageView.VISIBLE);
                 try (InputStream is = getContentResolver().openInputStream(uri)) {
                     Bitmap bmp = BitmapFactory.decodeStream(is);
-
                     if (!isPremium) {
                         int cutHeight = bmp.getHeight() / 2;
                         Bitmap topHalf = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), cutHeight);
@@ -150,9 +144,7 @@ public class FileDetailActivity extends AppCompatActivity {
                         blurOverlay.setVisibility(View.GONE);
                     }
                 }
-
-
-        } else if (lowerName.endsWith(".pdf")) {
+            } else if (lowerName.endsWith(".pdf")) {
                 tvComments.setVisibility(TextView.VISIBLE);
                 try (ParcelFileDescriptor pfd = getContentResolver().openFileDescriptor(uri, "r")) {
                     if (pfd != null) {
@@ -164,16 +156,13 @@ public class FileDetailActivity extends AppCompatActivity {
                             page.render(bmp, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
                             page.close();
                             renderer.close();
-
                             ivPreview.setVisibility(ImageView.VISIBLE);
                             ivPreview.setImageBitmap(bmp);
-
                             if (!isPremium)
                                 Toast.makeText(this, "Upgrade to Premium to view full PDF", Toast.LENGTH_SHORT).show();
                         }
                     }
                 }
-
             } else if (lowerName.endsWith(".txt")) {
                 tvComments.setVisibility(TextView.VISIBLE);
                 StringBuilder sb = new StringBuilder();
@@ -186,7 +175,6 @@ public class FileDetailActivity extends AppCompatActivity {
                     text = text.substring(0, 200) + "\n\n[Upgrade to Premium to view the rest]";
                 }
                 tvComments.setText(text);
-
             } else {
                 Toast.makeText(this, "Preview not supported for this file type", Toast.LENGTH_SHORT).show();
             }
@@ -216,20 +204,16 @@ public class FileDetailActivity extends AppCompatActivity {
                             Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
                     );
                 } catch (Exception e) { e.printStackTrace(); }
-
                 fileUri = newUri.toString();
                 fileName = getFileName(newUri);
                 try (InputStream is = getContentResolver().openInputStream(newUri)) {
                     if (is != null) fileSize = is.available();
                 } catch (Exception e) { e.printStackTrace(); }
-
                 tvFileName.setText(fileName);
                 tvFileSize.setText("Size: " + fileSize + " bytes");
-
                 UserDatabase db = new UserDatabase(this);
                 db.updateFile(fileId, fileName, fileUri, fileSize, status);
                 db.close();
-
                 previewFile();
             }
         }
@@ -250,7 +234,6 @@ public class FileDetailActivity extends AppCompatActivity {
             values.put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
             Uri saveUri = getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
             if (saveUri == null) return;
-
             try (OutputStream os = getContentResolver().openOutputStream(saveUri)) {
                 byte[] buffer = new byte[4096];
                 int read;
@@ -305,7 +288,6 @@ public class FileDetailActivity extends AppCompatActivity {
 
     private void deleteFile() {
         if (fileId == -1) return;
-
         try {
             Uri uri = Uri.parse(fileUri);
             if ("content".equals(uri.getScheme())) {
@@ -315,11 +297,9 @@ public class FileDetailActivity extends AppCompatActivity {
                 if (file.exists()) file.delete();
             }
         } catch (Exception e) { e.printStackTrace(); }
-
         UserDatabase db = new UserDatabase(this);
         db.deleteFile(fileId);
         db.close();
-
         finish();
     }
 }

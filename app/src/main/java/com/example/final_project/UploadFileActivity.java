@@ -11,7 +11,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import java.io.IOException;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -26,6 +27,7 @@ public class UploadFileActivity extends AppCompatActivity {
     private Button btnSelectFile, btnUpload;
     private TextView tvSelectedFile, tvStatus;
     private ProgressBar progressBar;
+    private DatabaseReference databaseRef;
     private UserDatabase dbHelper;
 
     @Override
@@ -39,7 +41,9 @@ public class UploadFileActivity extends AppCompatActivity {
         tvStatus = findViewById(R.id.tvStatus);
         progressBar = findViewById(R.id.progressBar);
         dbHelper = new UserDatabase(this);
+
         userEmail = getIntent().getStringExtra("email");
+        databaseRef = FirebaseDatabase.getInstance().getReference("uploads");
 
         btnSelectFile.setOnClickListener(v -> openFilePicker());
         btnUpload.setOnClickListener(v -> uploadFile());
@@ -51,7 +55,6 @@ public class UploadFileActivity extends AppCompatActivity {
         intent.setType("*/*");
         intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
         startActivityForResult(intent, PICK_FILE_REQUEST);
     }
 
@@ -60,11 +63,9 @@ public class UploadFileActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_FILE_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
             fileUri = data.getData();
-            if (fileUri != null) {
-                getContentResolver().takePersistableUriPermission(fileUri, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                fileName = getFileName(fileUri);
-                tvSelectedFile.setText("Selected: " + fileName);
-            }
+            getContentResolver().takePersistableUriPermission(fileUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            fileName = getFileName(fileUri);
+            tvSelectedFile.setText("Selected: " + fileName);
         }
     }
 
@@ -83,7 +84,7 @@ public class UploadFileActivity extends AppCompatActivity {
     private int getFileSize(Uri uri) {
         try (InputStream inputStream = getContentResolver().openInputStream(uri)) {
             return inputStream != null ? inputStream.available() : 0;
-        } catch (IOException e) {
+        } catch (Exception e) {
             return 0;
         }
     }
@@ -95,22 +96,57 @@ public class UploadFileActivity extends AppCompatActivity {
         }
 
         progressBar.setVisibility(ProgressBar.VISIBLE);
-        tvStatus.setText("Uploading...");
+        tvStatus.setText("Saving file info to Firebase...");
+
         int fileSize = getFileSize(fileUri);
         String publishedDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
-        boolean success = dbHelper.insertFile(fileName, fileUri.toString(), fileSize, userEmail, publishedDate );
-        progressBar.setProgress(100);
 
-        if (success) {
-            tvStatus.setText("Upload successful: " + fileName + " (" + fileSize + " bytes)");
-            Toast.makeText(this, "File saved to database!", Toast.LENGTH_SHORT).show();
-        } else {
-            tvStatus.setText("Failed to save to database!");
+        String uploadId = databaseRef.push().getKey();
+        if (uploadId != null) {
+            FileMetadata fileData = new FileMetadata(
+                    fileName,
+                    fileUri.toString(),
+                    fileSize,
+                    userEmail,
+                    publishedDate,
+                    "pending"
+            );
+            databaseRef.child(uploadId).setValue(fileData)
+                    .addOnSuccessListener(unused -> {
+                        boolean success = dbHelper.insertFile(fileName, fileUri.toString(), fileSize, userEmail, publishedDate);
+                        progressBar.setProgress(100);
+                        if (success) {
+                            tvStatus.setText("File saved to Firebase & local DB!");
+                            Toast.makeText(this, "Upload complete!", Toast.LENGTH_SHORT).show();
+                        } else {
+                            tvStatus.setText("Firebase OK, local DB failed!");
+                        }
+                        Intent intent = new Intent(UploadFileActivity.this, MainScreenActivity.class);
+                        intent.putExtra("email", userEmail);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                    })
+                    .addOnFailureListener(e -> {
+                        progressBar.setVisibility(ProgressBar.INVISIBLE);
+                        tvStatus.setText("Upload failed: " + e.getMessage());
+                        Toast.makeText(this, "Upload failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    });
         }
+    }
 
-        Intent intent = new Intent(UploadFileActivity.this, MainScreenActivity.class);
-        intent.putExtra("email", userEmail);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
+    public static class FileMetadata {
+        public String filename, fileUri, email, publishedDate, status;
+        public int filesize;
+
+        public FileMetadata() {}
+
+        public FileMetadata(String filename, String fileUri, int filesize, String email, String publishedDate, String status) {
+            this.filename = filename;
+            this.fileUri = fileUri;
+            this.filesize = filesize;
+            this.email = email;
+            this.publishedDate = publishedDate;
+            this.status = status;
+        }
     }
 }
