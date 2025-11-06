@@ -1,8 +1,9 @@
 package com.example.final_project;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Intent;
-import android.content.pm.PackageManager;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -11,13 +12,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
-import android.provider.MediaStore;
+import android.view.View;
 import android.widget.*;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import android.view.View;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import com.google.firebase.database.*;
-
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
@@ -27,11 +28,15 @@ import java.util.Locale;
 
 public class FileDetailActivity extends AppCompatActivity {
 
-    private TextView tvFileName, tvFileSize, tvComments;
+    private TextView tvFileName, tvFileSize, tvFileContent;
+    private RecyclerView rvComments;
     private ImageView ivPreview;
     private EditText etComment;
     private Button btnPreview, btnDownload, btnReport, btnSendComment, btnEditFile, btnDeleteFile;
     private View blurOverlay;
+
+    private CommentAdapter adapter;
+    private ArrayList<CommentItem> commentList;
 
     private int fileId;
     private String fileName, fileUri, userEmail, status;
@@ -40,6 +45,7 @@ public class FileDetailActivity extends AppCompatActivity {
 
     private DatabaseReference commentRef;
 
+    @SuppressLint("Range")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,33 +53,37 @@ public class FileDetailActivity extends AppCompatActivity {
 
         tvFileName = findViewById(R.id.tvFileName);
         tvFileSize = findViewById(R.id.tvFileSize);
+        tvFileContent = findViewById(R.id.tvFileContent);
         ivPreview = findViewById(R.id.ivPreview);
         etComment = findViewById(R.id.etComment);
-        tvComments = findViewById(R.id.tvComments);
+        rvComments = findViewById(R.id.commentRecycler);
+        blurOverlay = findViewById(R.id.blurOverlay);
+
         btnPreview = findViewById(R.id.btnPreview);
         btnDownload = findViewById(R.id.btnDownload);
         btnReport = findViewById(R.id.btnReport);
         btnSendComment = findViewById(R.id.btnSendComment);
         btnEditFile = findViewById(R.id.btnEditFile);
         btnDeleteFile = findViewById(R.id.btnDeleteFile);
-        blurOverlay = findViewById(R.id.blurOverlay);
+
+        UserDatabase db = new UserDatabase(this);
+        String email = getLoggedInEmail();
+        if (email != null) {
+            Cursor c = db.getUserByEmail(email);
+            if (c != null && c.moveToFirst()) {
+                userEmail = c.getString(c.getColumnIndex("email"));
+                isPremium = c.getInt(c.getColumnIndex("isPremium")) == 1;
+            }
+            if (c != null) c.close();
+        }
+        db.close();
 
         Intent intent = getIntent();
         fileId = intent.getIntExtra("fileId", -1);
         fileName = intent.getStringExtra("filename");
         fileSize = intent.getIntExtra("filesize", 0);
         fileUri = intent.getStringExtra("fileuri");
-        userEmail = intent.getStringExtra("email");
         status = intent.getStringExtra("status");
-
-        UserDatabase db = new UserDatabase(this);
-        try (Cursor c = db.getUserByEmail(userEmail)) {
-            if (c != null && c.moveToFirst()) {
-                int idx = c.getColumnIndex("isPremium");
-                if (idx >= 0) isPremium = c.getInt(idx) == 1;
-            }
-        } catch (Exception e) { e.printStackTrace(); }
-        db.close();
 
         tvFileName.setText(fileName);
         tvFileSize.setText("Size: " + fileSize + " bytes");
@@ -83,11 +93,16 @@ public class FileDetailActivity extends AppCompatActivity {
                 Uri uri = Uri.parse(fileUri);
                 final int takeFlags = (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                 getContentResolver().takePersistableUriPermission(uri, takeFlags);
-            } catch (Exception e) { e.printStackTrace(); }
+            } catch (Exception ignored) {}
         }
 
-        updateUIByStatus();
-        previewFile();
+        commentList = new ArrayList<>();
+        adapter = new CommentAdapter(commentList);
+        rvComments.setLayoutManager(new LinearLayoutManager(this));
+        rvComments.setAdapter(adapter);
+
+        commentRef = FirebaseDatabase.getInstance().getReference("comments").child(String.valueOf(fileId));
+        loadCommentsFromFirebase();
 
         btnPreview.setOnClickListener(v -> previewFile());
         btnDownload.setOnClickListener(v -> downloadFile());
@@ -96,15 +111,20 @@ public class FileDetailActivity extends AppCompatActivity {
         btnEditFile.setOnClickListener(v -> selectNewFile());
         btnDeleteFile.setOnClickListener(v -> deleteFile());
 
-        if (checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+        if (checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{
                     android.Manifest.permission.READ_EXTERNAL_STORAGE,
                     android.Manifest.permission.WRITE_EXTERNAL_STORAGE
             }, 1);
         }
 
-        commentRef = FirebaseDatabase.getInstance().getReference("comments").child(String.valueOf(fileId));
-        loadCommentsFromFirebase();
+        updateUIByStatus();
+        previewFile();
+    }
+
+    private String getLoggedInEmail() {
+        SharedPreferences sp = getSharedPreferences("app_prefs", MODE_PRIVATE);
+        return sp.getString("user_email", null);
     }
 
     private void updateUIByStatus() {
@@ -115,70 +135,64 @@ public class FileDetailActivity extends AppCompatActivity {
         btnDownload.setVisibility(isPending ? Button.GONE : Button.VISIBLE);
         btnSendComment.setVisibility(isPending ? Button.GONE : Button.VISIBLE);
         etComment.setVisibility(isPending ? EditText.GONE : EditText.VISIBLE);
-        tvComments.setVisibility(isPending ? TextView.GONE : TextView.VISIBLE);
+        rvComments.setVisibility(isPending ? View.GONE : View.VISIBLE);
     }
 
     private void previewFile() {
         if (fileUri == null || fileUri.isEmpty()) return;
-        ivPreview.setVisibility(ImageView.GONE);
+        ivPreview.setVisibility(View.GONE);
         blurOverlay.setVisibility(View.GONE);
-        tvComments.setVisibility(TextView.GONE);
+        tvFileContent.setVisibility(View.VISIBLE);
+
         String lowerName = fileName.trim().toLowerCase();
         Uri uri = Uri.parse(fileUri);
+
         try {
             if (lowerName.endsWith(".png") || lowerName.endsWith(".jpg") || lowerName.endsWith(".jpeg")) {
-                ivPreview.setVisibility(ImageView.VISIBLE);
-                try (InputStream is = getContentResolver().openInputStream(uri)) {
-                    Bitmap bmp = BitmapFactory.decodeStream(is);
-                    if (!isPremium) {
-                        int cutHeight = bmp.getHeight() / 2;
-                        Bitmap topHalf = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), cutHeight);
-                        ivPreview.setImageBitmap(topHalf);
-                        blurOverlay.setVisibility(View.VISIBLE);
-                        Toast.makeText(this, "Upgrade to Premium to view full image", Toast.LENGTH_SHORT).show();
-                    } else {
-                        ivPreview.setImageBitmap(bmp);
-                        blurOverlay.setVisibility(View.GONE);
-                    }
+                ivPreview.setVisibility(View.VISIBLE);
+                InputStream is = getContentResolver().openInputStream(uri);
+                Bitmap bmp = BitmapFactory.decodeStream(is);
+
+                if (!isPremium) {
+                    int cutHeight = bmp.getHeight() / 2;
+                    Bitmap topHalf = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), cutHeight);
+                    ivPreview.setImageBitmap(topHalf);
+                    blurOverlay.setVisibility(View.VISIBLE);
+                    Toast.makeText(this, "Upgrade to Premium to view full image", Toast.LENGTH_SHORT).show();
+                } else {
+                    ivPreview.setImageBitmap(bmp);
                 }
+
             } else if (lowerName.endsWith(".pdf")) {
-                tvComments.setVisibility(TextView.VISIBLE);
-                try (ParcelFileDescriptor pfd = getContentResolver().openFileDescriptor(uri, "r")) {
-                    if (pfd != null) {
-                        PdfRenderer renderer = new PdfRenderer(pfd);
-                        if (renderer.getPageCount() > 0) {
-                            int pageLimit = isPremium ? renderer.getPageCount() : 1;
-                            PdfRenderer.Page page = renderer.openPage(0);
-                            Bitmap bmp = Bitmap.createBitmap(page.getWidth(), page.getHeight(), Bitmap.Config.ARGB_8888);
-                            page.render(bmp, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
-                            page.close();
-                            renderer.close();
-                            ivPreview.setVisibility(ImageView.VISIBLE);
-                            ivPreview.setImageBitmap(bmp);
-                            if (!isPremium)
-                                Toast.makeText(this, "Upgrade to Premium to view full PDF", Toast.LENGTH_SHORT).show();
-                        }
-                    }
+                ivPreview.setVisibility(View.VISIBLE);
+                ParcelFileDescriptor pfd = getContentResolver().openFileDescriptor(uri, "r");
+                if (pfd != null) {
+                    PdfRenderer renderer = new PdfRenderer(pfd);
+                    PdfRenderer.Page page = renderer.openPage(0);
+                    Bitmap bmp = Bitmap.createBitmap(page.getWidth(), page.getHeight(), Bitmap.Config.ARGB_8888);
+                    page.render(bmp, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
+                    page.close();
+                    renderer.close();
+                    ivPreview.setImageBitmap(bmp);
+                    if (!isPremium) Toast.makeText(this, "Upgrade to Premium to view full PDF", Toast.LENGTH_SHORT).show();
                 }
+
             } else if (lowerName.endsWith(".txt")) {
-                tvComments.setVisibility(TextView.VISIBLE);
                 StringBuilder sb = new StringBuilder();
-                try (InputStream is = getContentResolver().openInputStream(uri)) {
-                    int ch;
-                    while ((ch = is.read()) != -1) sb.append((char) ch);
-                }
+                InputStream is = getContentResolver().openInputStream(uri);
+                int ch;
+                while ((ch = is.read()) != -1) sb.append((char) ch);
                 String text = sb.toString();
                 if (!isPremium && text.length() > 200) {
                     text = text.substring(0, 200) + "\n\n[Upgrade to Premium to view the rest]";
                 }
-                tvComments.setText(text);
+                tvFileContent.setText(text);
+
             } else {
-                Toast.makeText(this, "Preview not supported for this file type", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Preview not supported", Toast.LENGTH_SHORT).show();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            Toast.makeText(this, "Cannot preview file", Toast.LENGTH_SHORT).show();
-        }
+
+        } catch (Exception ignored) {}
     }
 
     private void selectNewFile() {
@@ -196,16 +210,14 @@ public class FileDetailActivity extends AppCompatActivity {
             Uri newUri = data.getData();
             if (newUri != null) {
                 try {
-                    getContentResolver().takePersistableUriPermission(
-                            newUri,
-                            Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                    );
-                } catch (Exception e) { e.printStackTrace(); }
+                    getContentResolver().takePersistableUriPermission(newUri,
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                } catch (Exception ignored) {}
                 fileUri = newUri.toString();
                 fileName = getFileName(newUri);
                 try (InputStream is = getContentResolver().openInputStream(newUri)) {
                     if (is != null) fileSize = is.available();
-                } catch (Exception e) { e.printStackTrace(); }
+                } catch (Exception ignored) {}
                 tvFileName.setText(fileName);
                 tvFileSize.setText("Size: " + fileSize + " bytes");
                 UserDatabase db = new UserDatabase(this);
@@ -226,19 +238,19 @@ public class FileDetailActivity extends AppCompatActivity {
             Uri uri = Uri.parse(fileUri);
             InputStream is = getContentResolver().openInputStream(uri);
             ContentValues values = new ContentValues();
-            values.put(MediaStore.Downloads.DISPLAY_NAME, fileName);
-            values.put(MediaStore.Downloads.MIME_TYPE, "*/*");
-            values.put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
-            Uri saveUri = getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
+            values.put(android.provider.MediaStore.Downloads.DISPLAY_NAME, fileName);
+            values.put(android.provider.MediaStore.Downloads.MIME_TYPE, "*/*");
+            values.put(android.provider.MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
+            Uri saveUri = getContentResolver().insert(android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
             if (saveUri == null) return;
-            try (OutputStream os = getContentResolver().openOutputStream(saveUri)) {
-                byte[] buffer = new byte[4096];
-                int read;
-                while ((read = is.read(buffer)) != -1) os.write(buffer, 0, read);
-            }
+            OutputStream os = getContentResolver().openOutputStream(saveUri);
+            byte[] buffer = new byte[4096];
+            int read;
+            while ((read = is.read(buffer)) != -1) os.write(buffer, 0, read);
             is.close();
-            Toast.makeText(this, "File saved to Downloads", Toast.LENGTH_SHORT).show();
-        } catch (Exception e) {
+            os.close();
+            Toast.makeText(this, "Saved to Downloads", Toast.LENGTH_SHORT).show();
+        } catch (Exception ignored) {
             Toast.makeText(this, "Error saving file", Toast.LENGTH_SHORT).show();
         }
     }
@@ -251,41 +263,31 @@ public class FileDetailActivity extends AppCompatActivity {
     }
 
     private void addComment() {
-        String commentText = etComment.getText().toString().trim();
-        if (commentText.isEmpty()) return;
+        String text = etComment.getText().toString().trim();
+        if (text.isEmpty()) return;
 
-        String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
+        String timestamp = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault()).format(new Date());
         String commentId = commentRef.push().getKey();
-
         if (commentId != null) {
-            CommentItem comment = new CommentItem(userEmail, commentText, timestamp);
-            commentRef.child(commentId).setValue(comment);
+            CommentItem comment = new CommentItem(userEmail, text, timestamp);
+            commentRef.child(commentId).setValue(comment).addOnSuccessListener(aVoid -> etComment.setText(""));
         }
-        etComment.setText("");
     }
 
     private void loadCommentsFromFirebase() {
         commentRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                StringBuilder sb = new StringBuilder();
-                for (DataSnapshot commentSnapshot : snapshot.getChildren()) {
-                    CommentItem comment = commentSnapshot.getValue(CommentItem.class);
-                    if (comment != null) {
-                        sb.append("📧 ").append(comment.email)
-                                .append("\n🕒 ").append(comment.time)
-                                .append("\n💬 ").append(comment.text)
-                                .append("\n\n");
-                    }
+                commentList.clear();
+                for (DataSnapshot ds : snapshot.getChildren()) {
+                    CommentItem comment = ds.getValue(CommentItem.class);
+                    if (comment != null) commentList.add(comment);
                 }
-                tvComments.setText(sb.toString());
-                tvComments.setVisibility(View.VISIBLE);
+                adapter.notifyDataSetChanged();
+                rvComments.scrollToPosition(commentList.size() - 1);
             }
-
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(FileDetailActivity.this, "Failed to load comments", Toast.LENGTH_SHORT).show();
-            }
+            public void onCancelled(@NonNull DatabaseError error) {}
         });
     }
 
@@ -293,13 +295,12 @@ public class FileDetailActivity extends AppCompatActivity {
         if (fileId == -1) return;
         try {
             Uri uri = Uri.parse(fileUri);
-            if ("content".equals(uri.getScheme())) {
-                getContentResolver().delete(uri, null, null);
-            } else if ("file".equals(uri.getScheme())) {
+            if ("content".equals(uri.getScheme())) getContentResolver().delete(uri, null, null);
+            else if ("file".equals(uri.getScheme())) {
                 java.io.File file = new java.io.File(uri.getPath());
                 if (file.exists()) file.delete();
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception ignored) {}
         UserDatabase db = new UserDatabase(this);
         db.deleteFile(fileId);
         db.close();
@@ -310,9 +311,7 @@ public class FileDetailActivity extends AppCompatActivity {
         public String email;
         public String text;
         public String time;
-
         public CommentItem() {}
-
         public CommentItem(String email, String text, String time) {
             this.email = email;
             this.text = text;
