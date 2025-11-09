@@ -1,24 +1,44 @@
 package com.example.final_project;
 
 import android.annotation.SuppressLint;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.pdf.PdfRenderer;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
+import android.util.Log;
 import android.view.View;
-import android.widget.*;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.google.firebase.database.*;
+
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+
+
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
@@ -42,6 +62,8 @@ public class FileDetailActivity extends AppCompatActivity {
     private String fileName, fileUri, userEmail, status;
     private int fileSize;
     private boolean isPremium = false;
+    private static final String NOTIF_CHANNEL_ID = "notif_channel";
+
 
     private DatabaseReference commentRef;
 
@@ -120,6 +142,8 @@ public class FileDetailActivity extends AppCompatActivity {
 
         updateUIByStatus();
         previewFile();
+
+        if (userEmail != null) listenForNotifications(userEmail);
     }
 
     private String getLoggedInEmail() {
@@ -275,7 +299,7 @@ public class FileDetailActivity extends AppCompatActivity {
     }
 
     private void loadCommentsFromFirebase() {
-        commentRef.addValueEventListener(new ValueEventListener() {
+        commentRef.addValueEventListener(new com.google.firebase.database.ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 commentList.clear();
@@ -284,8 +308,9 @@ public class FileDetailActivity extends AppCompatActivity {
                     if (comment != null) commentList.add(comment);
                 }
                 adapter.notifyDataSetChanged();
-                rvComments.scrollToPosition(commentList.size() - 1);
+                if (!commentList.isEmpty()) rvComments.scrollToPosition(commentList.size() - 1);
             }
+
             @Override
             public void onCancelled(@NonNull DatabaseError error) {}
         });
@@ -307,15 +332,96 @@ public class FileDetailActivity extends AppCompatActivity {
         finish();
     }
 
+    private void listenForNotifications(String userEmail) {
+        if (userEmail == null || userEmail.isEmpty()) return;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 1001);
+                return;
+            }
+        }
+
+        String emailKey = userEmail.replace(".", "_");
+        DatabaseReference notifRef = FirebaseDatabase.getInstance()
+                .getReference("notifications")
+                .child(emailKey);
+
+        notifRef.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot snapshot, String previousChildName) {
+                NotificationItem notif = snapshot.getValue(NotificationItem.class);
+                if (notif != null && notif.title != null && notif.message != null) {
+                    runOnUiThread(() -> showNotification(notif.title, notif.message));
+
+                    snapshot.getRef().removeValue();
+                }
+            }
+
+            @Override public void onChildChanged(@NonNull DataSnapshot snapshot, String previousChildName) {}
+            @Override public void onChildRemoved(@NonNull DataSnapshot snapshot) {}
+            @Override public void onChildMoved(@NonNull DataSnapshot snapshot, String previousChildName) {}
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("NotifDebug", "Failed to load notifications: " + error.getMessage());
+            }
+        });
+    }
+
+    private void showNotification(String title, String message) {
+        NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel existingChannel = manager.getNotificationChannel(NOTIF_CHANNEL_ID);
+            if (existingChannel == null) {
+                NotificationChannel channel = new NotificationChannel(
+                        NOTIF_CHANNEL_ID,
+                        "App Notifications",
+                        NotificationManager.IMPORTANCE_HIGH
+                );
+                channel.setDescription("Notifications from app");
+                channel.enableLights(true);
+                channel.enableVibration(true);
+                channel.setVibrationPattern(new long[]{0, 500, 250, 500});
+                manager.createNotificationChannel(channel);
+            }
+        }
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NOTIF_CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_notification)
+                .setContentTitle(title)
+                .setContentText(message)
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(message))
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setDefaults(NotificationCompat.DEFAULT_ALL)
+                .setAutoCancel(true);
+
+        manager.notify((int) System.currentTimeMillis(), builder.build());
+    }
+
     public static class CommentItem {
         public String email;
         public String text;
         public String time;
+
         public CommentItem() {}
         public CommentItem(String email, String text, String time) {
             this.email = email;
             this.text = text;
             this.time = time;
+        }
+    }
+
+    public static class NotificationItem {
+        public String notifID;
+        public String title;
+        public String message;
+
+        public NotificationItem() {}
+        public NotificationItem(String notifID, String title, String message) {
+            this.notifID = notifID;
+            this.title = title;
+            this.message = message;
         }
     }
 }
