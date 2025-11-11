@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.final_project.Database.UserDatabase;
+import com.example.final_project.SQL.UserDatabase;
 import com.example.final_project.R;
 
 import java.util.ArrayList;

@@ -14,14 +14,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.final_project.Database.UserDatabase;
 import com.example.final_project.File.FileAdapter;
 import com.example.final_project.File.FileItem;
 import com.example.final_project.Firebase.FirebaseFileModel;
+import com.example.final_project.File.UploadFileActivity;
 import com.example.final_project.Log.LoginActivity;
 import com.example.final_project.Premium.PremiumActivity;
 import com.example.final_project.Profile.ProfileActivity;
 import com.example.final_project.R;
+import com.example.final_project.SQL.UserDatabase;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -125,12 +126,11 @@ public class MainScreenActivity extends AppCompatActivity {
                 for (DataSnapshot postSnapshot : snapshot.getChildren()) {
                     FirebaseFileModel file = postSnapshot.getValue(FirebaseFileModel.class);
                     if (file != null) {
-                        file.postId = postSnapshot.getKey();
+                        file.postId = postSnapshot.getKey(); // firebaseKey
 
-                        if ("pending".equalsIgnoreCase(file.status) && currentUserEmail.equalsIgnoreCase(file.email)) {
-                            allFilesMap.put(file.postId, file);
-                        }
-                        else if ("global".equalsIgnoreCase(file.status) || "approved".equalsIgnoreCase(file.status)) {
+                        // Chỉ thêm file của user hoặc global/approved
+                        if ("global".equalsIgnoreCase(file.status) || "approved".equalsIgnoreCase(file.status)
+                                || (currentUserEmail.equalsIgnoreCase(file.email) && "pending".equalsIgnoreCase(file.status))) {
                             allFilesMap.put(file.postId, file);
                         }
                     }
@@ -150,8 +150,16 @@ public class MainScreenActivity extends AppCompatActivity {
     private void refreshFileList() {
         fileList.clear();
         for (FirebaseFileModel file : allFilesMap.values()) {
-            int mockFileId = file.postId.hashCode();
-            fileList.add(new FileItem(mockFileId, file.filename, (int) file.filesize, file.fileUri, file.email, file.publishedDate, file.status));
+            fileList.add(new FileItem(
+                    0,
+                    file.filename,
+                    (int) file.filesize,
+                    file.fileUri,
+                    file.email,
+                    file.publishedDate,
+                    file.status,
+                    file.postId
+            ));
         }
 
         Collections.sort(fileList, (o1, o2) -> {

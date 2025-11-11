@@ -8,7 +8,7 @@ import android.widget.Button;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.final_project.Database.UserDatabase;
+import com.example.final_project.SQL.UserDatabase;
 import com.example.final_project.Payment.PaymentMethodActivity;
 import com.example.final_project.R;
 import com.example.final_project.Payment.ThankYouActivity;

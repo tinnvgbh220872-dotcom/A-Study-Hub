@@ -8,7 +8,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.final_project.Database.UserDatabase;
+import com.example.final_project.SQL.UserDatabase;
 import com.example.final_project.R;
 
 public class ResetPasswordActivity extends AppCompatActivity {

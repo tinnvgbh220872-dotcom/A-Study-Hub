@@ -1,4 +1,4 @@
-package com.example.final_project.MainScreen;
+package com.example.final_project.File;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -10,9 +10,11 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.final_project.Database.UserDatabase;
+import com.example.final_project.MainScreen.MainScreenActivity;
+import com.example.final_project.SQL.UserDatabase;
 import com.example.final_project.R;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -104,8 +106,8 @@ public class UploadFileActivity extends AppCompatActivity {
         int fileSize = getFileSize(fileUri);
         String publishedDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
 
-        String uploadId = databaseRef.push().getKey();
-        if (uploadId != null) {
+        String firebaseKey = databaseRef.push().getKey();
+        if (firebaseKey != null) {
             FileMetadata fileData = new FileMetadata(
                     fileName,
                     fileUri.toString(),
@@ -114,9 +116,11 @@ public class UploadFileActivity extends AppCompatActivity {
                     publishedDate,
                     "pending"
             );
-            databaseRef.child(uploadId).setValue(fileData)
+
+            databaseRef.child(firebaseKey).setValue(fileData)
                     .addOnSuccessListener(unused -> {
-                        boolean success = dbHelper.insertFile(fileName, fileUri.toString(), fileSize, userEmail, publishedDate);
+                        boolean success = dbHelper.insertFile(fileName, fileUri.toString(), fileSize, userEmail, publishedDate, firebaseKey);
+
                         progressBar.setProgress(100);
                         if (success) {
                             tvStatus.setText("File saved to Firebase & local DB!");
@@ -124,18 +128,29 @@ public class UploadFileActivity extends AppCompatActivity {
                         } else {
                             tvStatus.setText("Firebase OK, local DB failed!");
                         }
-                        Intent intent = new Intent(UploadFileActivity.this, MainScreenActivity.class);
-                        intent.putExtra("email", userEmail);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        startActivity(intent);
+
+                        new AlertDialog.Builder(UploadFileActivity.this)
+                                .setTitle("Upload Complete")
+                                .setMessage("File uploaded successfully. Back to main screen?")
+                                .setPositiveButton("Yes", (dialog, which) -> {
+                                    Intent intent = new Intent(UploadFileActivity.this, MainScreenActivity.class);
+                                    intent.putExtra("email", userEmail);
+                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                    startActivity(intent);
+                                })
+                                .setCancelable(false)
+                                .show();
                     })
                     .addOnFailureListener(e -> {
                         progressBar.setVisibility(ProgressBar.INVISIBLE);
                         tvStatus.setText("Upload failed: " + e.getMessage());
                         Toast.makeText(this, "Upload failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
                     });
+
         }
     }
+
+
 
     public static class FileMetadata {
         public String filename, fileUri, email, publishedDate, status;

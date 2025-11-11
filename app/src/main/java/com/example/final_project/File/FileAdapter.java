@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -53,6 +54,7 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
             holder.ivFileIcon.setImageResource(R.drawable.ic_file);
         }
 
+        // Ẩn file pending của người khác
         if (file.getStatus().equalsIgnoreCase("pending") &&
                 !file.getEmail().equalsIgnoreCase(currentUserEmail)) {
             holder.itemView.setVisibility(View.GONE);
@@ -73,6 +75,7 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
             intent.putExtra("email", file.getEmail());
             intent.putExtra("publishedDate", file.getPublishedDate());
             intent.putExtra("status", file.getStatus());
+            intent.putExtra("firebaseKey", file.getFirebaseKey());
             context.startActivity(intent);
         });
     }

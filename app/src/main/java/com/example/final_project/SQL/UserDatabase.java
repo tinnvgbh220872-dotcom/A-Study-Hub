@@ -1,4 +1,4 @@
-package com.example.final_project.Database;
+package com.example.final_project.SQL;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -10,7 +10,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class UserDatabase extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "UserDB.db";
-    private static final int DATABASE_VERSION = 26;
+    private static final int DATABASE_VERSION = 27;
 
     private static final String TABLE_USERS = "users";
     private static final String COLUMN_ID = "id";
@@ -28,6 +28,8 @@ public class UserDatabase extends SQLiteOpenHelper {
     private static final String COLUMN_FILE_EMAIL = "email";
     private static final String COLUMN_FILE_DATE = "publishedDate";
     private static final String COLUMN_FILE_STATUS = "status";
+    private static final String COLUMN_FILE_FIREBASE_KEY = "firebaseKey";
+
 
     private static final String TABLE_ORDERS = "orders";
     private static final String COLUMN_ORDER_ID = "order_id";
@@ -70,7 +72,8 @@ public class UserDatabase extends SQLiteOpenHelper {
                 COLUMN_FILESIZE + " INTEGER, " +
                 COLUMN_FILE_EMAIL + " TEXT, " +
                 COLUMN_FILE_DATE + " TEXT," +
-                COLUMN_FILE_STATUS + " TEXT DEFAULT 'pending'" + ")";
+                COLUMN_FILE_STATUS + " TEXT DEFAULT 'pending'," +
+                COLUMN_FILE_FIREBASE_KEY + " TEXT" + ")";
         db.execSQL(createFiles);
 
         String createOrders = "CREATE TABLE " + TABLE_ORDERS + " (" +
@@ -202,8 +205,7 @@ public class UserDatabase extends SQLiteOpenHelper {
         return db.rawQuery("SELECT * FROM " + TABLE_USERS, null);
     }
 
-    public boolean insertFile(String filename, String fileuri, int filesize, String email, String publishedDate)
-    {
+    public boolean insertFile(String filename, String fileuri, int filesize, String email, String publishedDate, String firebaseKey) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_FILENAME, filename);
@@ -212,10 +214,12 @@ public class UserDatabase extends SQLiteOpenHelper {
         values.put(COLUMN_FILE_EMAIL, email);
         values.put(COLUMN_FILE_DATE, publishedDate);
         values.put(COLUMN_FILE_STATUS, "pending");
+        values.put(COLUMN_FILE_FIREBASE_KEY, firebaseKey);
         long result = db.insert(TABLE_FILES, null, values);
         db.close();
         return result != -1;
     }
+
 
     public Cursor getAllFiles() {
         SQLiteDatabase db = this.getReadableDatabase();

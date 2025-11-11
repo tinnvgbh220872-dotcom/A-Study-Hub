@@ -64,7 +64,7 @@
             android:exported="false"
             android:theme="@style/Theme.Finalproject"/>
         <activity
-            android:name=".MainScreen.UploadFileActivity"
+            android:name=".File.UploadFileActivity"
             android:exported="false"
             android:theme="@style/Theme.Finalproject"/>
         <activity

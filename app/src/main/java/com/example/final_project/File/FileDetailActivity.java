@@ -25,18 +25,21 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.final_project.Database.UserDatabase;
+import com.example.final_project.MainScreen.MainScreenActivity;
+import com.example.final_project.SQL.UserDatabase;
 import com.example.final_project.R;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 
 import java.io.InputStream;
@@ -44,7 +47,9 @@ import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 public class FileDetailActivity extends AppCompatActivity {
 
@@ -72,6 +77,7 @@ public class FileDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.file_detail);
+
 
         tvFileName = findViewById(R.id.tvFileName);
         tvFileSize = findViewById(R.id.tvFileSize);
@@ -146,6 +152,7 @@ public class FileDetailActivity extends AppCompatActivity {
         if (userEmail != null) listenForNotifications(userEmail);
     }
 
+
     private String getLoggedInEmail() {
         SharedPreferences sp = getSharedPreferences("app_prefs", MODE_PRIVATE);
         return sp.getString("user_email", null);
@@ -164,9 +171,10 @@ public class FileDetailActivity extends AppCompatActivity {
 
     private void previewFile() {
         if (fileUri == null || fileUri.isEmpty()) return;
+
         ivPreview.setVisibility(View.GONE);
         blurOverlay.setVisibility(View.GONE);
-        tvFileContent.setVisibility(View.VISIBLE);
+        tvFileContent.setVisibility(View.GONE);
 
         String lowerName = fileName.trim().toLowerCase();
         Uri uri = Uri.parse(fileUri);
@@ -176,16 +184,7 @@ public class FileDetailActivity extends AppCompatActivity {
                 ivPreview.setVisibility(View.VISIBLE);
                 InputStream is = getContentResolver().openInputStream(uri);
                 Bitmap bmp = BitmapFactory.decodeStream(is);
-
-                if (!isPremium) {
-                    int cutHeight = bmp.getHeight() / 2;
-                    Bitmap topHalf = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), cutHeight);
-                    ivPreview.setImageBitmap(topHalf);
-                    blurOverlay.setVisibility(View.VISIBLE);
-                    Toast.makeText(this, "Upgrade to Premium to view full image", Toast.LENGTH_SHORT).show();
-                } else {
-                    ivPreview.setImageBitmap(bmp);
-                }
+                ivPreview.setImageBitmap(bmp);
 
             } else if (lowerName.endsWith(".pdf")) {
                 ivPreview.setVisibility(View.VISIBLE);
@@ -195,28 +194,46 @@ public class FileDetailActivity extends AppCompatActivity {
                     PdfRenderer.Page page = renderer.openPage(0);
                     Bitmap bmp = Bitmap.createBitmap(page.getWidth(), page.getHeight(), Bitmap.Config.ARGB_8888);
                     page.render(bmp, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
+
+                    if (!isPremium) {
+                        int halfHeight = bmp.getHeight() / 2;
+                        Bitmap topHalf = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), halfHeight);
+                        ivPreview.setImageBitmap(topHalf);
+                        Toast.makeText(this, "Upgrade to Premium to view full PDF", Toast.LENGTH_SHORT).show();
+                    } else {
+                        ivPreview.setImageBitmap(bmp);
+                    }
+
                     page.close();
                     renderer.close();
-                    ivPreview.setImageBitmap(bmp);
-                    if (!isPremium) Toast.makeText(this, "Upgrade to Premium to view full PDF", Toast.LENGTH_SHORT).show();
+                    pfd.close();
                 }
 
             } else if (lowerName.endsWith(".txt")) {
-                StringBuilder sb = new StringBuilder();
+                tvFileContent.setVisibility(View.VISIBLE);
                 InputStream is = getContentResolver().openInputStream(uri);
+                StringBuilder sb = new StringBuilder();
                 int ch;
                 while ((ch = is.read()) != -1) sb.append((char) ch);
+                is.close();
+
                 String text = sb.toString();
-                if (!isPremium && text.length() > 200) {
-                    text = text.substring(0, 200) + "\n\n[Upgrade to Premium to view the rest]";
+
+                if (!isPremium) {
+                    int halfLength = Math.min(text.length() / 2, 500);
+                    text = text.substring(0, halfLength) + "\n\n[Upgrade to Premium to view the rest]";
                 }
+
                 tvFileContent.setText(text);
 
             } else {
-                Toast.makeText(this, "Preview not supported", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Preview not supported for this file type", Toast.LENGTH_SHORT).show();
             }
 
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Failed to preview file", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void selectNewFile() {
@@ -226,31 +243,88 @@ public class FileDetailActivity extends AppCompatActivity {
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         startActivityForResult(intent, 2);
     }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         if (requestCode == 2 && resultCode == RESULT_OK && data != null) {
             Uri newUri = data.getData();
             if (newUri != null) {
                 try {
-                    getContentResolver().takePersistableUriPermission(newUri,
-                            Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                    getContentResolver().takePersistableUriPermission(
+                            newUri,
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                    );
                 } catch (Exception ignored) {}
-                fileUri = newUri.toString();
-                fileName = getFileName(newUri);
+
+                String newFileUri = newUri.toString();
+                String newFileName = getFileName(newUri);
+
+                final long[] newFileSize = {0};
                 try (InputStream is = getContentResolver().openInputStream(newUri)) {
-                    if (is != null) fileSize = is.available();
+                    if (is != null) newFileSize[0] = is.available();
                 } catch (Exception ignored) {}
-                tvFileName.setText(fileName);
-                tvFileSize.setText("Size: " + fileSize + " bytes");
-                UserDatabase db = new UserDatabase(this);
-                db.updateFile(fileId, fileName, fileUri, fileSize, status);
-                db.close();
+
+                tvFileName.setText(newFileName);
+                tvFileSize.setText("Size: " + newFileSize[0] + " bytes");
+
+                String userEmail = getIntent().getStringExtra("email");
+                if (userEmail == null || userEmail.isEmpty()) {
+                    Toast.makeText(this, "User email not found", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                String firebaseKey = getIntent().getStringExtra("firebaseKey");
+                if (firebaseKey == null || firebaseKey.isEmpty()) {
+                    Toast.makeText(this, "Firebase key not found. Cannot update file.", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                new AlertDialog.Builder(this)
+                        .setTitle("Confirm Update")
+                        .setMessage("Are you sure you want to update this file?")
+                        .setPositiveButton("Yes", (dialog, which) -> {
+                            UserDatabase db = new UserDatabase(this);
+                            db.updateFile(fileId, newFileName, newFileUri, (int)newFileSize[0], status); // Ép kiểu int
+                            db.close();
+
+                            DatabaseReference fileRef = FirebaseDatabase.getInstance()
+                                    .getReference("uploads")
+                                    .child(firebaseKey);
+
+                            Map<String, Object> updateMap = new HashMap<>();
+                            updateMap.put("filename", newFileName);
+                            updateMap.put("fileUri", newFileUri);
+                            updateMap.put("filesize", newFileSize[0]);
+                            updateMap.put("status", status);
+                            updateMap.put("publishedDate", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date()));
+
+                            fileRef.updateChildren(updateMap)
+                                    .addOnSuccessListener(aVoid ->
+                                            Toast.makeText(FileDetailActivity.this, "File updated", Toast.LENGTH_SHORT).show())
+                                    .addOnFailureListener(e ->
+                                            Toast.makeText(FileDetailActivity.this, "Update failed: " + e.getMessage(), Toast.LENGTH_LONG).show());
+
+                            Intent intentMain = new Intent(FileDetailActivity.this, MainScreenActivity.class);
+                            intentMain.putExtra("email", userEmail);
+                            intentMain.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intentMain);
+                            finish();
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .show();
+
                 previewFile();
             }
         }
     }
+
+
+
+
+
+
+
 
     private String getFileName(Uri uri) {
         String result = uri.getLastPathSegment();
@@ -277,6 +351,7 @@ public class FileDetailActivity extends AppCompatActivity {
         } catch (Exception ignored) {
             Toast.makeText(this, "Error saving file", Toast.LENGTH_SHORT).show();
         }
+
     }
 
     private void openReportPage() {
@@ -317,20 +392,53 @@ public class FileDetailActivity extends AppCompatActivity {
     }
 
     private void deleteFile() {
-        if (fileId == -1) return;
-        try {
-            Uri uri = Uri.parse(fileUri);
-            if ("content".equals(uri.getScheme())) getContentResolver().delete(uri, null, null);
-            else if ("file".equals(uri.getScheme())) {
-                java.io.File file = new java.io.File(uri.getPath());
-                if (file.exists()) file.delete();
-            }
-        } catch (Exception ignored) {}
-        UserDatabase db = new UserDatabase(this);
-        db.deleteFile(fileId);
-        db.close();
-        finish();
+        if (fileId == -1 || fileUri == null || fileUri.isEmpty()) return;
+
+        new AlertDialog.Builder(this)
+                .setTitle("Delete File")
+                .setMessage("Are you sure you want to delete this file?")
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    DatabaseReference filesRef = FirebaseDatabase.getInstance().getReference("uploads");
+                    filesRef.orderByChild("fileUri").equalTo(fileUri)
+                            .addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                    if (snapshot.exists()) {
+                                        for (DataSnapshot child : snapshot.getChildren()) {
+                                            String key = child.getKey();
+                                            if (key != null) {
+                                                filesRef.child(key).removeValue()
+                                                        .addOnFailureListener(e ->
+                                                                Log.e("DeleteFile", "Failed to delete file: " + e.getMessage())
+                                                        );
+                                            }
+                                        }
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
+                                    Log.e("DeleteFile", "DB delete cancelled: " + error.getMessage());
+                                }
+                            });
+
+                    UserDatabase db = new UserDatabase(this);
+                    db.deleteFile(fileId);
+                    db.close();
+
+                    Toast.makeText(this, "File deleted", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(this, MainScreenActivity.class);
+                    intent.putExtra("email", userEmail);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                    finish();
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
+
+
+
 
     private void listenForNotifications(String userEmail) {
         if (userEmail == null || userEmail.isEmpty()) return;

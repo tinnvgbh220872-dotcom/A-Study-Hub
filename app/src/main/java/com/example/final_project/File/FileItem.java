@@ -8,8 +8,9 @@ public class FileItem {
     private String email;
     private String publishedDate;
     private String status;
+    private String firebaseKey;
 
-    public FileItem(int fileId,String name, int size, String uri, String email, String publishedDate, String status) {
+    public FileItem(int fileId,String name, int size, String uri, String email, String publishedDate, String status, String firebaseKey) {
         this.fileId = fileId;
         this.name = name;
         this.size = size;
@@ -17,6 +18,8 @@ public class FileItem {
         this.email = email;
         this.publishedDate = publishedDate;
         this.status = status;
+        this.firebaseKey = firebaseKey;
+
     }
 
     public int getFileId() { return fileId; }
@@ -27,4 +30,6 @@ public class FileItem {
     public String getEmail() { return email; }
     public String getPublishedDate() { return publishedDate; }
     public String getStatus() { return status; }
+    public String getFirebaseKey() { return firebaseKey; }
+    public void setFirebaseKey(String firebaseKey) { this.firebaseKey = firebaseKey; }
 }

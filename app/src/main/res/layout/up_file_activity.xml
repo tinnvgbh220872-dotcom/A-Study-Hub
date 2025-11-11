@@ -7,7 +7,7 @@
     android:padding="24dp"
     android:gravity="center_horizontal"
     android:background="#FFFFFF"
-    tools:context=".MainScreen.UploadFileActivity">
+    tools:context=".File.UploadFileActivity">
 
     <TextView
         android:id="@+id/tvTitle"
