@@ -323,15 +323,21 @@ public class FileDetailActivity extends AppCompatActivity {
 
 
 
-
-
-
     private String getFileName(Uri uri) {
         String result = uri.getLastPathSegment();
         return result != null ? result : "Unnamed File";
     }
 
     private void downloadFile() {
+        UserDatabase db = new UserDatabase(this);
+        boolean isPremium = db.isPremiumUser(userEmail);
+        db.close();
+
+        if (!isPremium) {
+            Toast.makeText(this, "Only Premium users can download files", Toast.LENGTH_LONG).show();
+            return;
+        }
+
         try {
             Uri uri = Uri.parse(fileUri);
             InputStream is = getContentResolver().openInputStream(uri);
@@ -339,20 +345,23 @@ public class FileDetailActivity extends AppCompatActivity {
             values.put(android.provider.MediaStore.Downloads.DISPLAY_NAME, fileName);
             values.put(android.provider.MediaStore.Downloads.MIME_TYPE, "*/*");
             values.put(android.provider.MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
+
             Uri saveUri = getContentResolver().insert(android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
             if (saveUri == null) return;
+
             OutputStream os = getContentResolver().openOutputStream(saveUri);
             byte[] buffer = new byte[4096];
             int read;
             while ((read = is.read(buffer)) != -1) os.write(buffer, 0, read);
             is.close();
             os.close();
-            Toast.makeText(this, "Saved to Downloads", Toast.LENGTH_SHORT).show();
-        } catch (Exception ignored) {
-            Toast.makeText(this, "Error saving file", Toast.LENGTH_SHORT).show();
-        }
 
+            Toast.makeText(this, "Saved to Downloads", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Toast.makeText(this, "Error saving file: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
     }
+
 
     private void openReportPage() {
         Intent intent = new Intent(this, ReportActivity.class);
