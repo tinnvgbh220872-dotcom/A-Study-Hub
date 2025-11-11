@@ -23,7 +23,7 @@
         tools:targetApi="31">
 
         <activity
-            android:name=".WelcomeActivity"
+            android:name=".MainScreen.WelcomeActivity"
             android:exported="true"
             android:theme="@style/Theme.Finalproject">
             <intent-filter>
@@ -33,108 +33,103 @@
         </activity>
 
         <activity
-            android:name=".LoginActivity"
+            android:name=".Log.LoginActivity"
             android:exported="false"
             android:theme="@style/Theme.Finalproject" />
 
         <activity
-            android:name=".RegisterActivity"
+            android:name=".Log.RegisterActivity"
             android:exported="false"
             android:theme="@style/Theme.Finalproject" />
 
         <activity
-            android:name=".SignupActivity"
+            android:name=".MainScreen.MainScreenActivity"
             android:exported="false"
             android:theme="@style/Theme.Finalproject" />
 
         <activity
-            android:name=".MainScreenActivity"
-            android:exported="false"
-            android:theme="@style/Theme.Finalproject" />
-
-        <activity
-            android:name=".ProfileActivity"
+            android:name=".Profile.ProfileActivity"
             android:exported="false"
             android:theme="@style/Theme.Finalproject"/>
         <activity
-            android:name=".GoogleLoginActivity"
+            android:name=".Log.GoogleLoginActivity"
             android:exported="false"
             android:theme="@style/Theme.Finalproject"/>
         <activity
-            android:name=".ResetPasswordActivity"
+            android:name=".Log.ResetPasswordActivity"
             android:exported="false"
             android:theme="@style/Theme.Finalproject"/>
         <activity
-            android:name=".ForgotPasswordActivity"
+            android:name=".Log.ForgotPasswordActivity"
             android:exported="false"
             android:theme="@style/Theme.Finalproject"/>
         <activity
-            android:name=".UploadFileActivity"
+            android:name=".MainScreen.UploadFileActivity"
             android:exported="false"
             android:theme="@style/Theme.Finalproject"/>
         <activity
-            android:name=".FileDetailActivity"
+            android:name=".File.FileDetailActivity"
             android:exported="false"
             android:theme="@style/Theme.Finalproject"/>
         <activity
-            android:name=".ReportActivity"
+            android:name=".File.ReportActivity"
             android:exported="false"
             android:theme="@style/Theme.Finalproject"/>
         <activity
-            android:name=".ChangePasswordActivity"
+            android:name=".Profile.EditProfileActivity$ChangePasswordActivity"
             android:exported="false"
             android:theme="@style/Theme.Finalproject"/>
         <activity
-            android:name=".EditProfileActivity"
+            android:name=".Profile.EditProfileActivity"
             android:exported="false"
             android:theme="@style/Theme.Finalproject"/>
         <activity
-            android:name=".PremiumActivity"
+            android:name=".Premium.PremiumActivity"
             android:exported="false"
             android:theme="@style/Theme.Finalproject"/>
         <activity
-            android:name=".TrialActivity"
+            android:name=".Premium.TrialActivity"
             android:exported="false"
             android:theme="@style/Theme.Finalproject"/>
         <activity
-            android:name=".MonthlyActivity"
+            android:name=".Premium.MonthlyActivity"
             android:exported="false"
             android:theme="@style/Theme.Finalproject"/>
         <activity
-            android:name=".YearlyActivity"
+            android:name=".Premium.YearlyActivity"
             android:exported="false"
             android:theme="@style/Theme.Finalproject"/>
         <activity
-            android:name=".ThankYouActivity"
+            android:name=".Payment.ThankYouActivity"
             android:exported="false"
             android:theme="@style/Theme.Finalproject"/>
         <activity
-            android:name=".PaymentMethodActivity"
+            android:name=".Payment.PaymentMethodActivity"
             android:exported="false"
             android:theme="@style/Theme.Finalproject" />
         <activity
-            android:name=".PaymentConfirmationActivity"
+            android:name=".Payment.PaymentConfirmationActivity"
             android:exported="false"
             android:theme="@style/Theme.Finalproject"/>
         <activity
-            android:name=".MyOrdersActivity"
+            android:name=".Payment.MyOrdersActivity"
             android:exported="false"
             android:theme="@style/Theme.Finalproject"/>
         <activity
-            android:name=".WalletActivity"
+            android:name=".Payment.WalletActivity"
             android:exported="false"
             android:theme="@style/Theme.Finalproject"/>
         <activity
-            android:name=".TopupActivity"
+            android:name=".Payment.TopupActivity"
             android:exported="false"
             android:theme="@style/Theme.Finalproject"/>
         <activity
-            android:name=".UserActivity"
+            android:name=".File.UserActivity"
             android:exported="false"
             android:theme="@style/Theme.Finalproject"/>
 
         <service
-            android:name=".MyFirebaseMessagingService"
+            android:name=".Firebase.MyFirebaseMessagingService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT"/>

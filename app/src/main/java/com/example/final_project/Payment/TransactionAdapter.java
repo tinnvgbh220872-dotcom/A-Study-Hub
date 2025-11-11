@@ -1,0 +1,59 @@
+package com.example.final_project.Payment;
+
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.final_project.R;
+
+import java.util.ArrayList;
+import java.util.Locale;
+
+public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.ViewHolder> {
+
+    private ArrayList<Transaction> list;
+
+    public TransactionAdapter(ArrayList<Transaction> list) {
+        this.list = list;
+    }
+
+    @Override
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.transaction_item, parent, false);
+        return new ViewHolder(v);
+    }
+
+    @Override
+    public void onBindViewHolder(ViewHolder h, int position) {
+        Transaction t = list.get(position);
+        h.tvTitle.setText(t.getType());
+        h.tvSub.setText(t.getDate());
+
+        String typeLower = t.getType().toLowerCase(Locale.getDefault());
+        boolean isTopUp = typeLower.contains("topup")
+                || typeLower.contains("top up")
+                || typeLower.contains("top-up")
+                || typeLower.contains("deposit");
+
+        double amount = Math.abs(t.getAmount());
+        String prefix = isTopUp ? "+" : "-";
+        h.tvAmount.setText(prefix + "$" + String.format(Locale.getDefault(), "%.0f", amount));
+    }
+
+    @Override
+    public int getItemCount() {
+        return list.size();
+    }
+
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        TextView tvTitle, tvSub, tvAmount;
+        public ViewHolder(View v) {
+            super(v);
+            tvTitle = v.findViewById(R.id.tv_tx_title);
+            tvSub = v.findViewById(R.id.tv_tx_sub);
+            tvAmount = v.findViewById(R.id.tv_tx_amount);
+        }
+    }
+}
