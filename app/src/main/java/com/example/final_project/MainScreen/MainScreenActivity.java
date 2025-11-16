@@ -18,7 +18,7 @@ import com.example.final_project.File.FileAdapter;
 import com.example.final_project.File.FileItem;
 import com.example.final_project.Firebase.FirebaseFileModel;
 import com.example.final_project.File.UploadFileActivity;
-import com.example.final_project.Log.LoginActivity;
+import com.example.final_project.Auth.LoginActivity;
 import com.example.final_project.Premium.PremiumActivity;
 import com.example.final_project.Profile.ProfileActivity;
 import com.example.final_project.R;

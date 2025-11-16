@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.widget.Button;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.final_project.Log.LoginActivity;
+import com.example.final_project.Auth.LoginActivity;
 import com.example.final_project.R;
 
 public class WelcomeActivity extends AppCompatActivity {

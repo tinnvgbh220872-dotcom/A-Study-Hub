@@ -54,7 +54,6 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
             holder.ivFileIcon.setImageResource(R.drawable.ic_file);
         }
 
-        // Ẩn file pending của người khác
         if (file.getStatus().equalsIgnoreCase("pending") &&
                 !file.getEmail().equalsIgnoreCase(currentUserEmail)) {
             holder.itemView.setVisibility(View.GONE);

@@ -7,7 +7,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.final_project.Log.LoginActivity;
+import com.example.final_project.Auth.LoginActivity;
 import com.example.final_project.MainScreen.MainScreenActivity;
 import com.example.final_project.Payment.MyOrdersActivity;
 import com.example.final_project.Payment.WalletActivity;

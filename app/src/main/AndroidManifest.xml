@@ -33,12 +33,12 @@
         </activity>
 
         <activity
-            android:name=".Log.LoginActivity"
+            android:name=".Auth.LoginActivity"
             android:exported="false"
             android:theme="@style/Theme.Finalproject" />
 
         <activity
-            android:name=".Log.RegisterActivity"
+            android:name=".Auth.RegisterActivity"
             android:exported="false"
             android:theme="@style/Theme.Finalproject" />
 
@@ -52,15 +52,15 @@
             android:exported="false"
             android:theme="@style/Theme.Finalproject"/>
         <activity
-            android:name=".Log.GoogleLoginActivity"
+            android:name=".Auth.GoogleLoginActivity"
             android:exported="false"
             android:theme="@style/Theme.Finalproject"/>
         <activity
-            android:name=".Log.ResetPasswordActivity"
+            android:name=".Auth.ResetPasswordActivity"
             android:exported="false"
             android:theme="@style/Theme.Finalproject"/>
         <activity
-            android:name=".Log.ForgotPasswordActivity"
+            android:name=".Auth.ForgotPasswordActivity"
             android:exported="false"
             android:theme="@style/Theme.Finalproject"/>
         <activity

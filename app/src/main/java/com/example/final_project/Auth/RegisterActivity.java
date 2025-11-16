@@ -1,4 +1,4 @@
-package com.example.final_project.Log;
+package com.example.final_project.Auth;
 
 import android.content.Intent;
 import android.os.Bundle;
