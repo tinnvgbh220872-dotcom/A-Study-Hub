@@ -3,7 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
+    android:paddingTop="24dp"
+    android:paddingBottom="16dp"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:fitsSystemWindows="true"
+    android:background="#F5F5F5"
     tools:context=".Profile.EditProfileActivity">
 
     <LinearLayout
@@ -16,7 +21,8 @@
             android:layout_height="wrap_content"
             android:text="Name"
             android:textStyle="bold"
-            android:layout_marginTop="8dp"/>
+            android:textColor="#333333"
+            android:layout_marginTop="8dp" />
 
         <EditText
             android:id="@+id/etFullName"
@@ -24,34 +30,53 @@
             android:layout_height="wrap_content"
             android:hint="Full name"
             android:inputType="textPersonName"
-            android:imeOptions="actionNext"/>
+            android:imeOptions="actionNext"
+            android:background="@drawable/bg_edittext"
+            android:padding="12dp"
+            android:textColor="#000000"
+            android:textColorHint="#888888"
+            android:elevation="2dp"
+            android:layout_marginTop="4dp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Email"
             android:textStyle="bold"
-            android:layout_marginTop="12dp"/>
+            android:textColor="#333333"
+            android:layout_marginTop="16dp" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:layout_marginTop="4dp">
 
             <EditText
                 android:id="@+id/etEmail"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:hint="Code Reset Password"
+                android:hint="Email Address"
                 android:inputType="textEmailAddress"
-                android:imeOptions="actionNext"/>
+                android:imeOptions="actionNext"
+                android:background="@drawable/bg_edittext"
+                android:padding="12dp"
+                android:textColor="#000000"
+                android:textColorHint="#888888"
+                android:elevation="2dp" />
 
             <Button
                 android:id="@+id/btnSendCode"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Send Code"/>
+                android:text="Send Code"
+                android:layout_marginStart="8dp"
+                android:backgroundTint="#6200EE"
+                android:textColor="#FFFFFF"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:layout_gravity="center_vertical" />
         </LinearLayout>
 
         <EditText
@@ -61,14 +86,20 @@
             android:hint="Verification code"
             android:inputType="number"
             android:visibility="gone"
-            android:layout_marginTop="8dp"/>
+            android:background="@drawable/bg_edittext"
+            android:padding="12dp"
+            android:textColor="#000000"
+            android:textColorHint="#888888"
+            android:elevation="2dp"
+            android:layout_marginTop="8dp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Phone Number"
             android:textStyle="bold"
-            android:layout_marginTop="12dp"/>
+            android:textColor="#333333"
+            android:layout_marginTop="16dp" />
 
         <EditText
             android:id="@+id/etPhone"
@@ -76,27 +107,41 @@
             android:layout_height="wrap_content"
             android:hint="Your Phone Number"
             android:inputType="phone"
-            android:imeOptions="actionNext"/>
+            android:imeOptions="actionNext"
+            android:background="@drawable/bg_edittext"
+            android:padding="12dp"
+            android:textColor="#000000"
+            android:textColorHint="#888888"
+            android:elevation="2dp"
+            android:layout_marginTop="4dp" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="end"
-            android:layout_marginTop="24dp">
+            android:layout_marginTop="32dp">
 
             <Button
                 android:id="@+id/btnChangePassword"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Change Password"/>
+                android:text="Change Password"
+                android:backgroundTint="#03DAC5"
+                android:textColor="#FFFFFF"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp" />
 
             <Button
                 android:id="@+id/btnSaveProfile"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Save"
-                android:layout_marginStart="12dp"/>
+                android:layout_marginStart="12dp"
+                android:backgroundTint="#6200EE"
+                android:textColor="#FFFFFF"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp" />
         </LinearLayout>
 
     </LinearLayout>

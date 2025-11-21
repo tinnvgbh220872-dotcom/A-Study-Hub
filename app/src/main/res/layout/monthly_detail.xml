@@ -1,27 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:paddingTop="24dp"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:paddingBottom="16dp"
+    android:background="#FFFFFF">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Monthly Plan Details"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="8dp"/>
-
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="• Price: $4.99 per month\n• Access: Unlimited study materials and resources\n• Renewal: Auto-renews monthly\n• Cancel anytime, no hidden fees\n\nPerfect for active learners who want flexibility and full premium access without long-term commitment."/>
+        android:orientation="vertical">
 
-    <Button
-        android:id="@+id/btnMonthlySubscribe"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Subscribe Monthly"
-        android:layout_marginTop="12dp"/>
-</LinearLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="★ Monthly Plan"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#FF9800"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Monthly Plan Details"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="• Price: $4.99 per month\n• Access: All premium materials and ad-free experience\n• Renewal: Auto-renews monthly\n• Enjoy full features and stay productive every month."
+            android:layout_marginBottom="12dp"
+            android:textColor="#424242"/>
+
+        <Button
+            android:id="@+id/btnMonthlySubscribe"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Subscribe Monthly"
+            android:backgroundTint="#F57C00"
+            android:textColor="#FFFFFF"/>
+    </LinearLayout>
+</ScrollView>

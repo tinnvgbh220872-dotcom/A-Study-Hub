@@ -4,7 +4,13 @@
     android:id="@+id/premium_scrollView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:clipToPadding="false"
+    android:paddingTop="32dp"
+    android:paddingBottom="16dp"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:background="#F5F5F5"
+    android:fitsSystemWindows="true">
 
     <LinearLayout
         android:id="@+id/premium_container"
@@ -20,7 +26,8 @@
             android:textSize="22sp"
             android:textStyle="bold"
             android:gravity="center"
-            android:paddingBottom="12dp" />
+            android:paddingBottom="12dp"
+            android:textColor="#212121" />
 
         <TextView
             android:id="@+id/premium_description"
@@ -29,16 +36,18 @@
             android:text="Upgrade to access exclusive study materials, remove ads, and unlock advanced features."
             android:textSize="14sp"
             android:gravity="center"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="16dp"
+            android:textColor="#424242" />
 
-
+        <!-- Trial Card -->
         <androidx.cardview.widget.CardView
             android:id="@+id/premium_card_trial"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
             app:cardCornerRadius="12dp"
-            app:cardElevation="4dp"
-            android:layout_marginBottom="12dp">
+            app:cardElevation="6dp"
+            android:background="@android:color/white">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -59,7 +68,8 @@
                         android:layout_height="wrap_content"
                         android:text="Trial Plan"
                         android:textSize="18sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:textColor="#212121"/>
 
                     <TextView
                         android:id="@+id/premium_trial_price"
@@ -67,7 +77,8 @@
                         android:layout_height="wrap_content"
                         android:text="Free"
                         android:textSize="16sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:textColor="#43A047"/>
                 </LinearLayout>
 
                 <TextView
@@ -75,7 +86,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Try premium features for 7 days at no cost."
-                    android:layout_marginTop="8dp" />
+                    android:layout_marginTop="8dp"
+                    android:textColor="#757575"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -88,26 +100,37 @@
                         android:id="@+id/premium_btn_trial_details"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="View Details" />
+                        android:text="View Details"
+                        android:backgroundTint="#BDBDBD"
+                        android:textColor="#FFFFFF"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:background="@drawable/bg_button_rounded"/>
 
                     <Button
                         android:id="@+id/premium_btn_trial_subscribe"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:text="Subscribe"
                         android:layout_marginStart="8dp"
-                        android:text="Subscribe" />
+                        android:backgroundTint="#43A047"
+                        android:textColor="#FFFFFF"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:background="@drawable/bg_button_rounded"/>
                 </LinearLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-
+        <!-- Monthly Card -->
         <androidx.cardview.widget.CardView
             android:id="@+id/premium_card_monthly"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
             app:cardCornerRadius="12dp"
-            app:cardElevation="4dp"
-            android:layout_marginBottom="12dp">
+            app:cardElevation="6dp"
+            android:background="@android:color/white">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -128,7 +151,8 @@
                         android:layout_height="wrap_content"
                         android:text="Monthly Plan"
                         android:textSize="18sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:textColor="#212121"/>
 
                     <TextView
                         android:id="@+id/premium_monthly_price"
@@ -136,7 +160,8 @@
                         android:layout_height="wrap_content"
                         android:text="$4.99/month"
                         android:textSize="16sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:textColor="#F57C00"/>
                 </LinearLayout>
 
                 <TextView
@@ -144,7 +169,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Access all premium materials and ad-free experience for one month."
-                    android:layout_marginTop="8dp" />
+                    android:layout_marginTop="8dp"
+                    android:textColor="#757575"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -157,26 +183,37 @@
                         android:id="@+id/premium_btn_monthly_details"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="View Details" />
+                        android:text="View Details"
+                        android:backgroundTint="#BDBDBD"
+                        android:textColor="#FFFFFF"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:background="@drawable/bg_button_rounded"/>
 
                     <Button
                         android:id="@+id/premium_btn_monthly_subscribe"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:text="Subscribe"
                         android:layout_marginStart="8dp"
-                        android:text="Subscribe" />
+                        android:backgroundTint="#F57C00"
+                        android:textColor="#FFFFFF"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:background="@drawable/bg_button_rounded"/>
                 </LinearLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-
+        <!-- Yearly Card -->
         <androidx.cardview.widget.CardView
             android:id="@+id/premium_card_yearly"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
             app:cardCornerRadius="12dp"
-            app:cardElevation="4dp"
-            android:layout_marginBottom="12dp">
+            app:cardElevation="6dp"
+            android:background="@android:color/white">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -197,7 +234,8 @@
                         android:layout_height="wrap_content"
                         android:text="Yearly Plan"
                         android:textSize="18sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:textColor="#212121"/>
 
                     <TextView
                         android:id="@+id/premium_yearly_price"
@@ -205,15 +243,17 @@
                         android:layout_height="wrap_content"
                         android:text="$39.99/year"
                         android:textSize="16sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:textColor="#D32F2F"/>
                 </LinearLayout>
 
                 <TextView
                     android:id="@+id/premium_yearly_desc"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Best value plan! Get full access for an entire year with 30% savings."
-                    android:layout_marginTop="8dp" />
+                    android:text="Best value plan! Get full access for an entire year"
+                    android:layout_marginTop="8dp"
+                    android:textColor="#757575"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -226,14 +266,24 @@
                         android:id="@+id/premium_btn_yearly_details"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="View Details" />
+                        android:text="View Details"
+                        android:backgroundTint="#BDBDBD"
+                        android:textColor="#FFFFFF"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:background="@drawable/bg_button_rounded"/>
 
                     <Button
                         android:id="@+id/premium_btn_yearly_subscribe"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:text="Subscribe"
                         android:layout_marginStart="8dp"
-                        android:text="Subscribe" />
+                        android:backgroundTint="#D32F2F"
+                        android:textColor="#FFFFFF"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:background="@drawable/bg_button_rounded"/>
                 </LinearLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>

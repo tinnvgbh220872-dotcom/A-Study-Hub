@@ -19,7 +19,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginBottom="56dp"
-            android:background="@drawable/bg_studyhub"
+            android:background="@color/purple_200"
             android:padding="16dp">
 
             <LinearLayout
@@ -32,11 +32,11 @@
                     android:id="@+id/imgAvatar"
                     android:layout_width="100dp"
                     android:layout_height="100dp"
-                    android:src="@drawable/ic_person"
-                    android:background="@drawable/circle_white"
-                    android:padding="8dp"
                     android:layout_marginTop="24dp"
-                    android:contentDescription="Profile Picture"/>
+                    android:background="@drawable/circle_white"
+                    android:contentDescription="Profile Picture"
+                    android:padding="8dp"
+                    android:src="@drawable/ic_avatar_placeholder" />
 
                 <TextView
                     android:id="@+id/tvName"

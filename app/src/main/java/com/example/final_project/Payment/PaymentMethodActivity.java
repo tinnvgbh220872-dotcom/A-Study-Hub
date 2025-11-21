@@ -44,7 +44,7 @@ public class PaymentMethodActivity extends AppCompatActivity {
 
         userDatabase = new UserDatabase(this);
 
-        userEmail = getIntent().getStringExtra("userEmail");
+        userEmail = getIntent().getStringExtra("email");
         paymentAmount = getIntent().getDoubleExtra("paymentAmount", 0);
         isPremium = getIntent().getBooleanExtra("isPremium", false);
 
@@ -78,10 +78,12 @@ public class PaymentMethodActivity extends AppCompatActivity {
             Toast.makeText(this, "Invalid email.", Toast.LENGTH_SHORT).show();
             return;
         }
+
         if (selectedMethod.isEmpty()) {
             Toast.makeText(this, "Select a payment method.", Toast.LENGTH_SHORT).show();
             return;
         }
+
         if (paymentAmount <= 0) {
             Toast.makeText(this, "Invalid amount.", Toast.LENGTH_SHORT).show();
             return;
@@ -103,12 +105,13 @@ public class PaymentMethodActivity extends AppCompatActivity {
             userDatabase.updatePremiumStatus(userEmail, 1);
         }
 
+        Toast.makeText(this, "Payment successful!", Toast.LENGTH_SHORT).show();
+
         Intent intent = new Intent(this, PaymentConfirmationActivity.class);
         intent.putExtra("email", userEmail);
         intent.putExtra("isPremium", isPremium);
         intent.putExtra("paymentAmount", paymentAmount);
         startActivity(intent);
-        finish();
     }
 }
 

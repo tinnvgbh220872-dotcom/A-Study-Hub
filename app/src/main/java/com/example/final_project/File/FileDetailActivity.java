@@ -182,49 +182,57 @@ public class FileDetailActivity extends AppCompatActivity {
         try {
             if (lowerName.endsWith(".png") || lowerName.endsWith(".jpg") || lowerName.endsWith(".jpeg")) {
                 ivPreview.setVisibility(View.VISIBLE);
-                InputStream is = getContentResolver().openInputStream(uri);
-                Bitmap bmp = BitmapFactory.decodeStream(is);
-                ivPreview.setImageBitmap(bmp);
+                try (InputStream is = getContentResolver().openInputStream(uri)) {
+                    if (is != null) {
+                        Bitmap bmp = BitmapFactory.decodeStream(is);
+                        ivPreview.setImageBitmap(bmp);
+                    }
+                }
 
             } else if (lowerName.endsWith(".pdf")) {
                 ivPreview.setVisibility(View.VISIBLE);
-                ParcelFileDescriptor pfd = getContentResolver().openFileDescriptor(uri, "r");
-                if (pfd != null) {
-                    PdfRenderer renderer = new PdfRenderer(pfd);
-                    PdfRenderer.Page page = renderer.openPage(0);
-                    Bitmap bmp = Bitmap.createBitmap(page.getWidth(), page.getHeight(), Bitmap.Config.ARGB_8888);
-                    page.render(bmp, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
+                try (ParcelFileDescriptor pfd = getContentResolver().openFileDescriptor(uri, "r")) {
+                    if (pfd != null) {
+                        PdfRenderer renderer = new PdfRenderer(pfd);
+                        if (renderer.getPageCount() > 0) {
+                            PdfRenderer.Page page = renderer.openPage(0);
+                            Bitmap bmp = Bitmap.createBitmap(page.getWidth(), page.getHeight(), Bitmap.Config.ARGB_8888);
+                            page.render(bmp, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
 
-                    if (!isPremium) {
-                        int halfHeight = bmp.getHeight() / 2;
-                        Bitmap topHalf = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), halfHeight);
-                        ivPreview.setImageBitmap(topHalf);
-                        Toast.makeText(this, "Upgrade to Premium to view full PDF", Toast.LENGTH_SHORT).show();
-                    } else {
-                        ivPreview.setImageBitmap(bmp);
+                            if (!isPremium) {
+                                int halfHeight = bmp.getHeight() / 2;
+                                Bitmap topHalf = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), halfHeight);
+                                ivPreview.setImageBitmap(topHalf);
+                                Toast.makeText(this, "Upgrade to Premium to view full PDF", Toast.LENGTH_SHORT).show();
+                            } else {
+                                ivPreview.setImageBitmap(bmp);
+                            }
+
+                            page.close();
+                        }
+                        renderer.close();
                     }
-
-                    page.close();
-                    renderer.close();
-                    pfd.close();
                 }
 
             } else if (lowerName.endsWith(".txt")) {
                 tvFileContent.setVisibility(View.VISIBLE);
-                InputStream is = getContentResolver().openInputStream(uri);
-                StringBuilder sb = new StringBuilder();
-                int ch;
-                while ((ch = is.read()) != -1) sb.append((char) ch);
-                is.close();
+                try (InputStream is = getContentResolver().openInputStream(uri)) {
+                    if (is != null) {
+                        StringBuilder sb = new StringBuilder();
+                        byte[] buffer = new byte[1024];
+                        int len;
+                        while ((len = is.read(buffer)) != -1) {
+                            sb.append(new String(buffer, 0, len));
+                            if (!isPremium && sb.length() > 1000) break;
+                        }
 
-                String text = sb.toString();
-
-                if (!isPremium) {
-                    int halfLength = Math.min(text.length() / 2, 500);
-                    text = text.substring(0, halfLength) + "\n\n[Upgrade to Premium to view the rest]";
+                        String text = sb.toString();
+                        if (!isPremium && text.length() > 500) {
+                            text = text.substring(0, 500) + "\n\n[Upgrade to Premium to view the rest]";
+                        }
+                        tvFileContent.setText(text);
+                    }
                 }
-
-                tvFileContent.setText(text);
 
             } else {
                 Toast.makeText(this, "Preview not supported for this file type", Toast.LENGTH_SHORT).show();
@@ -235,6 +243,7 @@ public class FileDetailActivity extends AppCompatActivity {
             Toast.makeText(this, "Failed to preview file", Toast.LENGTH_SHORT).show();
         }
     }
+
 
     private void selectNewFile() {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);

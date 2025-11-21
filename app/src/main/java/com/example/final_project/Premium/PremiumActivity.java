@@ -39,10 +39,23 @@ public class PremiumActivity extends AppCompatActivity {
 
         userEmail = getIntent().getStringExtra("email");
         db = new UserDatabase(this);
+        btnTrialDetails.setOnClickListener(v -> {
+            Intent intent = new Intent(PremiumActivity.this, TrialActivity.class);
+            intent.putExtra("email", userEmail);
+            startActivity(intent);
+        });
 
-        btnTrialDetails.setOnClickListener(v -> startActivity(new Intent(this, TrialActivity.class)));
-        btnMonthlyDetails.setOnClickListener(v -> startActivity(new Intent(this, MonthlyActivity.class)));
-        btnYearlyDetails.setOnClickListener(v -> startActivity(new Intent(this, YearlyActivity.class)));
+        btnMonthlyDetails.setOnClickListener(v -> {
+            Intent intent = new Intent(PremiumActivity.this, MonthlyActivity.class);
+            intent.putExtra("email", userEmail);
+            startActivity(intent);
+        });
+
+        btnYearlyDetails.setOnClickListener(v -> {
+            Intent intent = new Intent(PremiumActivity.this, YearlyActivity.class);
+            intent.putExtra("email", userEmail);
+            startActivity(intent);
+        });
 
         btnTrialSubscribe.setOnClickListener(v -> subscribeTrial());
         btnMonthlySubscribe.setOnClickListener(v -> subscribePaid("Monthly Plan", 4.99));
@@ -85,11 +98,10 @@ public class PremiumActivity extends AppCompatActivity {
         db.insertOrder(userEmail, planName, price);
 
         Intent intent = new Intent(this, PaymentMethodActivity.class);
-        intent.putExtra("userEmail", userEmail);
+        intent.putExtra("email", userEmail);
         intent.putExtra("isPremium", true);
         intent.putExtra("paymentAmount", price);
         intent.putExtra("selectedPlan", planName);
         startActivity(intent);
-        finish();
     }
 }

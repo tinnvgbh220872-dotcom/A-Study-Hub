@@ -108,63 +108,81 @@ public class UploadFileActivity extends AppCompatActivity {
 
         String firebaseKey = databaseRef.push().getKey();
         if (firebaseKey != null) {
-            FileMetadata fileData = new FileMetadata(
-                    fileName,
-                    fileUri.toString(),
-                    fileSize,
-                    userEmail,
-                    publishedDate,
-                    "pending"
-            );
+            try {
+                InputStream is = getContentResolver().openInputStream(fileUri);
+                byte[] buffer = new byte[4096];
+                int len;
+                java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+                while ((len = is.read(buffer)) != -1) {
+                    baos.write(buffer, 0, len);
+                }
+                is.close();
+                String fileBase64 = android.util.Base64.encodeToString(baos.toByteArray(), android.util.Base64.DEFAULT);
 
-            databaseRef.child(firebaseKey).setValue(fileData)
-                    .addOnSuccessListener(unused -> {
-                        boolean success = dbHelper.insertFile(fileName, fileUri.toString(), fileSize, userEmail, publishedDate, firebaseKey);
+                FileMetadata fileData = new FileMetadata(
+                        fileName,
+                        fileUri.toString(),
+                        fileSize,
+                        userEmail,
+                        publishedDate,
+                        "pending",
+                        fileBase64
+                );
 
-                        progressBar.setProgress(100);
-                        if (success) {
-                            tvStatus.setText("File saved to Firebase & local DB!");
-                            Toast.makeText(this, "Upload complete!", Toast.LENGTH_SHORT).show();
-                        } else {
-                            tvStatus.setText("Firebase OK, local DB failed!");
-                        }
+                databaseRef.child(firebaseKey).setValue(fileData)
+                        .addOnSuccessListener(unused -> {
+                            boolean success = dbHelper.insertFile(fileName, fileUri.toString(), fileSize, userEmail, publishedDate, firebaseKey);
 
-                        new AlertDialog.Builder(UploadFileActivity.this)
-                                .setTitle("Upload Complete")
-                                .setMessage("File uploaded successfully. Back to main screen?")
-                                .setPositiveButton("Yes", (dialog, which) -> {
-                                    Intent intent = new Intent(UploadFileActivity.this, MainScreenActivity.class);
-                                    intent.putExtra("email", userEmail);
-                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                    startActivity(intent);
-                                })
-                                .setCancelable(false)
-                                .show();
-                    })
-                    .addOnFailureListener(e -> {
-                        progressBar.setVisibility(ProgressBar.INVISIBLE);
-                        tvStatus.setText("Upload failed: " + e.getMessage());
-                        Toast.makeText(this, "Upload failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                    });
+                            progressBar.setProgress(100);
+                            if (success) {
+                                tvStatus.setText("File saved to Firebase & local DB!");
+                                Toast.makeText(this, "Upload complete!", Toast.LENGTH_SHORT).show();
+                            } else {
+                                tvStatus.setText("Firebase OK, local DB failed!");
+                            }
 
+                            new AlertDialog.Builder(UploadFileActivity.this)
+                                    .setTitle("Upload Complete")
+                                    .setMessage("File uploaded successfully. Back to main screen?")
+                                    .setPositiveButton("Yes", (dialog, which) -> {
+                                        Intent intent = new Intent(UploadFileActivity.this, MainScreenActivity.class);
+                                        intent.putExtra("email", userEmail);
+                                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                        startActivity(intent);
+                                    })
+                                    .setCancelable(false)
+                                    .show();
+                        })
+                        .addOnFailureListener(e -> {
+                            progressBar.setVisibility(ProgressBar.INVISIBLE);
+                            tvStatus.setText("Upload failed: " + e.getMessage());
+                            Toast.makeText(this, "Upload failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                        });
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                progressBar.setVisibility(ProgressBar.INVISIBLE);
+                tvStatus.setText("Upload failed: " + e.getMessage());
+                Toast.makeText(this, "Upload failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            }
         }
     }
 
-
-
     public static class FileMetadata {
-        public String filename, fileUri, email, publishedDate, status;
+        public String filename, fileUri, email, publishedDate, status, fileBase64;
         public int filesize;
 
-        public FileMetadata() {}
+        public FileMetadata() {
+        }
 
-        public FileMetadata(String filename, String fileUri, int filesize, String email, String publishedDate, String status) {
+        public FileMetadata(String filename, String fileUri, int filesize, String email, String publishedDate, String status, String fileBase64) {
             this.filename = filename;
             this.fileUri = fileUri;
             this.filesize = filesize;
             this.email = email;
             this.publishedDate = publishedDate;
             this.status = status;
+            this.fileBase64 = fileBase64;
         }
     }
 }
