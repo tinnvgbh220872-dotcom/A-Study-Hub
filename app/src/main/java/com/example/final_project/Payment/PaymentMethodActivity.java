@@ -2,6 +2,7 @@ package com.example.final_project.Payment;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -22,10 +23,10 @@ public class PaymentMethodActivity extends AppCompatActivity {
     private TextView tvAmount;
 
     private String userEmail;
-    private UserDatabase userDatabase;
-    private String selectedMethod = "";
     private double paymentAmount = 0;
     private boolean isPremium = false;
+    private String selectedMethod = "";
+    private UserDatabase userDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,8 +46,22 @@ public class PaymentMethodActivity extends AppCompatActivity {
         userDatabase = new UserDatabase(this);
 
         userEmail = getIntent().getStringExtra("email");
-        paymentAmount = getIntent().getDoubleExtra("paymentAmount", 0);
         isPremium = getIntent().getBooleanExtra("isPremium", false);
+        paymentAmount = getIntent().getDoubleExtra("paymentAmount", 0.0);
+
+        android.util.Log.d("PaymentMethod", "email=" + userEmail + ", amount=" + paymentAmount + ", isPremium=" + isPremium);
+
+        if (userEmail == null || userEmail.isEmpty()) {
+            Toast.makeText(this, "User email missing!", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
+        if (paymentAmount < 0) {
+            Toast.makeText(this, "Invalid payment amount!", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
 
         tvAmount.setText("$" + String.format(Locale.getDefault(), "%.2f", paymentAmount));
 
@@ -55,13 +70,13 @@ public class PaymentMethodActivity extends AppCompatActivity {
         btnGooglePay.setOnClickListener(v -> selectMethod("Google Pay"));
         btnMoMo.setOnClickListener(v -> {
             selectMethod("MoMo");
-            layoutMoMoQR.setVisibility(android.view.View.VISIBLE);
-            layoutVNBankQR.setVisibility(android.view.View.GONE);
+            layoutMoMoQR.setVisibility(View.VISIBLE);
+            layoutVNBankQR.setVisibility(View.GONE);
         });
         btnVNBankQR.setOnClickListener(v -> {
             selectMethod("VN Bank");
-            layoutVNBankQR.setVisibility(android.view.View.VISIBLE);
-            layoutMoMoQR.setVisibility(android.view.View.GONE);
+            layoutVNBankQR.setVisibility(View.VISIBLE);
+            layoutMoMoQR.setVisibility(View.GONE);
         });
 
         btnConfirmPayment.setOnClickListener(v -> confirmPayment());
@@ -69,16 +84,11 @@ public class PaymentMethodActivity extends AppCompatActivity {
 
     private void selectMethod(String method) {
         selectedMethod = method;
-        if (!method.equals("MoMo")) layoutMoMoQR.setVisibility(android.view.View.GONE);
-        if (!method.equals("VN Bank")) layoutVNBankQR.setVisibility(android.view.View.GONE);
+        if (!method.equals("MoMo")) layoutMoMoQR.setVisibility(View.GONE);
+        if (!method.equals("VN Bank")) layoutVNBankQR.setVisibility(View.GONE);
     }
 
     private void confirmPayment() {
-        if (userEmail == null || userEmail.isEmpty()) {
-            Toast.makeText(this, "Invalid email.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
         if (selectedMethod.isEmpty()) {
             Toast.makeText(this, "Select a payment method.", Toast.LENGTH_SHORT).show();
             return;
@@ -114,4 +124,3 @@ public class PaymentMethodActivity extends AppCompatActivity {
         startActivity(intent);
     }
 }
-

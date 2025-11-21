@@ -5,8 +5,8 @@ import android.os.Bundle;
 import android.widget.Button;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.final_project.Payment.PaymentMethodActivity;
 import com.example.final_project.R;
+import com.example.final_project.Payment.PaymentMethodActivity;
 
 public class MonthlyActivity extends AppCompatActivity {
 
@@ -23,8 +23,10 @@ public class MonthlyActivity extends AppCompatActivity {
 
         btnMonthlySubscribe.setOnClickListener(v -> {
             Intent intent = new Intent(this, PaymentMethodActivity.class);
-            intent.putExtra("selectedPlan", "Monthly Plan");
             intent.putExtra("email", userEmail);
+            intent.putExtra("selectedPlan", "Monthly Plan");
+            intent.putExtra("paymentAmount", 4.99);
+            intent.putExtra("isPremium", true);
             startActivity(intent);
         });
     }

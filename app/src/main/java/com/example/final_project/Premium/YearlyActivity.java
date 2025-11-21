@@ -25,6 +25,8 @@ public class YearlyActivity extends AppCompatActivity {
             Intent intent = new Intent(this, PaymentMethodActivity.class);
             intent.putExtra("email", userEmail);
             intent.putExtra("selectedPlan", "Yearly Plan");
+            intent.putExtra("paymentAmount", 39.99);
+            intent.putExtra("isPremium", true);
             startActivity(intent);
         });
     }

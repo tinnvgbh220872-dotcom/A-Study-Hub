@@ -29,7 +29,7 @@ public class TopupActivity extends AppCompatActivity {
         btnConfirmTopup = findViewById(R.id.btnConfirmTopup);
         etCustomTopup = findViewById(R.id.etCustomTopup);
 
-        userEmail = getIntent().getStringExtra("userEmail");
+        userEmail = getIntent().getStringExtra("email");
 
         btnTopup10.setOnClickListener(v -> goToPayment(10));
         btnTopup50.setOnClickListener(v -> goToPayment(50));
@@ -58,7 +58,7 @@ public class TopupActivity extends AppCompatActivity {
 
     private void goToPayment(double amount) {
         Intent intent = new Intent(TopupActivity.this, PaymentMethodActivity.class);
-        intent.putExtra("userEmail", userEmail);
+        intent.putExtra("email", userEmail);
         intent.putExtra("paymentAmount", amount);
         intent.putExtra("isPremium", false);
         startActivity(intent);

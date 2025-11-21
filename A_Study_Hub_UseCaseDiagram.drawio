@@ -1,0 +1,64 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="usecase1" name="UseCase">
+    <mxGraphModel dx="827" dy="540" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <!-- Actors -->
+        <mxCell id="user" value="User" style="shape=umlActor;" vertex="1" parent="1">
+          <mxGeometry x="80" y="200" width="40" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="admin" value="Admin" style="shape=umlActor;" vertex="1" parent="1">
+          <mxGeometry x="520" y="200" width="40" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- System boundary -->
+        <mxCell id="system" value="A-Study-Hub System" style="swimlane;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="160" y="120" width="320" height="360" as="geometry"/>
+        </mxCell>
+
+        <!-- Use cases -->
+        <mxCell id="uc1" value="Register" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="system">
+          <mxGeometry x="60" y="40" width="180" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc2" value="Login" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="system">
+          <mxGeometry x="60" y="100" width="180" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc3" value="Upload File" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="system">
+          <mxGeometry x="60" y="160" width="180" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc4" value="View/Download File" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="system">
+          <mxGeometry x="60" y="220" width="180" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc5" value="Comment File" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="system">
+          <mxGeometry x="60" y="280" width="180" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc6" value="Delete Comment (Admin)" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="system">
+          <mxGeometry x="60" y="340" width="180" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- Connections -->
+        <mxCell id="edge1" edge="1" parent="1" source="user" target="uc1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge2" edge="1" parent="1" source="user" target="uc2">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge3" edge="1" parent="1" source="user" target="uc3">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge4" edge="1" parent="1" source="user" target="uc4">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge5" edge="1" parent="1" source="user" target="uc5">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="edge6" edge="1" parent="1" source="admin" target="uc6">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

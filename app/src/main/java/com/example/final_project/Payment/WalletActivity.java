@@ -64,7 +64,7 @@ public class WalletActivity extends AppCompatActivity {
 
         btnTopUp.setOnClickListener(v -> {
             Intent intent = new Intent(WalletActivity.this, TopupActivity.class);
-            intent.putExtra("userEmail", userEmail);
+            intent.putExtra("email", userEmail);
             startActivityForResult(intent, TOPUP_REQUEST_CODE);
         });
     }

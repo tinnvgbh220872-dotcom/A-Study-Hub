@@ -6,7 +6,7 @@ import android.widget.Button;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.final_project.R;
-import com.example.final_project.Payment.ThankYouActivity;
+import com.example.final_project.Payment.PaymentMethodActivity;
 
 public class TrialActivity extends AppCompatActivity {
 
@@ -22,9 +22,11 @@ public class TrialActivity extends AppCompatActivity {
         userEmail = getIntent().getStringExtra("email");
 
         btnTrialSubscribe.setOnClickListener(v -> {
-            Intent intent = new Intent(this, ThankYouActivity.class);
-            intent.putExtra("selectedPlan", "Trial Plan");
+            Intent intent = new Intent(this, PaymentMethodActivity.class);
             intent.putExtra("email", userEmail);
+            intent.putExtra("selectedPlan", "Trial Plan");
+            intent.putExtra("paymentAmount", 0.0);
+            intent.putExtra("isPremium", true);
             startActivity(intent);
         });
     }
