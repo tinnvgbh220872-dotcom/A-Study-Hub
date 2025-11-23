@@ -44,7 +44,9 @@ public class GoogleLoginActivity extends AppCompatActivity {
 
             if (isEmailRegistered(email)) {
                 Toast.makeText(this, "Login successful: " + email, Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(GoogleLoginActivity.this, MainScreenActivity.class));
+                Intent intent = new Intent(GoogleLoginActivity.this, MainScreenActivity.class);
+                intent.putExtra("email", email);
+                startActivity(intent);
                 finish();
             } else {
                 Toast.makeText(this, "This Gmail is not registered. Please sign up first.", Toast.LENGTH_LONG).show();
