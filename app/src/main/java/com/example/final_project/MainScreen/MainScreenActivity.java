@@ -5,7 +5,6 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -16,14 +15,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.final_project.File.FileAdapter;
 import com.example.final_project.File.FileItem;
-import com.example.final_project.Firebase.FirebaseFileModel;
 import com.example.final_project.File.UploadFileActivity;
+import com.example.final_project.Firebase.FirebaseFileModel;
 import com.example.final_project.Auth.LoginActivity;
 import com.example.final_project.Premium.PremiumActivity;
 import com.example.final_project.Profile.ProfileActivity;
 import com.example.final_project.R;
 import com.example.final_project.SQL.UserDatabase;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -38,19 +39,17 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class MainScreenActivity extends AppCompatActivity {
 
-    private TextView tvWelcome, tvHelloUser;
+    private TextView tvWelcome, tvHelloUser, premiumTitle, premiumSubtitle;
     private ImageView imgPremiumStar;
-    private Button btnPremiumTitle, btnUpFile;
+    private MaterialButton btnExplorePremium, btnUpFile;
     private RecyclerView rvFiles;
     private FileAdapter fileAdapter;
     private List<FileItem> fileList;
     private UserDatabase userDatabase;
     private String currentUserEmail;
     private BottomNavigationView bottomNavigationView;
-
     private DatabaseReference postsRef;
     private ValueEventListener postsListener;
-
     private final Map<String, FirebaseFileModel> allFilesMap = new ConcurrentHashMap<>();
 
     @Override
@@ -61,7 +60,9 @@ public class MainScreenActivity extends AppCompatActivity {
         tvWelcome = findViewById(R.id.tvWelcome);
         tvHelloUser = findViewById(R.id.tvHelloUser);
         imgPremiumStar = findViewById(R.id.imgPremiumStar);
-        btnPremiumTitle = findViewById(R.id.btnPremiumTitle);
+        premiumTitle = findViewById(R.id.premiumTitle);
+        premiumSubtitle = findViewById(R.id.premiumSubtitle);
+        btnExplorePremium = findViewById(R.id.btnExplorePremium);
         btnUpFile = findViewById(R.id.btnUpFile);
         rvFiles = findViewById(R.id.rvFiles);
         bottomNavigationView = findViewById(R.id.bottom_navigation);
@@ -84,11 +85,13 @@ public class MainScreenActivity extends AppCompatActivity {
             intent.putExtra("email", currentUserEmail);
             startActivity(intent);
         });
-        btnPremiumTitle.setOnClickListener(v -> {
+
+        btnExplorePremium.setOnClickListener(v -> {
             Intent intent = new Intent(MainScreenActivity.this, PremiumActivity.class);
             intent.putExtra("email", currentUserEmail);
             startActivity(intent);
         });
+
         setupBottomNavigation();
     }
 
@@ -126,9 +129,7 @@ public class MainScreenActivity extends AppCompatActivity {
                 for (DataSnapshot postSnapshot : snapshot.getChildren()) {
                     FirebaseFileModel file = postSnapshot.getValue(FirebaseFileModel.class);
                     if (file != null) {
-                        file.postId = postSnapshot.getKey(); // firebaseKey
-
-                        // Chỉ thêm file của user hoặc global/approved
+                        file.postId = postSnapshot.getKey();
                         if ("global".equalsIgnoreCase(file.status) || "approved".equalsIgnoreCase(file.status)
                                 || (currentUserEmail.equalsIgnoreCase(file.email) && "pending".equalsIgnoreCase(file.status))) {
                             allFilesMap.put(file.postId, file);

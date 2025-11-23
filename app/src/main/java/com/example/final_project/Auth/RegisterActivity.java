@@ -3,24 +3,20 @@ package com.example.final_project.Auth;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Patterns;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.example.final_project.SQL.UserDatabase;
 import com.example.final_project.MainScreen.MainScreenActivity;
 import com.example.final_project.R;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputEditText;
 
 public class RegisterActivity extends AppCompatActivity {
 
-    private EditText fullNameEditText, emailEditText, phoneEditText, passwordEditText, confirmPasswordEditText;
-    private Button signupButton;
+    private TextInputEditText fullNameEditText, emailEditText, phoneEditText, passwordEditText, confirmPasswordEditText;
+    private MaterialButton signupButton;
     private TextView loginRedirect;
-    private ImageView googleIcon, facebookIcon;
     private UserDatabase userDatabase;
 
     @Override
@@ -28,16 +24,6 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.signup_activity);
 
-        initViews();
-        userDatabase = new UserDatabase(this);
-
-        signupButton.setOnClickListener(v -> handleRegister());
-        loginRedirect.setOnClickListener(v -> navigateToLogin());
-        googleIcon.setOnClickListener(v -> startActivity(new Intent(this, GoogleLoginActivity.class)));
-        facebookIcon.setOnClickListener(v -> handleFacebookLogin());
-    }
-
-    private void initViews() {
         fullNameEditText = findViewById(R.id.fullNameEditText);
         emailEditText = findViewById(R.id.emailEditText);
         phoneEditText = findViewById(R.id.phoneEditText);
@@ -45,8 +31,14 @@ public class RegisterActivity extends AppCompatActivity {
         confirmPasswordEditText = findViewById(R.id.confirmPasswordEditText);
         signupButton = findViewById(R.id.signupButton);
         loginRedirect = findViewById(R.id.loginRedirect);
-        googleIcon = findViewById(R.id.googleIcon);
-        facebookIcon = findViewById(R.id.facebookIcon);
+
+        userDatabase = new UserDatabase(this);
+
+        signupButton.setOnClickListener(v -> handleRegister());
+        loginRedirect.setOnClickListener(v -> {
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
+        });
     }
 
     private void handleRegister() {
@@ -62,56 +54,34 @@ public class RegisterActivity extends AppCompatActivity {
 
         if (inserted) {
             Toast.makeText(this, "Registration successful!", Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(this, LoginActivity.class);
-            intent.putExtra("email", email);
-            startActivity(intent);
+            startActivity(new Intent(this, LoginActivity.class));
             finish();
         } else {
-            Toast.makeText(this, "Email already registered. Try logging in.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Email already registered.", Toast.LENGTH_SHORT).show();
         }
     }
 
     private boolean validateInputs(String fullName, String email, String phone, String password, String confirmPassword) {
         if (fullName.isEmpty() || email.isEmpty() || phone.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
-            showMessage("Please fill in all fields");
+            Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
             return false;
         }
-
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            showMessage("Invalid email address");
+            Toast.makeText(this, "Invalid email address", Toast.LENGTH_SHORT).show();
             return false;
         }
-
         if (!Patterns.PHONE.matcher(phone).matches()) {
-            showMessage("Invalid phone number");
+            Toast.makeText(this, "Invalid phone number", Toast.LENGTH_SHORT).show();
             return false;
         }
-
         if (password.length() < 6) {
-            showMessage("Password must be at least 6 characters");
+            Toast.makeText(this, "Password must be at least 6 characters", Toast.LENGTH_SHORT).show();
             return false;
         }
-
         if (!password.equals(confirmPassword)) {
-            showMessage("Passwords do not match");
+            Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show();
             return false;
         }
-
         return true;
-    }
-
-    private void navigateToLogin() {
-        startActivity(new Intent(this, LoginActivity.class));
-        finish();
-    }
-
-    private void handleFacebookLogin() {
-        startActivity(new Intent(this, MainScreenActivity.class));
-        showMessage("Facebook Login Successful");
-        finish();
-    }
-
-    private void showMessage(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 }

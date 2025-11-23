@@ -72,10 +72,6 @@
             android:exported="false"
             android:theme="@style/Theme.Finalproject"/>
         <activity
-            android:name=".File.ReportActivity"
-            android:exported="false"
-            android:theme="@style/Theme.Finalproject"/>
-        <activity
             android:name=".Profile.EditProfileActivity$ChangePasswordActivity"
             android:exported="false"
             android:theme="@style/Theme.Finalproject"/>

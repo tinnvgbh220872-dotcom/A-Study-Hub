@@ -1,148 +1,202 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="24dp"
-    android:paddingBottom="16dp"
-    android:paddingStart="16dp"
-    android:paddingEnd="16dp"
     android:fitsSystemWindows="true"
     android:background="#F5F5F5"
+    android:paddingTop="24dp"
+    android:paddingBottom="24dp"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
     tools:context=".Profile.EditProfileActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Name"
-            android:textStyle="bold"
-            android:textColor="#333333"
-            android:layout_marginTop="8dp" />
+        <ImageView
+            android:id="@+id/imgAvatar"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:src="@drawable/ic_avatar_placeholder"
+            android:contentDescription="Profile Picture"
+            android:background="@drawable/circle_white"
+            android:padding="8dp"
+            android:layout_marginBottom="16dp"/>
 
-        <EditText
-            android:id="@+id/etFullName"
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Full name"
-            android:inputType="textPersonName"
-            android:imeOptions="actionNext"
-            android:background="@drawable/bg_edittext"
-            android:padding="12dp"
-            android:textColor="#000000"
-            android:textColorHint="#888888"
-            android:elevation="2dp"
-            android:layout_marginTop="4dp" />
+            app:cardCornerRadius="16dp"
+            app:cardElevation="8dp"
+            android:backgroundTint="#FFFFFF"
+            app:strokeColor="#1A000000"
+            app:strokeWidth="1dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Email"
-            android:textStyle="bold"
-            android:textColor="#333333"
-            android:layout_marginTop="16dp" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="4dp">
-
-            <EditText
-                android:id="@+id/etEmail"
-                android:layout_width="0dp"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="Email Address"
-                android:inputType="textEmailAddress"
-                android:imeOptions="actionNext"
-                android:background="@drawable/bg_edittext"
-                android:padding="12dp"
-                android:textColor="#000000"
-                android:textColorHint="#888888"
-                android:elevation="2dp" />
+                android:orientation="vertical"
+                android:padding="16dp">
 
-            <Button
-                android:id="@+id/btnSendCode"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Send Code"
-                android:layout_marginStart="8dp"
-                android:backgroundTint="#6200EE"
-                android:textColor="#FFFFFF"
-                android:paddingLeft="16dp"
-                android:paddingRight="16dp"
-                android:layout_gravity="center_vertical" />
-        </LinearLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Edit Profile"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="#333333"/>
 
-        <EditText
-            android:id="@+id/etEmailCode"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Verification code"
-            android:inputType="number"
-            android:visibility="gone"
-            android:background="@drawable/bg_edittext"
-            android:padding="12dp"
-            android:textColor="#000000"
-            android:textColorHint="#888888"
-            android:elevation="2dp"
-            android:layout_marginTop="8dp" />
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    app:boxBackgroundMode="filled"
+                    app:boxBackgroundColor="#11FFFFFF"
+                    app:boxStrokeColor="#66FFFFFF"
+                    app:startIconDrawable="@drawable/ic_user"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusBottomEnd="12dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Phone Number"
-            android:textStyle="bold"
-            android:textColor="#333333"
-            android:layout_marginTop="16dp" />
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etFullName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Full name"
+                        android:inputType="textPersonName"
+                        android:textColor="#111111"
+                        android:textColorHint="#888888"/>
+                </com.google.android.material.textfield.TextInputLayout>
 
-        <EditText
-            android:id="@+id/etPhone"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Your Phone Number"
-            android:inputType="phone"
-            android:imeOptions="actionNext"
-            android:background="@drawable/bg_edittext"
-            android:padding="12dp"
-            android:textColor="#000000"
-            android:textColorHint="#888888"
-            android:elevation="2dp"
-            android:layout_marginTop="4dp" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="12dp">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="end"
-            android:layout_marginTop="32dp">
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        app:boxBackgroundMode="filled"
+                        app:boxBackgroundColor="#11FFFFFF"
+                        app:boxStrokeColor="#66FFFFFF"
+                        app:startIconDrawable="@drawable/ic_mail"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusBottomEnd="12dp">
 
-            <Button
-                android:id="@+id/btnChangePassword"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Change Password"
-                android:backgroundTint="#03DAC5"
-                android:textColor="#FFFFFF"
-                android:paddingLeft="20dp"
-                android:paddingRight="20dp" />
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etEmail"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Email address"
+                            android:inputType="textEmailAddress"
+                            android:textColor="#111111"
+                            android:textColorHint="#888888"/>
+                    </com.google.android.material.textfield.TextInputLayout>
 
-            <Button
-                android:id="@+id/btnSaveProfile"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Save"
-                android:layout_marginStart="12dp"
-                android:backgroundTint="#6200EE"
-                android:textColor="#FFFFFF"
-                android:paddingLeft="20dp"
-                android:paddingRight="20dp" />
-        </LinearLayout>
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnSendCode"
+                        android:layout_width="wrap_content"
+                        android:layout_height="48dp"
+                        android:layout_marginStart="8dp"
+                        android:text="Send code"
+                        android:textAllCaps="false"
+                        app:cornerRadius="12dp"
+                        android:backgroundTint="#6200EE"
+                        android:textColor="#FFFFFF"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"/>
+                </LinearLayout>
 
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    app:boxBackgroundMode="filled"
+                    app:boxBackgroundColor="#11FFFFFF"
+                    app:boxStrokeColor="#66FFFFFF"
+                    app:startIconDrawable="@drawable/ic_mail"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusBottomEnd="12dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etEmailCode"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Verification code"
+                        android:inputType="number"
+                        android:textColor="#111111"
+                        android:textColorHint="#888888"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    app:boxBackgroundMode="filled"
+                    app:boxBackgroundColor="#11FFFFFF"
+                    app:boxStrokeColor="#66FFFFFF"
+                    app:startIconDrawable="@drawable/ic_phone"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusBottomEnd="12dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etPhone"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Phone number"
+                        android:inputType="phone"
+                        android:textColor="#111111"
+                        android:textColorHint="#888888"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="end"
+                    android:layout_marginTop="20dp">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnChangePassword"
+                        android:layout_width="wrap_content"
+                        android:layout_height="48dp"
+                        android:text="Change password"
+                        android:textAllCaps="false"
+                        app:cornerRadius="12dp"
+                        android:backgroundTint="#03DAC5"
+                        android:textColor="#FFFFFF"
+                        android:paddingStart="20dp"
+                        android:paddingEnd="20dp"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnSaveProfile"
+                        android:layout_width="wrap_content"
+                        android:layout_height="48dp"
+                        android:text="Save"
+                        android:textAllCaps="false"
+                        app:cornerRadius="12dp"
+                        android:layout_marginStart="12dp"
+                        android:backgroundTint="#6200EE"
+                        android:textColor="#FFFFFF"
+                        android:paddingStart="20dp"
+                        android:paddingEnd="20dp"/>
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
 </ScrollView>

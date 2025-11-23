@@ -4,10 +4,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.widget.LinearLayout;
 import android.widget.TextView;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.example.final_project.Auth.LoginActivity;
 import com.example.final_project.MainScreen.MainScreenActivity;
 import com.example.final_project.Payment.MyOrdersActivity;
@@ -18,17 +17,17 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class ProfileActivity extends AppCompatActivity {
 
-    private TextView btnEditProfile, btnMyDocuments, btnMyWallet, btnPremium, btnSettings, btnLogout;
-    private TextView tvUsername, tvEmail;
+    private TextView tvName, tvEmail;
+    private LinearLayout btnEditProfile, btnMyDocuments, btnMyWallet, btnPremium, btnSettings, btnLogout;
     private int userId;
-    private String username, email;
+    private String email, username;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.profile_activity);
 
-        tvUsername = findViewById(R.id.tvName);
+        tvName = findViewById(R.id.tvName);
         tvEmail = findViewById(R.id.tvEmail);
 
         btnEditProfile = findViewById(R.id.btnEditProfile);
@@ -40,6 +39,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         SharedPreferences sp = getSharedPreferences("app_prefs", MODE_PRIVATE);
         userId = sp.getInt("user_id", -1);
+
         if (userId == -1) {
             startActivity(new Intent(this, LoginActivity.class));
             finish();
@@ -47,21 +47,21 @@ public class ProfileActivity extends AppCompatActivity {
         }
 
         com.example.final_project.SQL.UserDatabase userDb = new com.example.final_project.SQL.UserDatabase(this);
-        Cursor c = userDb.getReadableDatabase().rawQuery(
+        Cursor cursor = userDb.getReadableDatabase().rawQuery(
                 "SELECT fullname, email FROM users WHERE id=?",
                 new String[]{String.valueOf(userId)}
         );
 
-        if (c.moveToFirst()) {
-            username = c.getString(0);
-            email = c.getString(1);
+        if (cursor.moveToFirst()) {
+            username = cursor.getString(0);
+            email = cursor.getString(1);
         } else {
             username = "User";
             email = "";
         }
-        c.close();
+        cursor.close();
 
-        tvUsername.setText(username);
+        tvName.setText(username);
         tvEmail.setText(email);
 
         btnEditProfile.setOnClickListener(v -> {
@@ -92,40 +92,40 @@ public class ProfileActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        btnSettings.setOnClickListener(v -> {
+            // Nếu có activity SettingsActivity, thay thế ở đây
+        });
+
         btnLogout.setOnClickListener(v -> {
             SharedPreferences.Editor editor = sp.edit();
             editor.clear();
             editor.apply();
-
             Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
             finish();
         });
 
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
-        bottomNavigationView.setSelectedItemId(R.id.nav_profile);
+        BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
+        bottomNav.setSelectedItemId(R.id.nav_profile);
 
-        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
-            int itemId = item.getItemId();
-
-            if (itemId == R.id.nav_home) {
+        bottomNav.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.nav_home) {
                 Intent intent = new Intent(ProfileActivity.this, MainScreenActivity.class);
                 intent.putExtra("user_id", userId);
                 intent.putExtra("email", email);
                 startActivity(intent);
-                overridePendingTransition(0, 0);
+                overridePendingTransition(0,0);
                 return true;
-            } else if (itemId == R.id.nav_orders) {
+            } else if (id == R.id.nav_orders) {
                 Intent intent = new Intent(ProfileActivity.this, PremiumActivity.class);
                 intent.putExtra("user_id", userId);
                 intent.putExtra("email", email);
                 startActivity(intent);
-                overridePendingTransition(0, 0);
+                overridePendingTransition(0,0);
                 return true;
-            } else if (itemId == R.id.nav_profile) {
-                return true;
-            } else if (itemId == R.id.nav_logout) {
+            } else if (id == R.id.nav_logout) {
                 SharedPreferences.Editor editor = sp.edit();
                 editor.clear();
                 editor.apply();

@@ -17,14 +17,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.final_project.SQL.UserDatabase;
 import com.example.final_project.MainScreen.MainScreenActivity;
 import com.example.final_project.R;
+import com.google.android.material.button.MaterialButton;
 
 public class LoginActivity extends AppCompatActivity {
 
     private EditText etEmail, etPassword;
-    private Button btnSignin, btnSignup;
+    private MaterialButton btnSignin, btnSignup, btnGoogle, btnFacebook;
     private TextView tvForgotPassword;
-    private ImageView btnGoogle, btnFacebook;
     private UserDatabase dbHelper;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +39,7 @@ public class LoginActivity extends AppCompatActivity {
         tvForgotPassword = findViewById(R.id.tvForgotPassword);
         btnGoogle = findViewById(R.id.btnGoogle);
         btnFacebook = findViewById(R.id.btnFacebook);
+
 
         dbHelper = new UserDatabase(this);
 

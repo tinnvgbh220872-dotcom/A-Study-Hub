@@ -7,135 +7,151 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     android:background="#F9FAFB"
-    android:paddingStart="16dp"
-    android:paddingEnd="16dp"
-    android:paddingTop="48dp"
-    android:paddingBottom="16dp"
     tools:context=".MainScreen.MainScreenActivity">
 
-<ScrollView
-android:layout_width="match_parent"
-android:layout_height="match_parent"
-android:clipToPadding="false">
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="32dp"
+        android:paddingBottom="96dp">
 
-<androidx.constraintlayout.widget.ConstraintLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
-
-    <TextView
-        android:id="@+id/tvWelcome"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Welcome to A-Study-Hub!"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        android:textColor="#1F2937"
-    app:layout_constraintTop_toTopOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintEnd_toEndOf="parent"/>
-
-
-    <LinearLayout
-        android:id="@+id/layoutHelloUser"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:layout_marginTop="12dp"
-        app:layout_constraintTop_toBottomOf="@id/tvWelcome"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <TextView
-            android:id="@+id/tvHelloUser"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Hello, User"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="#111827"/>
-
-        <ImageView
-            android:id="@+id/imgPremiumStar"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginStart="8dp"
-            android:src="@drawable/ic_star"
-            android:visibility="gone"/>
-    </LinearLayout>
-
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cardPremium"
-        android:layout_width="0dp"
-        android:layout_height="140dp"
-        android:layout_marginTop="16dp"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="8dp"
-        app:layout_constraintTop_toBottomOf="@id/layoutHelloUser"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:backgroundTint="#EDE9FE">
-
-        <RelativeLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:padding="16dp">
-
-            <Button
-                android:id="@+id/btnPremiumTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Premium Content"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:backgroundTint="#7F3FBF"
-            android:textColor="#FFFFFF"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"/>
+            android:layout_height="wrap_content">
 
             <TextView
+                android:id="@+id/tvWelcome"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/btnPremiumTitle"
+                android:text="Welcome to A-Study-Hub"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="#1F2937"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+            <LinearLayout
+                android:id="@+id/layoutHelloUser"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
                 android:layout_marginTop="8dp"
-                android:text="Access exclusive study materials"
-                android:textColor="#4B5563"/>
+                app:layout_constraintTop_toBottomOf="@id/tvWelcome"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
 
-        </RelativeLayout>
-    </androidx.cardview.widget.CardView>
+                <TextView
+                    android:id="@+id/tvHelloUser"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Hello, User"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="#111827"/>
 
-    <Button
-        android:id="@+id/btnUpFile"
-        android:layout_width="0dp"
+                <ImageView
+                    android:id="@+id/imgPremiumStar"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:layout_marginStart="8dp"
+                    android:src="@drawable/ic_star"
+                    android:visibility="gone"
+                    app:tint="#FBBF24" />
+            </LinearLayout>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardPremium"
+                android:layout_width="0dp"
+                android:layout_height="140dp"
+                android:layout_marginTop="16dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="10dp"
+                app:strokeColor="#33000000"
+                app:strokeWidth="1dp"
+                android:backgroundTint="#EDE9FE"
+                app:layout_constraintTop_toBottomOf="@id/layoutHelloUser"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:id="@+id/premiumTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Premium Content"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="#4C1D95"/>
+
+                    <TextView
+                        android:id="@+id/premiumSubtitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/premiumTitle"
+                        android:layout_marginTop="8dp"
+                        android:text="Access exclusive study materials"
+                        android:textColor="#4B5563"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnExplorePremium"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:text="Explore"
+                        android:textAllCaps="false"
+                        app:cornerRadius="12dp"
+                        android:backgroundTint="#7C3AED"
+                        android:textColor="#FFFFFF"
+                        android:paddingStart="20dp"
+                        android:paddingEnd="20dp"/>
+                </RelativeLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnUpFile"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:text="Upload File"
+                android:textAllCaps="false"
+                android:layout_marginTop="16dp"
+                android:backgroundTint="#6366F1"
+                android:textColor="#FFFFFF"
+                app:cornerRadius="16dp"
+                app:layout_constraintTop_toBottomOf="@id/cardPremium"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvFiles"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:paddingBottom="8dp"
+                app:layout_constraintTop_toBottomOf="@id/btnUpFile"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Upload File"
-        android:layout_marginTop="12dp"
-        android:backgroundTint="#6366F1"
-        android:textColor="#FFFFFF"
-        android:padding="12dp"
-        app:layout_constraintTop_toBottomOf="@id/cardPremium"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:cornerRadius="16dp"/>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvFiles"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@id/btnUpFile"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-</androidx.constraintlayout.widget.ConstraintLayout>
-</ScrollView>
-
-<com.google.android.material.bottomnavigation.BottomNavigationView
-android:id="@+id/bottom_navigation"
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-android:layout_gravity="bottom"
-android:background="#FFFFFF"
-android:elevation="12dp"
-app:menu="@menu/bottom_nav_menu"
-app:labelVisibilityMode="labeled"/>
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+        android:layout_gravity="bottom"
+        android:background="#FFFFFF"
+        android:elevation="12dp"
+        app:labelVisibilityMode="labeled"
+        app:itemIconTint="@color/black"
+        app:itemTextColor="@color/black"
+        app:menu="@menu/bottom_nav_menu"/>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

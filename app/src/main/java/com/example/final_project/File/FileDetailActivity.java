@@ -57,7 +57,7 @@ public class FileDetailActivity extends AppCompatActivity {
     private RecyclerView rvComments;
     private ImageView ivPreview;
     private EditText etComment;
-    private Button btnPreview, btnDownload, btnReport, btnSendComment, btnEditFile, btnDeleteFile;
+    private Button btnPreview, btnDownload, btnSendComment, btnEditFile, btnDeleteFile;
     private View blurOverlay;
 
     private CommentAdapter adapter;
@@ -89,7 +89,6 @@ public class FileDetailActivity extends AppCompatActivity {
 
         btnPreview = findViewById(R.id.btnPreview);
         btnDownload = findViewById(R.id.btnDownload);
-        btnReport = findViewById(R.id.btnReport);
         btnSendComment = findViewById(R.id.btnSendComment);
         btnEditFile = findViewById(R.id.btnEditFile);
         btnDeleteFile = findViewById(R.id.btnDeleteFile);
@@ -134,7 +133,6 @@ public class FileDetailActivity extends AppCompatActivity {
 
         btnPreview.setOnClickListener(v -> previewFile());
         btnDownload.setOnClickListener(v -> downloadFile());
-        btnReport.setOnClickListener(v -> openReportPage());
         btnSendComment.setOnClickListener(v -> addComment());
         btnEditFile.setOnClickListener(v -> selectNewFile());
         btnDeleteFile.setOnClickListener(v -> deleteFile());
@@ -371,13 +369,6 @@ public class FileDetailActivity extends AppCompatActivity {
         }
     }
 
-
-    private void openReportPage() {
-        Intent intent = new Intent(this, ReportActivity.class);
-        intent.putExtra("email", userEmail);
-        intent.putExtra("filename", fileName);
-        startActivity(intent);
-    }
 
     private void addComment() {
         String text = etComment.getText().toString().trim();
