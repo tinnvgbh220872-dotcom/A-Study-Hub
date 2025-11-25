@@ -13,6 +13,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.final_project.Profile.ChangePasswordActivity;
 import com.example.final_project.SQL.UserDatabase;
 import com.example.final_project.Auth.LoginActivity;
 import com.example.final_project.MainScreen.MainScreenActivity;
@@ -94,6 +95,21 @@ public class EditProfileActivity extends AppCompatActivity {
         c.close();
     }
 
+    private boolean isEmailExistsForOtherUser(String email) {
+        Cursor c = db.rawQuery("SELECT id FROM users WHERE email = ?", new String[]{email});
+        boolean exists = false;
+
+        while (c.moveToNext()) {
+            int id = c.getInt(0);
+            if (id != userId) {
+                exists = true;
+                break;
+            }
+        }
+        c.close();
+        return exists;
+    }
+
     private void sendVerificationCode() {
         String email = etEmail.getText().toString().trim();
         if (email.isEmpty()) {
@@ -139,6 +155,11 @@ public class EditProfileActivity extends AppCompatActivity {
             return;
         }
 
+        if (isEmailExistsForOtherUser(email)) {
+            Toast.makeText(this, "This email is already used by another account!", Toast.LENGTH_LONG).show();
+            return;
+        }
+
         ContentValues cv = new ContentValues();
         cv.put("fullname", fullname);
         cv.put("email", email);
@@ -146,10 +167,17 @@ public class EditProfileActivity extends AppCompatActivity {
 
         int rows = db.update("users", cv, "id=?", new String[]{String.valueOf(userId)});
         if (rows > 0) {
-            SharedPreferences.Editor editor = getSharedPreferences("UserPrefs", MODE_PRIVATE).edit();
-            editor.putString("email", email);
-            editor.apply();
+
+            SharedPreferences.Editor editor1 = getSharedPreferences("UserPrefs", MODE_PRIVATE).edit();
+            editor1.putString("email", email);
+            editor1.apply();
+
+            SharedPreferences.Editor editor2 = getSharedPreferences("app_prefs", MODE_PRIVATE).edit();
+            editor2.putString("user_email", email);
+            editor2.apply();
+
             Toast.makeText(this, "Profile updated successfully", Toast.LENGTH_SHORT).show();
+
             Intent intent = new Intent(this, MainScreenActivity.class);
             intent.putExtra("email", email);
             startActivity(intent);
@@ -197,79 +225,5 @@ public class EditProfileActivity extends AppCompatActivity {
                         Toast.makeText(EditProfileActivity.this, "Failed to send email", Toast.LENGTH_SHORT).show());
             }
         }).start();
-    }
-
-    public static class ChangePasswordActivity extends AppCompatActivity {
-
-        private EditText etOldPassword, etNewPassword, etConfirmPassword;
-        private Button btnCancel, btnSavePassword;
-        private UserDatabase userDatabase;
-        private int userId;
-
-        @Override
-        protected void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            setContentView(R.layout.change_password);
-
-            etOldPassword = findViewById(R.id.etOldPassword);
-            etNewPassword = findViewById(R.id.etNewPassword);
-            etConfirmPassword = findViewById(R.id.etConfirmPassword);
-            btnCancel = findViewById(R.id.btnCancel);
-            btnSavePassword = findViewById(R.id.btnSavePassword);
-
-            userDatabase = new UserDatabase(this);
-
-            Intent intent = getIntent();
-            userId = intent != null ? intent.getIntExtra("user_id", -1) : -1;
-            if (userId == -1) {
-                SharedPreferences sp = getSharedPreferences("app_prefs", MODE_PRIVATE);
-                userId = sp.getInt("user_id", -1);
-            }
-
-            btnSavePassword.setOnClickListener(v -> {
-                String oldPass = etOldPassword.getText().toString().trim();
-                String newPass = etNewPassword.getText().toString().trim();
-                String confirmPass = etConfirmPassword.getText().toString().trim();
-
-                if (oldPass.isEmpty() || newPass.isEmpty() || confirmPass.isEmpty()) {
-                    Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if (userId == -1) {
-                    Toast.makeText(this, "User not found", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                String currentPass = userDatabase.getPasswordById(userId);
-                if (currentPass == null || !currentPass.equals(oldPass)) {
-                    Toast.makeText(this, "Current password is incorrect", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if (!newPass.equals(confirmPass)) {
-                    Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                boolean updated = userDatabase.updatePasswordById(userId, newPass);
-                if (updated) {
-                    String email = userDatabase.getEmailById(userId);
-                    if (email != null) {
-                        SharedPreferences sp = getSharedPreferences("app_prefs", MODE_PRIVATE);
-                        SharedPreferences.Editor editor = sp.edit();
-                        editor.putString("user_email", email);
-                        editor.apply();
-                    }
-
-                    Toast.makeText(this, "Password changed successfully", Toast.LENGTH_SHORT).show();
-                    finish();
-                } else {
-                    Toast.makeText(this, "Failed to change password", Toast.LENGTH_SHORT).show();
-                }
-            });
-
-            btnCancel.setOnClickListener(v -> finish());
-        }
     }
 }

@@ -72,7 +72,7 @@
             android:exported="false"
             android:theme="@style/Theme.Finalproject"/>
         <activity
-            android:name=".Profile.EditProfileActivity$ChangePasswordActivity"
+            android:name=".Profile.ChangePasswordActivity"
             android:exported="false"
             android:theme="@style/Theme.Finalproject"/>
         <activity
