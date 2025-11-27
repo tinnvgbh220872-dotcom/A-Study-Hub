@@ -1,0 +1,72 @@
+[
+  {
+    "language": "Java",
+    "question": "What will be the output of the following Java code?",
+    "code": "System.out.println(1 + 2 + \"3\");",
+    "options": ["33", "123", "6", "Error"],
+    "answer": "33"
+  },
+  {
+    "language": "Python",
+    "question": "What is the output of this Python code?",
+    "code": "print(2 ** 3 ** 2)",
+    "options": ["64", "512", "256", "Error"],
+    "answer": "512"
+  },
+  {
+    "language": "C++",
+    "question": "What does this C++ code print?",
+    "code": "#include <iostream>\nint main() {\n    int a = 5, b = 2;\n    std::cout << a / b;\n    return 0;\n}",
+    "options": ["2", "2.5", "3", "Error"],
+    "answer": "2"
+  },
+  {
+    "language": "JavaScript",
+    "question": "What will be the result of this code?",
+    "code": "console.log(typeof NaN);",
+    "options": ["number", "NaN", "undefined", "object"],
+    "answer": "number"
+  },
+  {
+    "language": "Java",
+    "question": "Which keyword is used to inherit a class in Java?",
+    "code": "",
+    "options": ["implement", "extends", "inherits", "super"],
+    "answer": "extends"
+  },
+  {
+    "language": "Python",
+    "question": "Which of the following is mutable in Python?",
+    "code": "",
+    "options": ["tuple", "list", "string", "int"],
+    "answer": "list"
+  },
+  {
+    "language": "C++",
+    "question": "Which of the following declares a pointer in C++?",
+    "code": "",
+    "options": ["int ptr;", "int *ptr;", "int &ptr;", "int ptr&;"],
+    "answer": "int *ptr;"
+  },
+  {
+    "language": "JavaScript",
+    "question": "Which method converts JSON string to JavaScript object?",
+    "code": "",
+    "options": ["JSON.parse()", "JSON.stringify()", "JSON.toObject()", "JSON.objectify()"],
+    "answer": "JSON.parse()"
+  },
+  {
+    "language": "Java",
+    "question": "What is the default value of boolean in Java?",
+    "code": "",
+    "options": ["true", "false", "0", "null"],
+    "answer": "false"
+  },
+  {
+    "language": "Python",
+    "question": "Which keyword is used for function definition in Python?",
+    "code": "",
+    "options": ["func", "def", "function", "lambda"],
+    "answer": "def"
+  }
+]

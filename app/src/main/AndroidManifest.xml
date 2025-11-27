@@ -124,7 +124,7 @@
             android:exported="false"
             android:theme="@style/Theme.Finalproject"/>
         <activity
-            android:name=".AI.ChatActivity"
+            android:name=".Quiz.QuizActivity"
             android:exported="false"
             android:theme="@style/Theme.Finalproject"/>
 

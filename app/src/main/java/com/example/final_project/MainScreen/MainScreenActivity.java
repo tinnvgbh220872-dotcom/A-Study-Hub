@@ -13,7 +13,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.final_project.AI.ChatActivity;
 import com.example.final_project.File.FileAdapter;
 import com.example.final_project.File.FileItem;
 import com.example.final_project.File.UploadFileActivity;
@@ -21,9 +20,9 @@ import com.example.final_project.Firebase.FirebaseFileModel;
 import com.example.final_project.Auth.LoginActivity;
 import com.example.final_project.Premium.PremiumActivity;
 import com.example.final_project.Profile.ProfileActivity;
+import com.example.final_project.Quiz.QuizActivity;
 import com.example.final_project.R;
 import com.example.final_project.SQL.UserDatabase;
-import com.example.final_project.AI.ChatActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
@@ -98,7 +97,7 @@ public class MainScreenActivity extends AppCompatActivity {
         });
 
         btnChatBot.setOnClickListener(v -> {
-            Intent intent = new Intent(MainScreenActivity.this, ChatActivity.class);
+            Intent intent = new Intent(MainScreenActivity.this, QuizActivity.class);
             intent.putExtra("email", currentUserEmail);
             startActivity(intent);
         });

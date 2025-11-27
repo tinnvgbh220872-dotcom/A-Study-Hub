@@ -14,7 +14,7 @@ import java.util.Locale;
 public class UserDatabase extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "UserDB.db";
-    private static final int DATABASE_VERSION = 31;
+    private static final int DATABASE_VERSION = 33;
 
     private static final String TABLE_USERS = "users";
     private static final String COLUMN_ID = "id";
@@ -106,6 +106,40 @@ public class UserDatabase extends SQLiteOpenHelper {
                 COLUMN_COMMENT_EMAIL + " TEXT, " +
                 COLUMN_COMMENT_TEXT + " TEXT, " +
                 COLUMN_COMMENT_TIME + " TEXT)");
+
+        String SQL_CREATE_QUIZ_TABLE = "CREATE TABLE Quiz (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "language TEXT," +
+                "question TEXT," +
+                "code TEXT," +
+                "option1 TEXT," +
+                "option2 TEXT," +
+                "option3 TEXT," +
+                "option4 TEXT," +
+                "answer TEXT" +
+                ")";
+        db.execSQL(SQL_CREATE_QUIZ_TABLE);
+        db.execSQL("INSERT INTO Quiz(language, question, code, option1, option2, option3, option4, answer) VALUES('Java','What is the output of 1+1 in Java?','', '1','2','11','Error','2')");
+        db.execSQL("INSERT INTO Quiz(language, question, code, option1, option2, option3, option4, answer) VALUES('Python','Which of these is mutable?','', 'tuple','list','string','int','list')");
+        db.execSQL("INSERT INTO Quiz(language, question, code, option1, option2, option3, option4, answer) VALUES('C++','Which declares a pointer?','', 'int ptr;','int *ptr;','int &ptr;','int ptr&;','int *ptr;')");
+        db.execSQL("INSERT INTO Quiz(language, question, code, option1, option2, option3, option4, answer) VALUES('JavaScript','Which converts JSON string to object?','', 'JSON.parse()','JSON.stringify()','JSON.toObject()','JSON.objectify()','JSON.parse()')");
+        db.execSQL("INSERT INTO Quiz(language, question, code, option1, option2, option3, option4, answer) VALUES('Java','Keyword to inherit class?','', 'implement','extends','inherits','super','extends')");
+        db.execSQL("INSERT INTO Quiz(language, question, code, option1, option2, option3, option4, answer) VALUES('Python','Keyword to define function?','', 'func','def','function','lambda','def')");
+        db.execSQL("INSERT INTO Quiz(language, question, code, option1, option2, option3, option4, answer) VALUES('C++','What is the default value of int?','', '0','1','null','undefined','0')");
+        db.execSQL("INSERT INTO Quiz(language, question, code, option1, option2, option3, option4, answer) VALUES('JavaScript','Type of NaN?','', 'number','NaN','undefined','object','number')");
+        db.execSQL("INSERT INTO Quiz(language, question, code, option1, option2, option3, option4, answer) VALUES('Java','Default boolean value?','', 'true','false','0','null','false')");
+        db.execSQL("INSERT INTO Quiz(language, question, code, option1, option2, option3, option4, answer) VALUES('Python','Which is immutable?','', 'tuple','list','dict','set','tuple')");
+        db.execSQL("INSERT INTO Quiz(language, question, code, option1, option2, option3, option4, answer) VALUES('C++','Output of: cout << 5/2;','', '2','2.5','3','Error','2')");
+        db.execSQL("INSERT INTO Quiz(language, question, code, option1, option2, option3, option4, answer) VALUES('JavaScript','Method to add element to array?','', 'push()','pop()','shift()','unshift()','push()')");
+        db.execSQL("INSERT INTO Quiz(language, question, code, option1, option2, option3, option4, answer) VALUES('Java','Which is checked exception?','', 'IOException','NullPointerException','ArithmeticException','ArrayIndexOutOfBoundsException','IOException')");
+        db.execSQL("INSERT INTO Quiz(language, question, code, option1, option2, option3, option4, answer) VALUES('Python','Operator for exponentiation?','', '^','**','%','//','**')");
+        db.execSQL("INSERT INTO Quiz(language, question, code, option1, option2, option3, option4, answer) VALUES('C++','Which is reference?','', 'int *ptr','int &ref','int ptr','int ref&','int &ref')");
+        db.execSQL("INSERT INTO Quiz(language, question, code, option1, option2, option3, option4, answer) VALUES('JavaScript','Difference between let and var?','', 'var block scoped','let block scoped','var constant','let global scoped','let block scoped')");
+        db.execSQL("INSERT INTO Quiz(language, question, code, option1, option2, option3, option4, answer) VALUES('Java','Keyword for interface implementation?','', 'implements','extends','interface','super','implements')");
+        db.execSQL("INSERT INTO Quiz(language, question, code, option1, option2, option3, option4, answer) VALUES('Python','Which function gets length of list?','', 'length()','len()','size()','count()','len()')");
+        db.execSQL("INSERT INTO Quiz(language, question, code, option1, option2, option3, option4, answer) VALUES('C++','Output: cout << 2*3+1;','', '7','8','5','9','7')");
+        db.execSQL("INSERT INTO Quiz(language, question, code, option1, option2, option3, option4, answer) VALUES('JavaScript','How to declare constant?','', 'let','const','var','constant','const')");
+
     }
 
     @Override
@@ -115,6 +149,8 @@ public class UserDatabase extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_ORDERS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_TRANSACTIONS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_COMMENTS);
+        db.execSQL("DROP TABLE IF EXISTS Quiz");
+
         onCreate(db);
     }
 

@@ -7,17 +7,15 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Patterns;
-import android.widget.Button;
+import com.google.android.material.button.MaterialButton;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.example.final_project.SQL.UserDatabase;
 import com.example.final_project.MainScreen.MainScreenActivity;
 import com.example.final_project.R;
-import com.google.android.material.button.MaterialButton;
+import com.example.final_project.Security.CryptoUtil;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -25,7 +23,6 @@ public class LoginActivity extends AppCompatActivity {
     private MaterialButton btnSignin, btnSignup, btnGoogle, btnFacebook;
     private TextView tvForgotPassword;
     private UserDatabase dbHelper;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,8 +36,6 @@ public class LoginActivity extends AppCompatActivity {
         tvForgotPassword = findViewById(R.id.tvForgotPassword);
         btnGoogle = findViewById(R.id.btnGoogle);
         btnFacebook = findViewById(R.id.btnFacebook);
-
-
         dbHelper = new UserDatabase(this);
 
         btnSignin.setOnClickListener(v -> handleLogin());
@@ -57,7 +52,6 @@ public class LoginActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-
         btnGoogle.setOnClickListener(v -> {
             Intent intent = new Intent(LoginActivity.this, GoogleLoginActivity.class);
             startActivity(intent);
@@ -71,7 +65,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void handleLogin() {
-        String email = etEmail.getText().toString().trim();
+        String email = etEmail.getText().toString().trim().toLowerCase();
         String password = etPassword.getText().toString().trim();
 
         if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
@@ -84,8 +78,12 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
+        String hashedPassword = CryptoUtil.hashPassword(password);
+
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT id FROM users WHERE email=? AND password=?", new String[]{email, password});
+        Cursor cursor = db.rawQuery(
+                "SELECT id FROM users WHERE LOWER(email)=? AND password=?",
+                new String[]{email, hashedPassword});
 
         if (cursor.moveToFirst()) {
             int userId = cursor.getInt(0);

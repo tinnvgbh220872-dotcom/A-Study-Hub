@@ -44,28 +44,27 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void handleRegister() {
         String fullName = fullNameEditText.getText().toString().trim();
-        String email = emailEditText.getText().toString().trim();
+        String email = emailEditText.getText().toString().trim().toLowerCase();
         String phone = phoneEditText.getText().toString().trim();
         String password = passwordEditText.getText().toString().trim();
         String confirmPassword = confirmPasswordEditText.getText().toString().trim();
 
         if (!validateInputs(fullName, email, phone, password, confirmPassword)) return;
 
-        String encryptedName = CryptoUtil.encrypt(fullName);
-        String encryptedEmail = CryptoUtil.encrypt(email);
         String hashedPassword = CryptoUtil.hashPassword(password);
 
-        boolean inserted = userDatabase.insertUser(encryptedName, encryptedEmail, hashedPassword, phone);
+        boolean inserted = userDatabase.insertUser(fullName, email, hashedPassword, phone);
 
         if (inserted) {
             Toast.makeText(this, "Registration successful!", Toast.LENGTH_SHORT).show();
-            startActivity(new Intent(this, LoginActivity.class));
+            Intent intent = new Intent(this, LoginActivity.class);
+            intent.putExtra("email", email);
+            startActivity(intent);
             finish();
         } else {
             Toast.makeText(this, "Email already registered.", Toast.LENGTH_SHORT).show();
         }
     }
-
 
     private boolean validateInputs(String fullName, String email, String phone, String password, String confirmPassword) {
         if (fullName.isEmpty() || email.isEmpty() || phone.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
