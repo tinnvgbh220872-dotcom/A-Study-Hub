@@ -36,8 +36,19 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
         h.tvAmount.setText(amountText);
 
         h.tvDate.setText(o.getDate());
-        h.tvStatus.setText("Status: " + o.getStatus());
+
+        String statusText = "Status: " + o.getStatus();
+        h.tvStatus.setText(statusText);
+
+        if (o.getStatus().equalsIgnoreCase("Payment Failed")) {
+            h.tvStatus.setTextColor(h.itemView.getResources().getColor(android.R.color.holo_red_dark));
+        } else if (o.getStatus().equalsIgnoreCase("Payment Successful")) {
+            h.tvStatus.setTextColor(h.itemView.getResources().getColor(android.R.color.holo_green_dark));
+        } else {
+            h.tvStatus.setTextColor(h.itemView.getResources().getColor(android.R.color.black));
+        }
     }
+
 
     @Override
     public int getItemCount() {

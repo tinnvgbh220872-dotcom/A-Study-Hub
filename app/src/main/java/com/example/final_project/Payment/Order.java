@@ -3,7 +3,8 @@ package com.example.final_project.Payment;
 public class Order {
     private int id;
     private double amount;
-    private String date, status;
+    private String date;
+    private String status;
 
     public Order(int id, double amount, String date, String status) {
         this.id = id;
@@ -16,4 +17,8 @@ public class Order {
     public double getAmount() { return amount; }
     public String getDate() { return date; }
     public String getStatus() { return status; }
+
+    public void setDate(String date) { this.date = date; }
+    public void setStatus(String status) { this.status = status; }
 }
+

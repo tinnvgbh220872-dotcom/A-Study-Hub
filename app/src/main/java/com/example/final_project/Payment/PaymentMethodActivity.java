@@ -99,12 +99,22 @@ public class PaymentMethodActivity extends AppCompatActivity {
             return;
         }
 
+        double currentBalance = userDatabase.getBalance(userEmail);
+
+        if (isPremium && currentBalance < paymentAmount) {
+            Toast.makeText(this, "Insufficient wallet balance!", Toast.LENGTH_LONG).show();
+            return;
+        }
+
         String now = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(new Date());
         double transactionAmount = isPremium ? -paymentAmount : paymentAmount;
 
-        boolean added = userDatabase.insertTransaction(userEmail,
+        boolean added = userDatabase.insertTransaction(
+                userEmail,
                 isPremium ? "Premium Subscription" : "Top Up",
-                transactionAmount, now);
+                transactionAmount,
+                now
+        );
 
         if (!added) {
             Toast.makeText(this, "Payment failed.", Toast.LENGTH_SHORT).show();
@@ -112,6 +122,8 @@ public class PaymentMethodActivity extends AppCompatActivity {
         }
 
         if (isPremium) {
+            double newBalance = currentBalance - paymentAmount;
+            userDatabase.updateBalance(userEmail, newBalance);
             userDatabase.updatePremiumStatus(userEmail, 1);
         }
 

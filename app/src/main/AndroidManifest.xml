@@ -123,6 +123,11 @@
             android:name=".File.UserActivity"
             android:exported="false"
             android:theme="@style/Theme.Finalproject"/>
+        <activity
+            android:name=".AI.ChatActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Finalproject"/>
+
 
         <service
             android:name=".Firebase.MyFirebaseMessagingService"

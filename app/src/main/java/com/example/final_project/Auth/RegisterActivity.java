@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.final_project.SQL.UserDatabase;
 import com.example.final_project.MainScreen.MainScreenActivity;
 import com.example.final_project.R;
+import com.example.final_project.Security.CryptoUtil;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -50,7 +51,11 @@ public class RegisterActivity extends AppCompatActivity {
 
         if (!validateInputs(fullName, email, phone, password, confirmPassword)) return;
 
-        boolean inserted = userDatabase.insertUser(fullName, email, password, phone);
+        String encryptedName = CryptoUtil.encrypt(fullName);
+        String encryptedEmail = CryptoUtil.encrypt(email);
+        String hashedPassword = CryptoUtil.hashPassword(password);
+
+        boolean inserted = userDatabase.insertUser(encryptedName, encryptedEmail, hashedPassword, phone);
 
         if (inserted) {
             Toast.makeText(this, "Registration successful!", Toast.LENGTH_SHORT).show();
@@ -60,6 +65,7 @@ public class RegisterActivity extends AppCompatActivity {
             Toast.makeText(this, "Email already registered.", Toast.LENGTH_SHORT).show();
         }
     }
+
 
     private boolean validateInputs(String fullName, String email, String phone, String password, String confirmPassword) {
         if (fullName.isEmpty() || email.isEmpty() || phone.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {

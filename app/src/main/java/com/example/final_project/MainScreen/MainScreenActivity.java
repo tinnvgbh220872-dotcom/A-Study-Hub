@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.final_project.AI.ChatActivity;
 import com.example.final_project.File.FileAdapter;
 import com.example.final_project.File.FileItem;
 import com.example.final_project.File.UploadFileActivity;
@@ -22,9 +23,11 @@ import com.example.final_project.Premium.PremiumActivity;
 import com.example.final_project.Profile.ProfileActivity;
 import com.example.final_project.R;
 import com.example.final_project.SQL.UserDatabase;
+import com.example.final_project.AI.ChatActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -67,6 +70,8 @@ public class MainScreenActivity extends AppCompatActivity {
         rvFiles = findViewById(R.id.rvFiles);
         bottomNavigationView = findViewById(R.id.bottom_navigation);
 
+        FloatingActionButton btnChatBot = findViewById(R.id.btnChatBot);
+
         currentUserEmail = getIntent().getStringExtra("email");
         userDatabase = new UserDatabase(this);
 
@@ -88,6 +93,12 @@ public class MainScreenActivity extends AppCompatActivity {
 
         btnExplorePremium.setOnClickListener(v -> {
             Intent intent = new Intent(MainScreenActivity.this, PremiumActivity.class);
+            intent.putExtra("email", currentUserEmail);
+            startActivity(intent);
+        });
+
+        btnChatBot.setOnClickListener(v -> {
+            Intent intent = new Intent(MainScreenActivity.this, ChatActivity.class);
             intent.putExtra("email", currentUserEmail);
             startActivity(intent);
         });

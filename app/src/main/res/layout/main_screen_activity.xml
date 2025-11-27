@@ -9,6 +9,7 @@
     android:background="#F9FAFB"
     tools:context=".MainScreen.MainScreenActivity">
 
+    <!-- ScrollView chỉ có 1 child -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -142,6 +143,18 @@
                 app:layout_constraintEnd_toEndOf="parent"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnChatBot"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="90dp"
+        android:src="@drawable/ic_chatbot"
+        app:tint="#FFFFFF"
+        app:backgroundTint="#6366F1"
+        app:maxImageSize="36dp" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"

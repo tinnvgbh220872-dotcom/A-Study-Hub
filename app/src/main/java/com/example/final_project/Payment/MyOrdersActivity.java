@@ -3,14 +3,18 @@ package com.example.final_project.Payment;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.widget.TextView;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.final_project.SQL.UserDatabase;
 import com.example.final_project.R;
+import com.example.final_project.SQL.UserDatabase;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 public class MyOrdersActivity extends AppCompatActivity {
 
@@ -45,8 +49,16 @@ public class MyOrdersActivity extends AppCompatActivity {
             do {
                 int id = c.getInt(c.getColumnIndexOrThrow("order_id"));
                 double amount = c.getDouble(c.getColumnIndexOrThrow("order_price"));
-                String date = "N/A";
                 String status = c.getString(c.getColumnIndexOrThrow("order_name"));
+                String date = null;
+                int dateIndex = c.getColumnIndex("order_date");
+                if (dateIndex != -1) {
+                    date = c.getString(dateIndex);
+                }
+                if (date == null || date.isEmpty()) {
+                    date = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(new Date());
+                }
+
                 list.add(new Order(id, amount, date, status));
             } while (c.moveToNext());
             c.close();
@@ -56,4 +68,32 @@ public class MyOrdersActivity extends AppCompatActivity {
         }
         adapter.notifyDataSetChanged();
     }
+
+    public Order getOrderById(int orderId) {
+        for (Order o : list) {
+            if (o.getId() == orderId) return o;
+        }
+        return null;
+    }
+
+    public void confirmPayment(int orderId, double userBalance) {
+        Order order = getOrderById(orderId);
+        if (order == null) return;
+
+        String newStatus;
+        if (userBalance >= order.getAmount()) {
+            newStatus = "Payment Successful";
+        } else {
+            newStatus = "Payment Failed";
+        }
+
+        String currentDate = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(new Date());
+
+        db.updateOrderStatusAndDate(orderId, newStatus, currentDate);
+
+        order.setStatus(newStatus);
+        order.setDate(currentDate);
+        adapter.notifyDataSetChanged();
+    }
+
 }
