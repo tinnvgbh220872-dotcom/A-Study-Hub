@@ -88,9 +88,15 @@ public class EditProfileActivity extends AppCompatActivity {
     private void loadUserInfo() {
         Cursor c = db.rawQuery("SELECT fullname, email, phone FROM users WHERE id=?", new String[]{String.valueOf(userId)});
         if (c.moveToFirst()) {
-            etFullName.setText(c.getString(0));
+            String encryptedName = c.getString(0);
             etEmail.setText(c.getString(1));
             etPhone.setText(c.getString(2));
+            try {
+                etFullName.setText(com.example.final_project.Security.CryptoUtil.decrypt(encryptedName));
+            } catch (Exception e) {
+                e.printStackTrace();
+                etFullName.setText("User");
+            }
         }
         c.close();
     }
@@ -161,7 +167,12 @@ public class EditProfileActivity extends AppCompatActivity {
         }
 
         ContentValues cv = new ContentValues();
-        cv.put("fullname", fullname);
+        try {
+            cv.put("fullname", com.example.final_project.Security.CryptoUtil.encrypt(fullname));
+        } catch (Exception e) {
+            e.printStackTrace();
+            cv.put("fullname", fullname);
+        }
         cv.put("email", email);
         cv.put("phone", phone);
 
@@ -186,6 +197,7 @@ public class EditProfileActivity extends AppCompatActivity {
             Toast.makeText(this, "Failed to update profile", Toast.LENGTH_SHORT).show();
         }
     }
+
 
     private void sendEmailDirect(String recipientEmail, String code) {
         new Thread(() -> {

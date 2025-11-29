@@ -10,6 +10,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.pdf.PdfRenderer;
 import android.net.Uri;
 import android.os.Build;
@@ -20,7 +21,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,6 +37,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.final_project.MainScreen.MainScreenActivity;
 import com.example.final_project.SQL.UserDatabase;
 import com.example.final_project.R;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -57,7 +62,10 @@ public class FileDetailActivity extends AppCompatActivity {
     private RecyclerView rvComments;
     private ImageView ivPreview;
     private EditText etComment;
-    private Button btnPreview, btnDownload, btnSendComment, btnEditFile, btnDeleteFile;
+
+    private MaterialButton btnPreview, btnDownload, btnEditFile, btnDeleteFile;
+    private FloatingActionButton btnSendComment;
+
     private View blurOverlay;
 
     private CommentAdapter adapter;
@@ -68,6 +76,8 @@ public class FileDetailActivity extends AppCompatActivity {
     private int fileSize;
     private boolean isPremium = false;
     private static final String NOTIF_CHANNEL_ID = "notif_channel";
+    private ChildEventListener currentNotifListener;
+    private DatabaseReference currentNotifRef;
 
 
     private DatabaseReference commentRef;
@@ -120,7 +130,8 @@ public class FileDetailActivity extends AppCompatActivity {
                 Uri uri = Uri.parse(fileUri);
                 final int takeFlags = (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                 getContentResolver().takePersistableUriPermission(uri, takeFlags);
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }
 
         commentList = new ArrayList<>();
@@ -158,11 +169,11 @@ public class FileDetailActivity extends AppCompatActivity {
 
     private void updateUIByStatus() {
         boolean isPending = status != null && status.equalsIgnoreCase("pending");
-        btnPreview.setVisibility(Button.VISIBLE);
-        btnEditFile.setVisibility(isPending ? Button.VISIBLE : Button.GONE);
-        btnDeleteFile.setVisibility(isPending ? Button.VISIBLE : Button.GONE);
-        btnDownload.setVisibility(isPending ? Button.GONE : Button.VISIBLE);
-        btnSendComment.setVisibility(isPending ? Button.GONE : Button.VISIBLE);
+        btnPreview.setVisibility(MaterialButton.VISIBLE);
+        btnEditFile.setVisibility(isPending ? MaterialButton.VISIBLE : MaterialButton.GONE);
+        btnDeleteFile.setVisibility(isPending ? MaterialButton.VISIBLE : MaterialButton.GONE);
+        btnDownload.setVisibility(isPending ? MaterialButton.GONE : MaterialButton.VISIBLE);
+        btnSendComment.setVisibility(isPending ? FloatingActionButton.GONE : FloatingActionButton.VISIBLE);
         etComment.setVisibility(isPending ? EditText.GONE : EditText.VISIBLE);
         rvComments.setVisibility(isPending ? View.GONE : View.VISIBLE);
     }
@@ -171,49 +182,73 @@ public class FileDetailActivity extends AppCompatActivity {
         if (fileUri == null || fileUri.isEmpty()) return;
 
         ivPreview.setVisibility(View.GONE);
-        blurOverlay.setVisibility(View.GONE);
         tvFileContent.setVisibility(View.GONE);
+        blurOverlay.setVisibility(View.GONE);
 
-        String lowerName = fileName.trim().toLowerCase();
+        FrameLayout overlay = findViewById(R.id.previewOverlay);
+        ImageView overlayImage = findViewById(R.id.overlayImage);
+        ScrollView overlayScroll = findViewById(R.id.overlayScroll);
+        TextView overlayText = findViewById(R.id.overlayText);
+
+        overlay.setVisibility(View.GONE);
+        overlayImage.setVisibility(View.GONE);
+        overlayScroll.setVisibility(View.GONE);
+        overlayText.setVisibility(View.GONE);
+
         Uri uri = Uri.parse(fileUri);
+        String mimeType = getContentResolver().getType(uri);
 
         try {
-            if (lowerName.endsWith(".png") || lowerName.endsWith(".jpg") || lowerName.endsWith(".jpeg")) {
+            if (mimeType != null && mimeType.startsWith("image/")) {
                 ivPreview.setVisibility(View.VISIBLE);
+                overlay.setVisibility(View.VISIBLE);
+                overlayImage.setVisibility(View.VISIBLE);
+
                 try (InputStream is = getContentResolver().openInputStream(uri)) {
                     if (is != null) {
                         Bitmap bmp = BitmapFactory.decodeStream(is);
+                        if (!isPremium) {
+                            bmp = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), bmp.getHeight() / 2);
+                            Toast.makeText(this, "Upgrade to Premium to view full image", Toast.LENGTH_SHORT).show();
+                        }
                         ivPreview.setImageBitmap(bmp);
+                        overlayImage.setImageBitmap(bmp);
                     }
                 }
-
-            } else if (lowerName.endsWith(".pdf")) {
+            } else if ("application/pdf".equals(mimeType)) {
                 ivPreview.setVisibility(View.VISIBLE);
+                overlay.setVisibility(View.VISIBLE);
+                overlayImage.setVisibility(View.VISIBLE);
+                overlayImage.setBackgroundColor(Color.WHITE);
+
                 try (ParcelFileDescriptor pfd = getContentResolver().openFileDescriptor(uri, "r")) {
                     if (pfd != null) {
                         PdfRenderer renderer = new PdfRenderer(pfd);
                         if (renderer.getPageCount() > 0) {
                             PdfRenderer.Page page = renderer.openPage(0);
+
                             Bitmap bmp = Bitmap.createBitmap(page.getWidth(), page.getHeight(), Bitmap.Config.ARGB_8888);
+                            bmp.eraseColor(Color.WHITE);
                             page.render(bmp, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
 
                             if (!isPremium) {
-                                int halfHeight = bmp.getHeight() / 2;
-                                Bitmap topHalf = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), halfHeight);
-                                ivPreview.setImageBitmap(topHalf);
+                                bmp = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), bmp.getHeight() / 2);
                                 Toast.makeText(this, "Upgrade to Premium to view full PDF", Toast.LENGTH_SHORT).show();
-                            } else {
-                                ivPreview.setImageBitmap(bmp);
                             }
 
+                            ivPreview.setImageBitmap(bmp);
+                            overlayImage.setImageBitmap(bmp);
                             page.close();
                         }
                         renderer.close();
                     }
                 }
-
-            } else if (lowerName.endsWith(".txt")) {
+            } else if (mimeType != null && mimeType.startsWith("text/")) {
                 tvFileContent.setVisibility(View.VISIBLE);
+                overlay.setVisibility(View.VISIBLE);
+                overlayScroll.setVisibility(View.VISIBLE);
+                overlayText.setVisibility(View.VISIBLE);
+
                 try (InputStream is = getContentResolver().openInputStream(uri)) {
                     if (is != null) {
                         StringBuilder sb = new StringBuilder();
@@ -221,25 +256,28 @@ public class FileDetailActivity extends AppCompatActivity {
                         int len;
                         while ((len = is.read(buffer)) != -1) {
                             sb.append(new String(buffer, 0, len));
-                            if (!isPremium && sb.length() > 1000) break;
                         }
 
                         String text = sb.toString();
                         if (!isPremium && text.length() > 500) {
                             text = text.substring(0, 500) + "\n\n[Upgrade to Premium to view the rest]";
                         }
+
                         tvFileContent.setText(text);
+                        overlayText.setText(text);
                     }
                 }
 
             } else {
                 Toast.makeText(this, "Preview not supported for this file type", Toast.LENGTH_SHORT).show();
             }
-
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(this, "Failed to preview file", Toast.LENGTH_SHORT).show();
         }
+
+        FloatingActionButton btnCloseOverlay = findViewById(R.id.btnCloseOverlay);
+        btnCloseOverlay.setOnClickListener(v -> overlay.setVisibility(View.GONE));
     }
 
 
@@ -250,6 +288,7 @@ public class FileDetailActivity extends AppCompatActivity {
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         startActivityForResult(intent, 2);
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -262,7 +301,8 @@ public class FileDetailActivity extends AppCompatActivity {
                             newUri,
                             Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
                     );
-                } catch (Exception ignored) {}
+                } catch (Exception ignored) {
+                }
 
                 String newFileUri = newUri.toString();
                 String newFileName = getFileName(newUri);
@@ -270,10 +310,15 @@ public class FileDetailActivity extends AppCompatActivity {
                 final long[] newFileSize = {0};
                 try (InputStream is = getContentResolver().openInputStream(newUri)) {
                     if (is != null) newFileSize[0] = is.available();
-                } catch (Exception ignored) {}
+                } catch (Exception ignored) {
+                }
 
-                tvFileName.setText(newFileName);
-                tvFileSize.setText("Size: " + newFileSize[0] + " bytes");
+                fileUri = newFileUri;
+                fileName = newFileName;
+                fileSize = (int) newFileSize[0];
+
+                tvFileName.setText(fileName);
+                tvFileSize.setText("Size: " + fileSize + " bytes");
 
                 String userEmail = getIntent().getStringExtra("email");
                 if (userEmail == null || userEmail.isEmpty()) {
@@ -292,7 +337,7 @@ public class FileDetailActivity extends AppCompatActivity {
                         .setMessage("Are you sure you want to update this file?")
                         .setPositiveButton("Yes", (dialog, which) -> {
                             UserDatabase db = new UserDatabase(this);
-                            db.updateFile(fileId, newFileName, newFileUri, (int)newFileSize[0], status); // Ép kiểu int
+                            db.updateFile(fileId, fileName, fileUri, fileSize, status);
                             db.close();
 
                             DatabaseReference fileRef = FirebaseDatabase.getInstance()
@@ -300,9 +345,9 @@ public class FileDetailActivity extends AppCompatActivity {
                                     .child(firebaseKey);
 
                             Map<String, Object> updateMap = new HashMap<>();
-                            updateMap.put("filename", newFileName);
-                            updateMap.put("fileUri", newFileUri);
-                            updateMap.put("filesize", newFileSize[0]);
+                            updateMap.put("filename", fileName);
+                            updateMap.put("fileUri", fileUri);
+                            updateMap.put("filesize", fileSize);
                             updateMap.put("status", status);
                             updateMap.put("publishedDate", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date()));
 
@@ -312,28 +357,46 @@ public class FileDetailActivity extends AppCompatActivity {
                                     .addOnFailureListener(e ->
                                             Toast.makeText(FileDetailActivity.this, "Update failed: " + e.getMessage(), Toast.LENGTH_LONG).show());
 
-                            Intent intentMain = new Intent(FileDetailActivity.this, MainScreenActivity.class);
-                            intentMain.putExtra("email", userEmail);
-                            intentMain.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                            startActivity(intentMain);
-                            finish();
+                            previewFile();
                         })
                         .setNegativeButton("Cancel", null)
                         .show();
-
-                previewFile();
             }
         }
     }
 
 
-
-
-
     private String getFileName(Uri uri) {
-        String result = uri.getLastPathSegment();
-        return result != null ? result : "Unnamed File";
+        String result = null;
+
+        if ("content".equals(uri.getScheme())) {
+            try (Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
+                if (cursor != null && cursor.moveToFirst()) {
+                    int nameIndex = cursor.getColumnIndex("_display_name");
+                    if (nameIndex != -1) {
+                        result = cursor.getString(nameIndex);
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (result == null) {
+            String path = uri.getPath();
+            if (path != null) {
+                int cut = path.lastIndexOf('/');
+                if (cut != -1) {
+                    result = path.substring(cut + 1);
+                } else {
+                    result = path;
+                }
+            }
+        }
+
+        return result != null ? result : "Unnamed_File";
     }
+
 
     private void downloadFile() {
         UserDatabase db = new UserDatabase(this);
@@ -396,7 +459,8 @@ public class FileDetailActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {}
+            public void onCancelled(@NonNull DatabaseError error) {
+            }
         });
     }
 
@@ -446,11 +510,16 @@ public class FileDetailActivity extends AppCompatActivity {
                 .show();
     }
 
-
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        removeOldNotificationListener();
+    }
 
     private void listenForNotifications(String userEmail) {
         if (userEmail == null || userEmail.isEmpty()) return;
+
+        removeOldNotificationListener();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
@@ -460,17 +529,16 @@ public class FileDetailActivity extends AppCompatActivity {
         }
 
         String emailKey = userEmail.replace(".", "_");
-        DatabaseReference notifRef = FirebaseDatabase.getInstance()
+        currentNotifRef = FirebaseDatabase.getInstance()
                 .getReference("notifications")
                 .child(emailKey);
 
-        notifRef.addChildEventListener(new ChildEventListener() {
+        currentNotifListener = new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, String previousChildName) {
                 NotificationItem notif = snapshot.getValue(NotificationItem.class);
                 if (notif != null && notif.title != null && notif.message != null) {
                     runOnUiThread(() -> showNotification(notif.title, notif.message));
-
                     snapshot.getRef().removeValue();
                 }
             }
@@ -478,12 +546,23 @@ public class FileDetailActivity extends AppCompatActivity {
             @Override public void onChildChanged(@NonNull DataSnapshot snapshot, String previousChildName) {}
             @Override public void onChildRemoved(@NonNull DataSnapshot snapshot) {}
             @Override public void onChildMoved(@NonNull DataSnapshot snapshot, String previousChildName) {}
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+            @Override public void onCancelled(@NonNull DatabaseError error) {
                 Log.e("NotifDebug", "Failed to load notifications: " + error.getMessage());
             }
-        });
+        };
+
+        currentNotifRef.addChildEventListener(currentNotifListener);
     }
+
+
+    private void removeOldNotificationListener() {
+        if (currentNotifRef != null && currentNotifListener != null) {
+            currentNotifRef.removeEventListener(currentNotifListener);
+            currentNotifRef = null;
+            currentNotifListener = null;
+        }
+    }
+
 
     private void showNotification(String title, String message) {
         NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
@@ -521,7 +600,9 @@ public class FileDetailActivity extends AppCompatActivity {
         public String text;
         public String time;
 
-        public CommentItem() {}
+        public CommentItem() {
+        }
+
         public CommentItem(String email, String text, String time) {
             this.email = email;
             this.text = text;
@@ -530,15 +611,19 @@ public class FileDetailActivity extends AppCompatActivity {
     }
 
     public static class NotificationItem {
-        public String notifID;
+        public String notifId;
         public String title;
         public String message;
+        public String userId;
 
-        public NotificationItem() {}
-        public NotificationItem(String notifID, String title, String message) {
-            this.notifID = notifID;
+        public NotificationItem() {
+        }
+
+        public NotificationItem(String notifId, String title, String message, String userId) {
+            this.notifId = notifId;
             this.title = title;
             this.message = message;
+            this.userId = userId;
         }
     }
 }

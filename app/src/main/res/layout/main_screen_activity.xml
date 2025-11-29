@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -6,75 +5,73 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    android:background="#F9FAFB"
+    android:background="#FFFFFF"
     tools:context=".MainScreen.MainScreenActivity">
 
-    <!-- ScrollView chỉ có 1 child -->
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:paddingTop="32dp"
-        android:paddingBottom="96dp">
+        android:paddingBottom="96dp"
+        android:background="#F7F9FC">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="32dp">
 
             <TextView
                 android:id="@+id/tvWelcome"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Welcome to A-Study-Hub"
-                android:textSize="24sp"
+                android:text="Welcome Back!"
+                android:textSize="28sp"
                 android:textStyle="bold"
-                android:textColor="#1F2937"
+                android:textColor="#1A202C"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"/>
 
             <LinearLayout
                 android:id="@+id/layoutHelloUser"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="4dp"
                 app:layout_constraintTop_toBottomOf="@id/tvWelcome"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent">
+                app:layout_constraintStart_toStartOf="parent">
 
                 <TextView
                     android:id="@+id/tvHelloUser"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Hello, User"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="#111827"/>
+                    android:text="User"
+                    android:textSize="20sp"
+                    android:textStyle="normal"
+                    android:textColor="#4A5568"/>
 
                 <ImageView
                     android:id="@+id/imgPremiumStar"
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
                     android:layout_marginStart="8dp"
                     android:src="@drawable/ic_star"
-                    android:visibility="gone"
-                    app:tint="#FBBF24" />
+                    android:visibility="visible"
+                    app:tint="#FFC107"/>
             </LinearLayout>
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardPremium"
                 android:layout_width="0dp"
-                android:layout_height="140dp"
-                android:layout_marginTop="16dp"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="10dp"
-                app:strokeColor="#33000000"
-                app:strokeWidth="1dp"
-                android:backgroundTint="#EDE9FE"
+                android:layout_height="160dp"
+                android:layout_marginTop="24dp"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="8dp"
+                app:strokeWidth="0dp"
+                android:backgroundTint="#F2F8FF"
                 app:layout_constraintTop_toBottomOf="@id/layoutHelloUser"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent">
@@ -82,16 +79,16 @@
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:padding="16dp">
+                    android:padding="20dp">
 
                     <TextView
                         android:id="@+id/premiumTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Premium Content"
-                        android:textSize="18sp"
+                        android:text="Upgrade to Premium ✨"
+                        android:textSize="22sp"
                         android:textStyle="bold"
-                        android:textColor="#4C1D95"/>
+                        android:textColor="#3182CE"/>
 
                     <TextView
                         android:id="@+id/premiumSubtitle"
@@ -99,36 +96,62 @@
                         android:layout_height="wrap_content"
                         android:layout_below="@id/premiumTitle"
                         android:layout_marginTop="8dp"
-                        android:text="Access exclusive study materials"
-                        android:textColor="#4B5563"/>
+                        android:text="Unlock exclusive, unlimited study materials!"
+                        android:textColor="#718096"
+                        android:layout_marginEnd="120dp"/>
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnExplorePremium"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:layout_alignParentStart="true"
+                        android:text="Explore Now"
+                        android:textAllCaps="false"
+                        app:cornerRadius="16dp"
+                        android:backgroundTint="#4299E1"
+                        android:textColor="#FFFFFF"
+                        android:textSize="14sp"
+                        android:paddingStart="24dp"
+                        android:paddingEnd="24dp"/>
+
+                    <ImageView
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
                         android:layout_alignParentEnd="true"
                         android:layout_centerVertical="true"
-                        android:text="Explore"
-                        android:textAllCaps="false"
-                        app:cornerRadius="12dp"
-                        android:backgroundTint="#7C3AED"
-                        android:textColor="#FFFFFF"
-                        android:paddingStart="20dp"
-                        android:paddingEnd="20dp"/>
+                        app:tint="#63B3ED"/>
                 </RelativeLayout>
             </com.google.android.material.card.MaterialCardView>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnUpFile"
                 android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:text="Upload File"
+                android:layout_height="56dp"
+                android:text="Upload New File"
                 android:textAllCaps="false"
-                android:layout_marginTop="16dp"
-                android:backgroundTint="#6366F1"
+                android:layout_marginTop="24dp"
+                android:backgroundTint="#667EEA"
                 android:textColor="#FFFFFF"
-                app:cornerRadius="16dp"
+                android:textSize="16sp"
+                app:cornerRadius="18dp"
+                app:icon="@drawable/ic_upload"
+                app:iconTint="#FFFFFF"
+                app:iconGravity="textStart"
                 app:layout_constraintTop_toBottomOf="@id/cardPremium"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+            <TextView
+                android:id="@+id/tvRecentFilesTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Recent Files"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="#2D3748"
+                app:layout_constraintTop_toBottomOf="@id/btnUpFile"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"/>
 
@@ -136,13 +159,12 @@
                 android:id="@+id/rvFiles"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:paddingBottom="8dp"
-                app:layout_constraintTop_toBottomOf="@id/btnUpFile"
+                android:layout_marginTop="12dp"
+                app:layout_constraintTop_toBottomOf="@id/tvRecentFilesTitle"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btnChatBot"
@@ -153,18 +175,20 @@
         android:layout_marginBottom="90dp"
         android:src="@drawable/ic_chatbot"
         app:tint="#FFFFFF"
-        app:backgroundTint="#6366F1"
-        app:maxImageSize="36dp" />
+        app:backgroundTint="#F56565"
+        app:maxImageSize="30dp"
+        app:fabSize="normal"
+        app:elevation="6dp"/>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:background="#FFFFFF"
-        android:elevation="12dp"
+        android:background="@drawable/bottom_nav_background"
+        android:clipToPadding="false"
+        app:menu="@menu/bottom_nav_menu"
         app:labelVisibilityMode="labeled"
-        app:itemIconTint="@color/black"
-        app:itemTextColor="@color/black"
-        app:menu="@menu/bottom_nav_menu"/>
+        app:itemRippleColor="@android:color/transparent"
+        app:elevation="20dp"/>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

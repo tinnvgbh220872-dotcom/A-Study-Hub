@@ -23,6 +23,7 @@ import com.example.final_project.Profile.ProfileActivity;
 import com.example.final_project.Quiz.QuizActivity;
 import com.example.final_project.R;
 import com.example.final_project.SQL.UserDatabase;
+import com.example.final_project.Security.CryptoUtil;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
@@ -118,16 +119,28 @@ public class MainScreenActivity extends AppCompatActivity {
             imgPremiumStar.setVisibility(View.GONE);
             return;
         }
+
         try (Cursor cursor = userDatabase.getUserByEmail(currentUserEmail)) {
             if (cursor != null && cursor.moveToFirst()) {
-                String fullname = cursor.getString(cursor.getColumnIndexOrThrow("fullname"));
-                int isPremium = cursor.getInt(cursor.getColumnIndexOrThrow("isPremium"));
+                String encryptedFullname = cursor.getString(cursor.getColumnIndexOrThrow("fullname"));
+                String fullname = encryptedFullname;
+
+                try {
+                    fullname = CryptoUtil.decrypt(encryptedFullname);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
                 tvWelcome.setText("Welcome, " + fullname + "!");
                 tvHelloUser.setText("Hello, " + fullname);
+
+                int isPremium = cursor.getInt(cursor.getColumnIndexOrThrow("isPremium"));
                 imgPremiumStar.setVisibility(isPremium == 1 ? View.VISIBLE : View.GONE);
             }
         }
     }
+
+
 
     private void attachFirebaseListener() {
         if (currentUserEmail == null || currentUserEmail.isEmpty()) return;

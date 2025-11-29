@@ -6,6 +6,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.example.final_project.Security.CryptoUtil;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -14,7 +16,7 @@ import java.util.Locale;
 public class UserDatabase extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "UserDB.db";
-    private static final int DATABASE_VERSION = 33;
+    private static final int DATABASE_VERSION = 35;
 
     private static final String TABLE_USERS = "users";
     private static final String COLUMN_ID = "id";
@@ -155,24 +157,33 @@ public class UserDatabase extends SQLiteOpenHelper {
     }
 
     public boolean insertUser(String fullname, String email, String password, String phone) {
+        String encName = CryptoUtil.encrypt(fullname);
+        String hashedPassword = CryptoUtil.hashPassword(password);
+
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.query(TABLE_USERS, null, COLUMN_EMAIL + "=?", new String[]{email}, null, null, null);
+
+        Cursor cursor = db.query(TABLE_USERS, null, COLUMN_EMAIL + "=?",
+                new String[]{email}, null, null, null);
+
         if (cursor.moveToFirst()) {
             cursor.close();
             db.close();
             return false;
         }
+
         cursor.close();
+
         ContentValues values = new ContentValues();
-        values.put(COLUMN_FULLNAME, fullname);
+        values.put(COLUMN_FULLNAME, encName);
         values.put(COLUMN_EMAIL, email);
-        values.put(COLUMN_PASSWORD, password);
+        values.put(COLUMN_PASSWORD, hashedPassword);
         values.put(COLUMN_PHONE, phone);
-        values.put(COLUMN_IS_PREMIUM, 0);
+
         long result = db.insert(TABLE_USERS, null, values);
         db.close();
         return result != -1;
     }
+
 
     public boolean updateFile(int fileId, String filename, String fileuri, int filesize, String status) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -231,6 +242,19 @@ public class UserDatabase extends SQLiteOpenHelper {
         return rows > 0;
     }
 
+    public int getUserIdByEmail(String email) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT id FROM users WHERE LOWER(email)=?", new String[]{email.toLowerCase()});
+        int id = -1;
+        if (cursor.moveToFirst()) {
+            id = cursor.getInt(0);
+        }
+        cursor.close();
+        db.close();
+        return id;
+    }
+
+
     public double getBalance(String email) {
         double balance = 0;
         SQLiteDatabase db = this.getReadableDatabase();
@@ -243,7 +267,6 @@ public class UserDatabase extends SQLiteOpenHelper {
             balance = cursor.getDouble(0);
         }
         cursor.close();
-        db.close();
         return balance;
     }
     public int insertOrder(String email, String orderName, double orderPrice) {

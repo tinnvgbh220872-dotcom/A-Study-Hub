@@ -1,6 +1,7 @@
 package com.example.final_project.Auth;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Patterns;
 import android.widget.TextView;
@@ -51,12 +52,19 @@ public class RegisterActivity extends AppCompatActivity {
 
         if (!validateInputs(fullName, email, phone, password, confirmPassword)) return;
 
-        String hashedPassword = CryptoUtil.hashPassword(password);
-
-        boolean inserted = userDatabase.insertUser(fullName, email, hashedPassword, phone);
+        boolean inserted = userDatabase.insertUser(fullName, email, password, phone);
 
         if (inserted) {
+            int userId = userDatabase.getUserIdByEmail(email);
+
+            SharedPreferences sp = getSharedPreferences("app_prefs", MODE_PRIVATE);
+            SharedPreferences.Editor editor = sp.edit();
+            editor.putInt("user_id", userId);
+            editor.putString("user_email", email);
+            editor.apply();
+
             Toast.makeText(this, "Registration successful!", Toast.LENGTH_SHORT).show();
+
             Intent intent = new Intent(this, LoginActivity.class);
             intent.putExtra("email", email);
             startActivity(intent);

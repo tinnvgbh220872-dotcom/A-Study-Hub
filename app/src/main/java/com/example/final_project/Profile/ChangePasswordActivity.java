@@ -1,8 +1,6 @@
 package com.example.final_project.Profile;
 
 import android.content.Intent;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.Toast;
@@ -11,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.final_project.MainScreen.MainScreenActivity;
 import com.example.final_project.R;
 import com.example.final_project.SQL.UserDatabase;
+import com.example.final_project.Security.CryptoUtil;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.button.MaterialButton;
 
@@ -67,7 +66,6 @@ public class ChangePasswordActivity extends AppCompatActivity {
 
         if (updatePassword(userEmail, newPass)) {
             Toast.makeText(this, "Password updated successfully", Toast.LENGTH_SHORT).show();
-
             Intent intent = new Intent(this, MainScreenActivity.class);
             intent.putExtra("email", userEmail);
             startActivity(intent);
@@ -78,24 +76,12 @@ public class ChangePasswordActivity extends AppCompatActivity {
     }
 
     private boolean checkOldPassword(String email, String oldPass) {
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Cursor cursor = db.rawQuery(
-                "SELECT * FROM users WHERE email = ? AND password = ?",
-                new String[]{email, oldPass}
-        );
-        boolean valid = cursor.getCount() > 0;
-        cursor.close();
-        db.close();
-        return valid;
+        String hashedOldPass = CryptoUtil.hashPassword(oldPass);
+        return dbHelper.updatePassword(email, hashedOldPass);
     }
 
     private boolean updatePassword(String email, String newPass) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        db.execSQL(
-                "UPDATE users SET password = ? WHERE email = ?",
-                new Object[]{newPass, email}
-        );
-        db.close();
-        return true;
+        String hashedNewPass = CryptoUtil.hashPassword(newPass);
+        return dbHelper.updatePassword(email, hashedNewPass);
     }
 }

@@ -4,11 +4,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.final_project.MainScreen.MainScreenActivity;
@@ -19,7 +19,7 @@ import java.util.Collections;
 
 public class QuizActivity extends AppCompatActivity {
 
-    private TextView tvLanguage, tvQuestion, tvCode, tvScore;
+    private TextView tvLanguage, tvQuestion, tvCode, tvScore, tvQuestionNumber;
     private RadioGroup rgOptions;
     private RadioButton rbOption1, rbOption2, rbOption3, rbOption4;
     private Button btnNext, btnBack;
@@ -35,53 +35,57 @@ public class QuizActivity extends AppCompatActivity {
         setContentView(R.layout.quiz_advance_activity);
         userEmail = getIntent().getStringExtra("email");
 
+        tvQuestionNumber = findViewById(R.id.tvQuestionNumber);
+
         tvLanguage = findViewById(R.id.tvLanguage);
         tvQuestion = findViewById(R.id.tvQuestion);
         tvCode = findViewById(R.id.tvCode);
+        tvScore = findViewById(R.id.tvScore);
         rgOptions = findViewById(R.id.rgOptions);
         rbOption1 = findViewById(R.id.rbOption1);
         rbOption2 = findViewById(R.id.rbOption2);
         rbOption3 = findViewById(R.id.rbOption3);
         rbOption4 = findViewById(R.id.rbOption4);
         btnNext = findViewById(R.id.btnNext);
-        tvScore = findViewById(R.id.tvScore);
         btnBack = findViewById(R.id.btnBack);
 
         QuizRepository repo = new QuizRepository(this);
-        questionList = repo.getAllQuestions();
+        ArrayList<Question> allQuestions = repo.getAllQuestions();
 
-        if (questionList.size() == 0) {
+        if (allQuestions.size() == 0) {
             Toast.makeText(this, "No questions found!", Toast.LENGTH_LONG).show();
             finish();
             return;
         }
 
-        Collections.shuffle(questionList);
+        Collections.shuffle(allQuestions);
+        questionList = new ArrayList<>();
+        int limit = Math.min(10, allQuestions.size());
+        for (int i = 0; i < limit; i++) questionList.add(allQuestions.get(i));
+
         showQuestion(currentQuestionIndex);
+        updateScoreText();
 
-        btnNext.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int selectedId = rgOptions.getCheckedRadioButtonId();
-                if (selectedId == -1) {
-                    Toast.makeText(QuizActivity.this, "Please select an option", Toast.LENGTH_SHORT).show();
-                    return;
-                }
+        btnNext.setOnClickListener(v -> {
+            int selectedId = rgOptions.getCheckedRadioButtonId();
+            if (selectedId == -1) {
+                Toast.makeText(QuizActivity.this, "Please select an option", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-                RadioButton selectedRb = findViewById(selectedId);
-                checkAnswer(selectedRb.getText().toString());
+            RadioButton selectedRb = findViewById(selectedId);
+            checkAnswer(selectedRb.getText().toString());
 
-                currentQuestionIndex++;
-                if (currentQuestionIndex < questionList.size()) {
-                    showQuestion(currentQuestionIndex);
-                } else {
-                    tvScore.setText("Score: " + score + "/" + questionList.size() + "\n" + getMotivationMessage());
-                    btnNext.setEnabled(false);
-                    btnBack.setVisibility(View.VISIBLE);
-                }
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questionList.size()) {
+                showQuestion(currentQuestionIndex);
+                updateScoreText();
+            } else {
+                tvScore.setText("Score: " + score + "/" + questionList.size() + "\n" + getMotivationMessage());
+                btnNext.setEnabled(false);
+                btnBack.setVisibility(View.VISIBLE);
             }
         });
-
 
         btnBack.setOnClickListener(v -> {
             Intent intent = new Intent(QuizActivity.this, MainScreenActivity.class);
@@ -95,6 +99,7 @@ public class QuizActivity extends AppCompatActivity {
     private void showQuestion(int index) {
         Question q = questionList.get(index);
 
+        tvQuestionNumber.setText("Question " + (index + 1) + " of " + questionList.size());
         tvLanguage.setText(q.getLanguage());
         tvQuestion.setText(q.getQuestion());
 
@@ -127,8 +132,12 @@ public class QuizActivity extends AppCompatActivity {
         }
     }
 
+    private void updateScoreText() {
+        tvScore.setText("Score: " + score + "/" + questionList.size());
+    }
+
     private String getMotivationMessage() {
-        int percent = (int)((score * 100.0) / questionList.size());
+        int percent = (int) ((score * 100.0) / questionList.size());
         if (percent == 100) return "Perfect! Excellent work!";
         if (percent >= 80) return "Great job! Keep it up!";
         if (percent >= 50) return "Good effort! You can do even better!";

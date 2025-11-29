@@ -51,10 +51,15 @@ public class ProfileActivity extends AppCompatActivity {
                 "SELECT fullname, email FROM users WHERE id=?",
                 new String[]{String.valueOf(userId)}
         );
-
         if (cursor.moveToFirst()) {
-            username = cursor.getString(0);
+            String encryptedName = cursor.getString(0);
             email = cursor.getString(1);
+            try {
+                username = com.example.final_project.Security.CryptoUtil.decrypt(encryptedName);
+            } catch (Exception e) {
+                e.printStackTrace();
+                username = "User";
+            }
         } else {
             username = "User";
             email = "";

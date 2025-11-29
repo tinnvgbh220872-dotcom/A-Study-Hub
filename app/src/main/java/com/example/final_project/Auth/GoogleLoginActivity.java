@@ -1,6 +1,7 @@
 package com.example.final_project.Auth;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -31,8 +32,7 @@ public class GoogleLoginActivity extends AppCompatActivity {
         dbHelper = new UserDatabase(this);
 
         btnLogin.setOnClickListener(v -> {
-            String email = edtEmail.getText().toString().trim();
-
+            String email = edtEmail.getText().toString().trim().toLowerCase();
             if (TextUtils.isEmpty(email)) {
                 Toast.makeText(this, "Please enter your Gmail address", Toast.LENGTH_SHORT).show();
                 return;
@@ -41,13 +41,24 @@ public class GoogleLoginActivity extends AppCompatActivity {
                 Toast.makeText(this, "Please use a Gmail address (@gmail.com)", Toast.LENGTH_SHORT).show();
                 return;
             }
-
             if (isEmailRegistered(email)) {
-                Toast.makeText(this, "Login successful: " + email, Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(GoogleLoginActivity.this, MainScreenActivity.class);
-                intent.putExtra("email", email);
-                startActivity(intent);
-                finish();
+                SQLiteDatabase db = dbHelper.getReadableDatabase();
+                Cursor cursor = db.rawQuery("SELECT id FROM users WHERE LOWER(email)=?", new String[]{email});
+                if (cursor.moveToFirst()) {
+                    int userId = cursor.getInt(0);
+                    SharedPreferences sp = getSharedPreferences("app_prefs", MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sp.edit();
+                    editor.putInt("user_id", userId);
+                    editor.putString("user_email", email);
+                    editor.apply();
+                    Toast.makeText(this, "Google Login successful: " + email, Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(GoogleLoginActivity.this, MainScreenActivity.class);
+                    intent.putExtra("email", email);
+                    startActivity(intent);
+                    finish();
+                }
+                cursor.close();
+                db.close();
             } else {
                 Toast.makeText(this, "This Gmail is not registered. Please sign up first.", Toast.LENGTH_LONG).show();
             }
@@ -60,11 +71,19 @@ public class GoogleLoginActivity extends AppCompatActivity {
     }
 
     private boolean isEmailRegistered(String email) {
+        if (email == null || email.isEmpty()) return false;
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM users WHERE email = ?", new String[]{email});
-        boolean exists = cursor.getCount() > 0;
-        cursor.close();
-        db.close();
+        Cursor cursor = null;
+        boolean exists = false;
+        try {
+            cursor = db.rawQuery("SELECT 1 FROM users WHERE LOWER(email)=?", new String[]{email.toLowerCase()});
+            exists = cursor.moveToFirst();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (cursor != null) cursor.close();
+            db.close();
+        }
         return exists;
     }
 }

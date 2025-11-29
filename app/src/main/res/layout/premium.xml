@@ -1,292 +1,414 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/premium_scrollView"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:clipToPadding="false"
-    android:paddingTop="32dp"
-    android:paddingBottom="16dp"
-    android:paddingStart="16dp"
-    android:paddingEnd="16dp"
-    android:background="#F5F5F5"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true"
+    android:background="#F4F7FB"
+    tools:context=".Premium.PremiumActivity">
 
-    <LinearLayout
-        android:id="@+id/premium_container"
+    <ScrollView
+        android:id="@+id/premium_scrollView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="24dp">
 
-        <TextView
-            android:id="@+id/premium_header"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/premium_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Choose Your Premium Plan"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:paddingBottom="12dp"
-            android:textColor="#212121" />
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:paddingTop="32dp">
 
-        <TextView
-            android:id="@+id/premium_description"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Upgrade to access exclusive study materials, remove ads, and unlock advanced features."
-            android:textSize="14sp"
-            android:gravity="center"
-            android:layout_marginBottom="16dp"
-            android:textColor="#424242" />
+            <TextView
+                android:id="@+id/premium_header"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Unlock Your Potential with Premium"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:gravity="center_horizontal"
+                android:textColor="#1F2937"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
 
-        <!-- Trial Card -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/premium_card_trial"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="6dp"
-            android:background="@android:color/white">
+            <TextView
+                android:id="@+id/premium_description"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Upgrade to access exclusive study materials, remove ads, and unlock advanced features."
+                android:textSize="16sp"
+                android:gravity="center_horizontal"
+                android:textColor="#6B7280"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="24dp"
+                app:layout_constraintTop_toBottomOf="@id/premium_header"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
-
-                    <TextView
-                        android:id="@+id/premium_trial_title"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:layout_height="wrap_content"
-                        android:text="Trial Plan"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:textColor="#212121"/>
-
-                    <TextView
-                        android:id="@+id/premium_trial_price"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Free"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:textColor="#43A047"/>
-                </LinearLayout>
+                app:layout_constraintTop_toBottomOf="@id/premium_description"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
 
                 <TextView
-                    android:id="@+id/premium_trial_desc"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Try premium features for 7 days at no cost."
-                    android:layout_marginTop="8dp"
-                    android:textColor="#757575"/>
+                    android:text="Select a Plan"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="#1F2937"
+                    android:layout_marginBottom="12dp"/>
 
-                <LinearLayout
+                <!-- Trial Card (Green) -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/premium_card_trial"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="12dp"
-                    android:gravity="end">
+                    android:layout_marginBottom="16dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="4dp"
+                    app:strokeColor="#10B981"
+                    app:strokeWidth="2dp">
 
-                    <Button
-                        android:id="@+id/premium_btn_trial_details"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="View Details"
-                        android:backgroundTint="#BDBDBD"
-                        android:textColor="#FFFFFF"
-                        android:paddingStart="16dp"
-                        android:paddingEnd="16dp"
-                        android:background="@drawable/bg_button_rounded"/>
+                        android:orientation="vertical"
+                        android:padding="20dp"
+                        android:backgroundTint="#F0FDF4">
 
-                    <Button
-                        android:id="@+id/premium_btn_trial_subscribe"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Subscribe"
-                        android:layout_marginStart="8dp"
-                        android:backgroundTint="#43A047"
-                        android:textColor="#FFFFFF"
-                        android:paddingStart="16dp"
-                        android:paddingEnd="16dp"
-                        android:background="@drawable/bg_button_rounded"/>
-                </LinearLayout>
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
 
-        <!-- Monthly Card -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/premium_card_monthly"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="6dp"
-            android:background="@android:color/white">
+                            <TextView
+                                android:id="@+id/premium_trial_title"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:text="7-Day Free Trial"
+                                android:textSize="20sp"
+                                android:textStyle="bold"
+                                android:textColor="#10B981"/>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
+                            <TextView
+                                android:id="@+id/premium_trial_price"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="FREE"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                android:textColor="#10B981"/>
+                        </LinearLayout>
 
-                <LinearLayout
+                        <TextView
+                            android:id="@+id/premium_trial_desc"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Experience all features at no cost for one week. Cancel anytime."
+                            android:layout_marginTop="8dp"
+                            android:textColor="#374151"/>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="16dp">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/premium_btn_trial_details"
+                                style="@style/Widget.Material3.Button.OutlinedButton"
+                                android:layout_width="0dp"
+                                android:layout_height="56dp"
+                                android:layout_weight="1"
+                                android:text="View Details"
+                                android:textColor="#10B981"
+                                app:strokeColor="#10B981"
+                                app:cornerRadius="12dp"
+                                android:layout_marginEnd="8dp"/>
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/premium_btn_trial_subscribe"
+                                android:layout_width="0dp"
+                                android:layout_height="56dp"
+                                android:layout_weight="1"
+                                android:text="Start Free Trial"
+                                android:backgroundTint="#10B981"
+                                android:textColor="#FFFFFF"
+                                app:cornerRadius="12dp"
+                                android:textStyle="bold"/>
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Monthly Card (Orange) -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/premium_card_monthly"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
+                    android:layout_marginBottom="16dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="4dp"
+                    app:strokeColor="#F97316"
+                    app:strokeWidth="2dp">
 
-                    <TextView
-                        android:id="@+id/premium_monthly_title"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Monthly Plan"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:textColor="#212121"/>
+                        android:orientation="vertical"
+                        android:padding="20dp"
+                        android:backgroundTint="#FFF7ED">
 
-                    <TextView
-                        android:id="@+id/premium_monthly_price"
-                        android:layout_width="wrap_content"
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="MOST POPULAR"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            android:textColor="#FFFFFF"
+                            android:paddingStart="8dp"
+                            android:paddingEnd="8dp"
+                            android:paddingTop="2dp"
+                            android:paddingBottom="2dp"
+                            android:background="@drawable/bg_popular_badge"
+                            android:layout_marginBottom="8dp"/>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <TextView
+                                android:id="@+id/premium_monthly_title"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:text="Monthly Plan"
+                                android:textSize="20sp"
+                                android:textStyle="bold"
+                                android:textColor="#F97316"/>
+
+                            <TextView
+                                android:id="@+id/premium_monthly_price"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="$4.99/month"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                android:textColor="#F97316"/>
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/premium_monthly_desc"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Full access to premium content and features for one month."
+                            android:layout_marginTop="8dp"
+                            android:textColor="#374151"/>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="16dp">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/premium_btn_monthly_details"
+                                style="@style/Widget.Material3.Button.OutlinedButton"
+                                android:layout_width="0dp"
+                                android:layout_height="56dp"
+                                android:layout_weight="1"
+                                android:text="View Details"
+                                android:textColor="#F97316"
+                                app:strokeColor="#F97316"
+                                app:cornerRadius="12dp"
+                                android:layout_marginEnd="8dp"/>
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/premium_btn_monthly_subscribe"
+                                android:layout_width="0dp"
+                                android:layout_height="56dp"
+                                android:layout_weight="1"
+                                android:text="Subscribe Monthly"
+                                android:backgroundTint="#F97316"
+                                android:textColor="#FFFFFF"
+                                app:cornerRadius="12dp"
+                                android:textStyle="bold"/>
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Yearly Card (Red - Best Value) -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/premium_card_yearly"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="6dp"
+                    app:strokeColor="#EF4444"
+                    app:strokeWidth="2dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="$4.99/month"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:textColor="#F57C00"/>
-                </LinearLayout>
+                        android:orientation="vertical"
+                        android:padding="20dp"
+                        android:backgroundTint="#FEF2F2">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="SAVE 33%"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            android:textColor="#FFFFFF"
+                            android:paddingStart="8dp"
+                            android:paddingEnd="8dp"
+                            android:paddingTop="2dp"
+                            android:paddingBottom="2dp"
+                            android:background="@drawable/bg_save_badge"
+                            android:layout_marginBottom="8dp"/>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <TextView
+                                android:id="@+id/premium_yearly_title"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:text="Yearly Plan (Best Value)"
+                                android:textSize="20sp"
+                                android:textStyle="bold"
+                                android:textColor="#EF4444"/>
+
+                            <TextView
+                                android:id="@+id/premium_yearly_price"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="$39.99/year"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                android:textColor="#EF4444"/>
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/premium_yearly_desc"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Save $20 over the monthly plan! Get full, unlimited access for an entire year."
+                            android:layout_marginTop="8dp"
+                            android:textColor="#374151"/>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="16dp">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/premium_btn_yearly_details"
+                                style="@style/Widget.Material3.Button.OutlinedButton"
+                                android:layout_width="0dp"
+                                android:layout_height="56dp"
+                                android:layout_weight="1"
+                                android:text="View Details"
+                                android:textColor="#EF4444"
+                                app:strokeColor="#EF4444"
+                                app:cornerRadius="12dp"
+                                android:layout_marginEnd="8dp"/>
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/premium_btn_yearly_subscribe"
+                                android:layout_width="0dp"
+                                android:layout_height="56dp"
+                                android:layout_weight="1"
+                                android:text="Subscribe Annually"
+                                android:backgroundTint="#EF4444"
+                                android:textColor="#FFFFFF"
+                                app:cornerRadius="12dp"
+                                android:textStyle="bold"/>
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
                 <TextView
-                    android:id="@+id/premium_monthly_desc"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Access all premium materials and ad-free experience for one month."
-                    android:layout_marginTop="8dp"
-                    android:textColor="#757575"/>
+                    android:text="What you get with Premium"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="#1F2937"
+                    android:layout_marginBottom="12dp"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="12dp"
-                    android:gravity="end">
-
-                    <Button
-                        android:id="@+id/premium_btn_monthly_details"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="View Details"
-                        android:backgroundTint="#BDBDBD"
-                        android:textColor="#FFFFFF"
-                        android:paddingStart="16dp"
-                        android:paddingEnd="16dp"
-                        android:background="@drawable/bg_button_rounded"/>
-
-                    <Button
-                        android:id="@+id/premium_btn_monthly_subscribe"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Subscribe"
-                        android:layout_marginStart="8dp"
-                        android:backgroundTint="#F57C00"
-                        android:textColor="#FFFFFF"
-                        android:paddingStart="16dp"
-                        android:paddingEnd="16dp"
-                        android:background="@drawable/bg_button_rounded"/>
-                </LinearLayout>
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-        <!-- Yearly Card -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/premium_card_yearly"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="6dp"
-            android:background="@android:color/white">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_features_container"
+                    android:padding="16dp">
 
                     <TextView
-                        android:id="@+id/premium_yearly_title"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Yearly Plan"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:textColor="#212121"/>
-
-                    <TextView
-                        android:id="@+id/premium_yearly_price"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="$39.99/year"
+                        android:text="Unlimited File Uploads"
                         android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:textColor="#D32F2F"/>
+                        android:textColor="#1F2937"
+                        android:drawableStart="@drawable/ic_check_circle"
+                        android:drawablePadding="12dp"
+                        app:drawableTint="#10B981"
+                        android:layout_marginBottom="8dp"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Priority Customer Support"
+                        android:textSize="16sp"
+                        android:textColor="#1F2937"
+                        android:drawableStart="@drawable/ic_check_circle"
+                        android:drawablePadding="12dp"
+                        app:drawableTint="#10B981"
+                        android:layout_marginBottom="8dp"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Completely Ad-Free Experience"
+                        android:textSize="16sp"
+                        android:textColor="#1F2937"
+                        android:drawableStart="@drawable/ic_check_circle"
+                        android:drawablePadding="12dp"
+                        app:drawableTint="#10B981"
+                        android:layout_marginBottom="8dp"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Exclusive Access to Advanced AI Tools"
+                        android:textSize="16sp"
+                        android:textColor="#1F2937"
+                        android:drawableStart="@drawable/ic_check_circle"
+                        android:drawablePadding="12dp"
+                        app:drawableTint="#10B981"/>
                 </LinearLayout>
 
-                <TextView
-                    android:id="@+id/premium_yearly_desc"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Best value plan! Get full access for an entire year"
-                    android:layout_marginTop="8dp"
-                    android:textColor="#757575"/>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="12dp"
-                    android:gravity="end">
-
-                    <Button
-                        android:id="@+id/premium_btn_yearly_details"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="View Details"
-                        android:backgroundTint="#BDBDBD"
-                        android:textColor="#FFFFFF"
-                        android:paddingStart="16dp"
-                        android:paddingEnd="16dp"
-                        android:background="@drawable/bg_button_rounded"/>
-
-                    <Button
-                        android:id="@+id/premium_btn_yearly_subscribe"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Subscribe"
-                        android:layout_marginStart="8dp"
-                        android:backgroundTint="#D32F2F"
-                        android:textColor="#FFFFFF"
-                        android:paddingStart="16dp"
-                        android:paddingEnd="16dp"
-                        android:background="@drawable/bg_button_rounded"/>
-                </LinearLayout>
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-    </LinearLayout>
-</ScrollView>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -10,7 +10,6 @@ public class CryptoUtil {
     private static final String ALGORITHM = "AES";
     private static final String KEY = "1234567890123456";
 
-    // Mã hóa AES
     public static String encrypt(String data) {
         try {
             SecretKeySpec keySpec = new SecretKeySpec(KEY.getBytes(), ALGORITHM);

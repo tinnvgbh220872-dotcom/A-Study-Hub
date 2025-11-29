@@ -10,10 +10,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.final_project.SQL.UserDatabase;
 import com.example.final_project.R;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -26,8 +24,8 @@ public class WalletActivity extends AppCompatActivity {
     private Button btnTopUp;
     private UserDatabase db;
     private TransactionAdapter adapter;
-    private String userEmail;
     private ArrayList<Transaction> list = new ArrayList<>();
+    private String userEmail;
     private static final int TOPUP_REQUEST_CODE = 1001;
 
     @Override
@@ -77,6 +75,8 @@ public class WalletActivity extends AppCompatActivity {
             if (topupAmount > 0) {
                 String now = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(new Date());
                 db.insertTransaction(userEmail, "Top Up", topupAmount, now);
+                double currentBalance = db.getBalance(userEmail);
+                db.updateBalance(userEmail, currentBalance + topupAmount);
                 loadData();
             }
         }
@@ -85,14 +85,13 @@ public class WalletActivity extends AppCompatActivity {
     private void loadData() {
         list.clear();
         Cursor c = db.getTransactionsByEmail(userEmail);
-        double balance = 0;
+        double balance = db.getBalance(userEmail);
         if (c != null && c.moveToFirst()) {
             do {
                 String type = c.getString(c.getColumnIndexOrThrow("type"));
                 double amount = c.getDouble(c.getColumnIndexOrThrow("amount"));
                 String date = c.getString(c.getColumnIndexOrThrow("date"));
                 list.add(new Transaction(type, Math.abs(amount), date));
-                balance += amount;
             } while (c.moveToNext());
             c.close();
             tvEmpty.setVisibility(android.view.View.GONE);
@@ -100,7 +99,6 @@ public class WalletActivity extends AppCompatActivity {
             tvEmpty.setVisibility(android.view.View.VISIBLE);
         }
         adapter.notifyDataSetChanged();
-
         if (balance == (long) balance) {
             tvBalance.setText((long) balance + "$");
         } else {

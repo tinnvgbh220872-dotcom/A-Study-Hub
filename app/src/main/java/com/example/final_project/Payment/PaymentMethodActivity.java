@@ -49,15 +49,13 @@ public class PaymentMethodActivity extends AppCompatActivity {
         isPremium = getIntent().getBooleanExtra("isPremium", false);
         paymentAmount = getIntent().getDoubleExtra("paymentAmount", 0.0);
 
-        android.util.Log.d("PaymentMethod", "email=" + userEmail + ", amount=" + paymentAmount + ", isPremium=" + isPremium);
-
         if (userEmail == null || userEmail.isEmpty()) {
             Toast.makeText(this, "User email missing!", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
 
-        if (paymentAmount < 0) {
+        if (paymentAmount <= 0) {
             Toast.makeText(this, "Invalid payment amount!", Toast.LENGTH_SHORT).show();
             finish();
             return;
@@ -84,18 +82,13 @@ public class PaymentMethodActivity extends AppCompatActivity {
 
     private void selectMethod(String method) {
         selectedMethod = method;
-        if (!method.equals("MoMo")) layoutMoMoQR.setVisibility(View.GONE);
-        if (!method.equals("VN Bank")) layoutVNBankQR.setVisibility(View.GONE);
+        if (!method.equals("MoMo")) layoutMoMoQR.setVisibility(android.view.View.GONE);
+        if (!method.equals("VN Bank")) layoutVNBankQR.setVisibility(android.view.View.GONE);
     }
 
     private void confirmPayment() {
         if (selectedMethod.isEmpty()) {
             Toast.makeText(this, "Select a payment method.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (paymentAmount <= 0) {
-            Toast.makeText(this, "Invalid amount.", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -121,7 +114,10 @@ public class PaymentMethodActivity extends AppCompatActivity {
             return;
         }
 
-        if (isPremium) {
+        if (!isPremium) {
+            double newBalance = currentBalance + paymentAmount;
+            userDatabase.updateBalance(userEmail, newBalance);
+        } else {
             double newBalance = currentBalance - paymentAmount;
             userDatabase.updateBalance(userEmail, newBalance);
             userDatabase.updatePremiumStatus(userEmail, 1);
@@ -134,5 +130,6 @@ public class PaymentMethodActivity extends AppCompatActivity {
         intent.putExtra("isPremium", isPremium);
         intent.putExtra("paymentAmount", paymentAmount);
         startActivity(intent);
+        finish();
     }
 }

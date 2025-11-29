@@ -7,9 +7,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.example.final_project.SQL.UserDatabase;
 import com.example.final_project.R;
+import com.example.final_project.Security.CryptoUtil;
 
 public class ResetPasswordActivity extends AppCompatActivity {
 
@@ -67,7 +67,11 @@ public class ResetPasswordActivity extends AppCompatActivity {
             return;
         }
 
-        boolean updated = userDatabase.updatePassword(emailFromIntent, newPassword);
+        String hashedNewPassword = CryptoUtil.hashPassword(newPassword);
+        String encryptedEmail = CryptoUtil.encrypt(emailFromIntent);
+
+        boolean updated = userDatabase.updatePassword(emailFromIntent, hashedNewPassword);
+
         if (updated) {
             Toast.makeText(this, "Password reset successfully!", Toast.LENGTH_LONG).show();
             Intent intent = new Intent(this, LoginActivity.class);
